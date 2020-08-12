@@ -2,7 +2,10 @@
   "name": "sinamon-backend",
   "version": "0.1.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon",
+    "build": "tsc",
+    "start:production": "node ./dist/server.js",
+    "lint": "eslint src/**/*.ts[x]"
   },
   "repository": {
     "type": "git",
