@@ -28,3 +28,6 @@ yarn.lock
 
 # environment variables
 .env
+
+# log
+/logs
