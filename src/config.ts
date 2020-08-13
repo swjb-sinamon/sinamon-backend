@@ -9,7 +9,8 @@ const config = {
     userName: process.env.DATABASE_USERNAME! || 'root',
     password: process.env.DATABASE_PASSWORD! || 'password',
     db: process.env.DATABASE_DB! || 'sinamon'
-  }
+  },
+  frontendHost: process.env.FRONTEND_HOST!
 };
 
 export default config;
