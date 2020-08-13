@@ -2,6 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv';
 import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import config from './config';
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -33,3 +35,8 @@ app.set('trust proxy', true);
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(session({
+  secret: config.sessionSecret,
+  resave: false,
+  saveUninitialized: true
+}));
