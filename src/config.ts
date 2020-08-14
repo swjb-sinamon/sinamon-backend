@@ -11,7 +11,8 @@ const config = {
     db: process.env.DATABASE_DB! || 'sinamon'
   },
   frontendHost: process.env.FRONTEND_HOST!,
-  sessionSecret: process.env.SESSION_SECRET!
+  sessionSecret: process.env.SESSION_SECRET!,
+  saltRound: parseInt(process.env.BCRYPT_SALT_ROUNDS!, 10)
 };
 
 export default config;
