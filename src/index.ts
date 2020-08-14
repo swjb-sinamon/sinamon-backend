@@ -9,6 +9,7 @@ import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
 import sequelize from './databases';
+import AuthRouter from './routers/AuthRouter';
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -56,3 +57,5 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 AuthPassport();
+
+app.use('/auth', AuthRouter);
