@@ -7,7 +7,7 @@ import { logger } from '../index';
 
 const authLocalStrategy = (): void => {
   passport.use('login', new LocalStrategy({
-    usernameField: 'id',
+    usernameField: 'email',
     passwordField: 'password'
   }, async (email, password, done) => {
     try {
