@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import passport from 'passport';
 import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
@@ -48,5 +49,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 AuthPassport();
