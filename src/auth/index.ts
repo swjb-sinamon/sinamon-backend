@@ -1,5 +1,6 @@
 import passport from 'passport';
-import AuthLocalStrategy from './local-strategy';
+import LoginStrategy from './login-strategy';
+import RegisterStrategy from './register-strategy';
 
 const authPassport = (): void => {
   passport.serializeUser((user, done) => {
@@ -10,7 +11,8 @@ const authPassport = (): void => {
     done(null, user);
   });
 
-  AuthLocalStrategy();
+  LoginStrategy();
+  RegisterStrategy();
 };
 
 export default authPassport;
