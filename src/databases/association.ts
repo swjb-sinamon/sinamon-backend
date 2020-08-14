@@ -6,16 +6,16 @@ import OnlineTimeTables from './models/online-time-tables';
 
 const databaseAssociation = (): void => {
   // Users, Rentals 1:1
-  Users.hasOne(Rentals, { foreignKey: 'lender', sourceKey: 'uuid' });
-  Rentals.belongsTo(Users, { foreignKey: 'uuid', targetKey: 'lender' });
+  Users.hasOne(Rentals, { foreignKey: 'lender' });
+  Rentals.belongsTo(Users, { foreignKey: 'uuid' });
 
   // Umbrellas, Rentals 1:1
-  Umbrellas.hasOne(Rentals, { foreignKey: 'umbrellaName', sourceKey: 'name' });
-  Rentals.belongsTo(Users, { foreignKey: 'name', targetKey: 'umbrellaName' });
+  Umbrellas.hasOne(Rentals, { foreignKey: 'umbrellaName' });
+  Rentals.belongsTo(Users, { foreignKey: 'name' });
 
   // Subjects, OnlineTimeTables 1:N
-  Subjects.hasMany(OnlineTimeTables, { foreignKey: 'subjectId', sourceKey: 'id' });
-  OnlineTimeTables.belongsTo(Subjects, { foreignKey: 'id', targetKey: 'subjectId' });
+  Subjects.hasMany(OnlineTimeTables, { foreignKey: 'subjectId' });
+  OnlineTimeTables.belongsTo(Subjects, { foreignKey: 'id' });
 };
 
 export default databaseAssociation;
