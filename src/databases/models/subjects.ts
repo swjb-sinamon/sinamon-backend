@@ -29,8 +29,4 @@ Subjects.init(
   { sequelize, modelName: 'subjects', timestamps: false }
 );
 
-(async () => {
-  await sequelize.query('ALTER TABLE subjects AUTO_INCREMENT=100;');
-})();
-
 export default Subjects;

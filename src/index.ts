@@ -8,6 +8,7 @@ import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
+import sequelize from './databases';
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -35,8 +36,10 @@ log4js.configure({
 });
 logger.level = 'ALL';
 
-db.sync().then(() => {
+db.sync().then(async () => {
   DatabaseAssociation();
+  await sequelize.query('ALTER TABLE subjects AUTO_INCREMENT=100;');
+  await sequelize.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
 });
 

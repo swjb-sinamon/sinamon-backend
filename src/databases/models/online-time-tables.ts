@@ -64,8 +64,4 @@ OnlineTimeTables.init(
   { sequelize, modelName: 'onlinetimetables', timestamps: false }
 );
 
-(async () => {
-  await sequelize.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
-})();
-
 export default OnlineTimeTables;
