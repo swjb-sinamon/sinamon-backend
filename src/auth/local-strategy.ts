@@ -17,10 +17,10 @@ const authLocalStrategy = (): void => {
         }
       });
 
-      if (!user) return done(new Error(ErrorMessage.USER_NOT_FOUND), false);
+      if (!user) return done(null, false, { message: ErrorMessage.USER_NOT_FOUND });
 
       const compared = bcrypt.compareSync(password, user.password);
-      if (!compared) return done(new Error(ErrorMessage.USER_NOT_FOUND), false);
+      if (!compared) return done(null, false, { message: ErrorMessage.USER_NOT_FOUND });
 
       logger.info(`${user.uuid} ${user.email} 님이 로그인 중입니다.`);
 
