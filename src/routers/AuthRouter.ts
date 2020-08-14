@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import { makeError, makeValidationError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
+import Users from '../databases/models/users';
 
 const router = express.Router();
 
@@ -45,6 +46,62 @@ router.post('/login', loginValidator, (req: express.Request, res: express.Respon
         data: user
       });
     });
+  })(req, res, next);
+});
+
+const registerValidator = [
+  body('email').isEmail(),
+  body('password').isLength({ min: 6 }),
+  body('name').isString(),
+  body('studentGrade').isNumeric(),
+  body('studentClass').isNumeric(),
+  body('studentNumber').isNumeric()
+];
+router.post('/register', registerValidator, (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json(makeValidationError(errors.array()));
+    return;
+  }
+
+  passport.authenticate('register', async (error, user, info) => {
+    if (error) {
+      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
+      logger.error(error);
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      return;
+    }
+
+    if (info) {
+      if (info.message === ErrorMessage.USER_ALREADY_EXISTS) {
+        res.status(409).json(makeError(ErrorMessage.USER_ALREADY_EXISTS));
+      }
+      return;
+    }
+
+    try {
+      const { email, name, studentGrade, studentClass, studentNumber } = req.body;
+
+      const [, changes] = await Users.update({
+        name,
+        studentGrade,
+        studentClass,
+        studentNumber
+      }, {
+        where: {
+          email
+        }
+      });
+
+      res.status(200).json({
+        success: true,
+        data: changes[0]
+      });
+    } catch (e) {
+      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
+      logger.error(error);
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    }
   })(req, res, next);
 });
 
