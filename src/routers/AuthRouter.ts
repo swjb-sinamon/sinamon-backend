@@ -45,9 +45,12 @@ router.post('/login', loginValidator, (req: express.Request, res: express.Respon
 
       logger.info(`${user.uuid} ${user.email} 님이 로그인하였습니다.`);
 
+      const sendedUser = user;
+      delete sendedUser.password;
+
       res.status(200).json({
         success: true,
-        data: user
+        data: sendedUser
       });
     });
   })(req, res, next);
@@ -86,7 +89,7 @@ router.post('/register', registerValidator, (req: express.Request, res: express.
     try {
       const { email, name, studentGrade, studentClass, studentNumber } = req.body;
 
-      const [, changes] = await Users.update({
+      await Users.update({
         name,
         studentGrade,
         studentClass,
@@ -99,9 +102,12 @@ router.post('/register', registerValidator, (req: express.Request, res: express.
 
       logger.info(`${user.uuid} ${user.email} 님이 회원가입하였습니다.`);
 
+      const sendedUser = user;
+      delete sendedUser.password;
+
       res.status(200).json({
         success: true,
-        data: changes[0]
+        data: sendedUser
       });
     } catch (e) {
       logger.error('회원가입 완료 중 오류가 발생하였습니다.');
