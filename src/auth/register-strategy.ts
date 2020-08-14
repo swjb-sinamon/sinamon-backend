@@ -5,7 +5,6 @@ import uuid from 'uuid';
 import Users from '../databases/models/users';
 import ErrorMessage from '../error/error-message';
 import config from '../config';
-import { logger } from '../index';
 
 export default () => {
   passport.use('register', new LocalStrategy({
@@ -37,8 +36,6 @@ export default () => {
 
       return done(null, user);
     } catch (e) {
-      logger.error('회원가입 진행 중 오류가 발생하였습니다.');
-      logger.error(e);
       return done(e);
     }
   }));
