@@ -23,6 +23,7 @@ router.post('/login', loginValidator, (req: express.Request, res: express.Respon
     if (error) {
       logger.error('로그인 완료 중 오류가 발생하였습니다.');
       logger.error(error);
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
       return;
     }
 
@@ -38,8 +39,11 @@ router.post('/login', loginValidator, (req: express.Request, res: express.Respon
       if (err) {
         logger.error('로그인 완료 중 오류가 발생하였습니다.');
         logger.error(err);
+        res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
         return;
       }
+
+      logger.info(`${user.uuid} ${user.email} 님이 로그인하였습니다.`);
 
       res.status(200).json({
         success: true,
@@ -92,6 +96,8 @@ router.post('/register', registerValidator, (req: express.Request, res: express.
           email
         }
       });
+
+      logger.info(`${user.uuid} ${user.email} 님이 회원가입하였습니다.`);
 
       res.status(200).json({
         success: true,
