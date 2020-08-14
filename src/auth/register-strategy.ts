@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import Users from '../databases/models/users';
 import ErrorMessage from '../error/error-message';
 import config from '../config';
@@ -24,7 +24,7 @@ export default () => {
 
       const hashed = await bcrypt.hash(password, config.saltRound);
       const user = await Users.create({
-        uuid: uuid.v4(),
+        uuid: uuidv4(),
         email,
         password: hashed,
         isAdmin: false,
