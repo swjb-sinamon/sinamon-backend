@@ -1,7 +1,5 @@
 import { Sequelize } from 'sequelize';
 import config from '../config';
-import { logger } from '../index';
-import DatabaseAssociation from './association';
 
 const db = new Sequelize(
   config.database.db,
@@ -15,9 +13,5 @@ const db = new Sequelize(
     timezone: '+09:00'
   }
 );
-
-db.sync().then(() => logger.info('Database connect completed successfully'));
-
-DatabaseAssociation();
 
 export default db;

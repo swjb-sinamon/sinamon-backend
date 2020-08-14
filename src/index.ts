@@ -4,6 +4,9 @@ import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import config from './config';
+import AuthPassport from './auth';
+import DatabaseAssociation from './databases/association';
+import db from './databases';
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -31,6 +34,11 @@ log4js.configure({
 });
 logger.level = 'ALL';
 
+db.sync().then(() => {
+  DatabaseAssociation();
+  logger.info('Database connect completed successfully');
+});
+
 app.set('trust proxy', true);
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
@@ -40,3 +48,5 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+
+AuthPassport();
