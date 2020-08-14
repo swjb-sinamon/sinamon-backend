@@ -58,4 +58,8 @@ app.use(passport.session());
 
 AuthPassport();
 
+app.use('*', (req, res, next) => {
+  logger.info(`${req.ip} ${req.method} ${req.originalUrl} ${req.get('User-Agent')}`);
+  next();
+});
 app.use('/auth', AuthRouter);
