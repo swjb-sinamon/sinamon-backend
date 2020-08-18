@@ -4,15 +4,17 @@ import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
+import rateLimit from 'express-rate-limit';
 import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
-import sequelize from './databases';
 import AuthRouter from './routers/AuthRouter';
 
 export const app = express();
 export const logger = log4js.getLogger();
+
+const RATE_MINUTES = 1;
 
 dotenv.config();
 
@@ -39,8 +41,8 @@ logger.level = 'ALL';
 
 db.sync().then(async () => {
   DatabaseAssociation();
-  await sequelize.query('ALTER TABLE subjects AUTO_INCREMENT=100;');
-  await sequelize.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE subjects AUTO_INCREMENT=100;');
+  await db.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
 });
 
@@ -58,6 +60,10 @@ app.use(passport.session());
 
 AuthPassport();
 
+app.use(rateLimit({
+  windowMs: RATE_MINUTES * 60 * 1000,
+  max: 500
+}));
 app.use('*', (req, res, next) => {
   logger.info(`${req.ip} ${req.method} ${req.originalUrl} ${req.get('User-Agent')}`);
   next();
