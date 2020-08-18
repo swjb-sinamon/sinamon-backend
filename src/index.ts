@@ -39,8 +39,8 @@ log4js.configure({
 });
 logger.level = 'ALL';
 
+DatabaseAssociation();
 db.sync().then(async () => {
-  DatabaseAssociation();
   await db.query('ALTER TABLE subjects AUTO_INCREMENT=100;');
   await db.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
