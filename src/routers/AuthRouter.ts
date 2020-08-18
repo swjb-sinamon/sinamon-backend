@@ -4,7 +4,7 @@ import { body, validationResult } from 'express-validator';
 import { makeError, makeValidationError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import Users from '../databases/models/users';
+import { registerUser } from '../services/AuthService';
 
 const router = express.Router();
 
@@ -89,33 +89,14 @@ router.post('/register', registerValidator, (req: express.Request, res: express.
     try {
       const { email, name, studentGrade, studentClass, studentNumber } = req.body;
 
-      await Users.update({
-        name,
-        studentGrade,
-        studentClass,
-        studentNumber
-      }, {
-        where: {
-          email
-        }
-      });
-
-      logger.info(`${user.uuid} ${user.email} 님이 회원가입하였습니다.`);
-
-      const sendedUser = await Users.findOne({
-        where: {
-          email
-        }
-      });
-
-      if (!sendedUser) return;
-
-      sendedUser.password = '';
+      const result = registerUser({ email, name, studentGrade, studentClass, studentNumber });
 
       res.status(200).json({
         success: true,
-        data: sendedUser
+        data: result
       });
+
+      logger.info(`${user.uuid} ${user.email} 님이 회원가입하였습니다.`);
     } catch (e) {
       logger.error('회원가입 완료 중 오류가 발생하였습니다.');
       logger.error(error);
