@@ -10,6 +10,7 @@ interface UsersAttributes {
   studentNumber?: number;
   password: string;
   isAdmin: boolean;
+  isTeacher: boolean;
 }
 
 class Users extends Model<UsersAttributes> {
@@ -28,6 +29,8 @@ class Users extends Model<UsersAttributes> {
   public password!: string;
 
   public isAdmin!: boolean;
+
+  public isTeacher!: boolean;
 
   public readonly createdAt!: Date;
 
@@ -68,6 +71,10 @@ Users.init(
       allowNull: false
     },
     isAdmin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    },
+    isTeacher: {
       type: DataTypes.BOOLEAN,
       allowNull: false
     }

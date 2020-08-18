@@ -27,7 +27,8 @@ export default () => {
         uuid: uuidv4(),
         email,
         password: hashed,
-        isAdmin: false
+        isAdmin: false,
+        isTeacher: true
       });
 
       return done(null, user);
