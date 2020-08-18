@@ -27,11 +27,7 @@ export default () => {
         uuid: uuidv4(),
         email,
         password: hashed,
-        isAdmin: false,
-        name: '홍길동',
-        studentGrade: 1,
-        studentClass: 1,
-        studentNumber: 1
+        isAdmin: false
       });
 
       return done(null, user);

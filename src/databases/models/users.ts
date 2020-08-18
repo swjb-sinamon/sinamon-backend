@@ -4,10 +4,10 @@ import sequelize from '../index';
 interface UsersAttributes {
   uuid: string;
   email: string;
-  name: string;
-  studentGrade: number;
-  studentClass: number;
-  studentNumber: number;
+  name?: string;
+  studentGrade?: number;
+  studentClass?: number;
+  studentNumber?: number;
   password: string;
   isAdmin: boolean;
 }
@@ -49,19 +49,19 @@ Users.init(
     },
     name: {
       type: DataTypes.CHAR,
-      allowNull: false
+      allowNull: true
     },
     studentGrade: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     studentClass: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     studentNumber: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     password: {
       type: DataTypes.STRING,
