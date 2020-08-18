@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../index';
 
 interface SubjectsAttributes {
-  id: number;
+  id?: number;
   subjectName: string;
 }
 

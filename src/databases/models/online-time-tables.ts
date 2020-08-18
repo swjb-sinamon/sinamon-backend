@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../index';
 
 interface OnlineTimeTablesAttributes {
-  id: number;
+  id?: number;
   subjectId: number;
   teacher: string;
   type: string;
