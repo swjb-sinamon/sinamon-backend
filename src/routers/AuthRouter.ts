@@ -46,7 +46,7 @@ router.post('/login', loginValidator, (req: express.Request, res: express.Respon
       logger.info(`${user.uuid} ${user.email} 님이 로그인하였습니다.`);
 
       const sendedUser = user;
-      delete sendedUser.password;
+      sendedUser.password = '';
 
       res.status(200).json({
         success: true,
@@ -102,8 +102,15 @@ router.post('/register', registerValidator, (req: express.Request, res: express.
 
       logger.info(`${user.uuid} ${user.email} 님이 회원가입하였습니다.`);
 
-      const sendedUser = user;
-      delete sendedUser.password;
+      const sendedUser = await Users.findOne({
+        where: {
+          email
+        }
+      });
+
+      if (!sendedUser) return;
+
+      sendedUser.password = '';
 
       res.status(200).json({
         success: true,
@@ -115,6 +122,23 @@ router.post('/register', registerValidator, (req: express.Request, res: express.
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
     }
   })(req, res, next);
+});
+
+router.get('/me', (req: express.Request, res: express.Response) => {
+  if (!req.isAuthenticated()) {
+    res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
+    return;
+  }
+
+  const sendedUser: any = req.user;
+  if (!sendedUser) return;
+
+  sendedUser.password = '';
+
+  res.status(200).json({
+    success: true,
+    data: sendedUser
+  });
 });
 
 export default router;
