@@ -45,12 +45,12 @@ router.post('/login', loginValidator, (req: express.Request, res: express.Respon
 
       logger.info(`${user.uuid} ${user.email} 님이 로그인하였습니다.`);
 
-      const sendedUser = user;
-      sendedUser.password = '';
+      const result = user;
+      result.password = '';
 
       res.status(200).json({
         success: true,
-        data: sendedUser
+        data: result
       });
     });
   })(req, res, next);
@@ -111,14 +111,14 @@ router.get('/me', (req: express.Request, res: express.Response) => {
     return;
   }
 
-  const sendedUser: any = req.user;
-  if (!sendedUser) return;
+  const result: any = req.user;
+  if (!result) return;
 
-  sendedUser.password = '';
+  result.password = '';
 
   res.status(200).json({
     success: true,
-    data: sendedUser
+    data: result
   });
 });
 
