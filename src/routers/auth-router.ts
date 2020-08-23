@@ -1,10 +1,12 @@
 import express from 'express';
 import passport from 'passport';
-import { body, validationResult } from 'express-validator';
-import { makeError, makeValidationError } from '../error/error-system';
+import { body } from 'express-validator';
+import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
 import { registerUser } from '../services/auth-service';
+import { requireAuthenticated } from '../middlewares/permission';
+import { checkValidation } from '../middlewares/validator';
 
 const router = express.Router();
 
@@ -12,13 +14,7 @@ const loginValidator = [
   body('email').isEmail(),
   body('password').isLength({ min: 6 })
 ];
-router.post('/login', loginValidator, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(400).json(makeValidationError(errors.array()));
-    return;
-  }
-
+router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('login', (error, user, info) => {
     if (error) {
       logger.error('로그인 완료 중 오류가 발생하였습니다.');
@@ -64,13 +60,7 @@ const registerValidator = [
   body('studentClass').isNumeric(),
   body('studentNumber').isNumeric()
 ];
-router.post('/register', registerValidator, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(400).json(makeValidationError(errors.array()));
-    return;
-  }
-
+router.post('/register', registerValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('register', async (error, user, info) => {
     if (error) {
       logger.error('회원가입 완료 중 오류가 발생하였습니다.');
@@ -105,12 +95,7 @@ router.post('/register', registerValidator, (req: express.Request, res: express.
   })(req, res, next);
 });
 
-router.get('/me', (req: express.Request, res: express.Response) => {
-  if (!req.isAuthenticated()) {
-    res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
-    return;
-  }
-
+router.get('/me', requireAuthenticated, (req: express.Request, res: express.Response) => {
   const result: any = req.user;
   if (!result) return;
 
