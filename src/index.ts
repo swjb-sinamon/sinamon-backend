@@ -10,6 +10,7 @@ import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
 import AuthRouter from './routers/auth-router';
+import SubjectRouter from './routers/subject-router';
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -68,4 +69,6 @@ app.use('*', (req, res, next) => {
   logger.info(`${req.ip} ${req.method} ${req.originalUrl} ${req.get('User-Agent')}`);
   next();
 });
+
 app.use('/auth', AuthRouter);
+app.use('/subject', SubjectRouter);
