@@ -9,7 +9,7 @@ import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
-import AuthRouter from './routers/AuthRouter';
+import AuthRouter from './routers/auth-router';
 
 export const app = express();
 export const logger = log4js.getLogger();

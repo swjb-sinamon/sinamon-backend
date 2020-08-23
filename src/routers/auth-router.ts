@@ -4,7 +4,7 @@ import { body, validationResult } from 'express-validator';
 import { makeError, makeValidationError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import { registerUser } from '../services/AuthService';
+import { registerUser } from '../services/auth-service';
 
 const router = express.Router();
 
