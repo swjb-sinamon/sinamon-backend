@@ -1,0 +1,1 @@
+type UmbrellaStatus = 'good' | 'worse';
