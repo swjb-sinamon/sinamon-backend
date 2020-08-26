@@ -1,1 +1,1 @@
-type UmbrellaStatus = 'good' | 'worse';
+export type UmbrellaStatus = 'good' | 'worse';
