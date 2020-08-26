@@ -3,13 +3,13 @@ import sequelize from '../index';
 
 interface UmbrellasAttributes {
   name: string;
-  status: number;
+  status: string;
 }
 
 class Umbrellas extends Model<UmbrellasAttributes> {
   public name!: string;
 
-  public status!: number;
+  public status!: string;
 
   public readonly createdAt!: Date;
 
@@ -25,7 +25,7 @@ Umbrellas.init(
       primaryKey: true
     },
     status: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.CHAR,
       allowNull: false
     }
   },
