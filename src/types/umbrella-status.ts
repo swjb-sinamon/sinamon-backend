@@ -1,1 +1,6 @@
-export type UmbrellaStatus = 'good' | 'worse';
+enum UmbrellaStatus {
+  GOOD = 'good',
+  WORSE = 'worse'
+}
+
+export default UmbrellaStatus;

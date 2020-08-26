@@ -1,5 +1,5 @@
 import Umbrellas from '../databases/models/umbrellas';
-import { UmbrellaStatus } from '../types/umbrella-status';
+import UmbrellaStatus from '../types/umbrella-status';
 
 export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   const result = await Umbrellas.findAll();
