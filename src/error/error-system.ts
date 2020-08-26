@@ -1,5 +1,5 @@
 import { ValidationError } from 'express-validator';
-import { ErrorPayload } from '../payloads/rest-payload';
+import { ErrorPayload } from '../types/rest-payload';
 import ErrorMessage from './error-message';
 
 export const makeValidationError = (errors: ValidationError[]):
