@@ -6,7 +6,10 @@ enum ErrorMessage {
   USER_ALREADY_EXISTS = '이미 존재하는 이메일입니다.',
 
   SUBJECT_NOT_FOUND = '존재하지 않는 과목입니다.',
-  SUBJECT_ALREADY_EXISTS = '이미 존재하는 과목입니다.'
+  SUBJECT_ALREADY_EXISTS = '이미 존재하는 과목입니다.',
+
+  UMBRELLA_NOT_FOUND = '존재하지 않는 우산입니다.',
+  UMBRELLA_ALREADY_EXISTS = '이미 존재하는 우산입니다.'
 }
 
 export default ErrorMessage;
