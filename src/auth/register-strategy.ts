@@ -28,7 +28,7 @@ export default () => {
         email,
         password: hashed,
         isAdmin: false,
-        isTeacher: true
+        isTeacher: false
       });
 
       return done(null, user);
