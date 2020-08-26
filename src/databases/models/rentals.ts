@@ -52,7 +52,7 @@ Rentals.init(
       allowNull: false
     }
   },
-  { sequelize, modelName: 'rentals', timestamps: true }
+  { sequelize, modelName: 'rentals', timestamps: true, paranoid: true }
 );
 
 export default Rentals;
