@@ -21,7 +21,7 @@ const getSubjectValidator = [
 ];
 router.get('/:id', getSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   const { id } = req.params;
-  const data = getSubject(parseInt(id, 10));
+  const data = await getSubject(parseInt(id, 10));
 
   if (!data) {
     res.status(404).json(makeError(ErrorMessage.SUBJECT_NOT_FOUND));

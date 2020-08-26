@@ -60,7 +60,7 @@ const registerValidator = [
   body('studentClass').isNumeric(),
   body('studentNumber').isNumeric()
 ];
-router.post('/register', registerValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('register', async (error, user, info) => {
     if (error) {
       logger.error('회원가입 완료 중 오류가 발생하였습니다.');
@@ -79,7 +79,7 @@ router.post('/register', registerValidator, checkValidation, (req: express.Reque
     try {
       const { email, name, studentGrade, studentClass, studentNumber } = req.body;
 
-      const result = registerUser({ email, name, studentGrade, studentClass, studentNumber });
+      const result = await registerUser({ email, name, studentGrade, studentClass, studentNumber });
 
       res.status(200).json({
         success: true,
