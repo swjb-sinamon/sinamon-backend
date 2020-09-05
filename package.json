@@ -15,7 +15,6 @@
   "bugs": {
     "url": "https://github.com/swjb-sinamon/sinamon-backend/issues"
   },
-  "homepage": "https://github.com/swjb-sinamon/sinamon-backend#readme",
   "dependencies": {
     "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.5",
