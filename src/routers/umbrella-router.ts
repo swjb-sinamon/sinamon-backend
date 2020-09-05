@@ -12,7 +12,7 @@ import { logger } from '../index';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { checkValidation } from '../middlewares/validator';
-import UmbrellaStatus from '../types/umbrella-status';
+import { UmbrellaStatus } from '../types';
 
 const router = express.Router();
 
