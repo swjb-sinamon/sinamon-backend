@@ -1,12 +1,12 @@
 import Umbrellas from '../databases/models/umbrellas';
-import { UmbrellaStatus } from '../types';
+import { AlreadyExists, NotFound, UmbrellaStatus } from '../types';
 
 export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   const result = await Umbrellas.findAll();
   return result;
 };
 
-export const getUmbrella = async (name: string): Promise<Umbrellas | undefined> => {
+export const getUmbrella = async (name: string): Promise<Umbrellas | NotFound> => {
   const result = await Umbrellas.findOne({
     where: {
       name
@@ -21,7 +21,7 @@ export const getUmbrella = async (name: string): Promise<Umbrellas | undefined> 
 };
 
 export const createUmbrella = async (name: string, status: UmbrellaStatus):
-  Promise<Umbrellas | undefined> => {
+  Promise<Umbrellas | AlreadyExists> => {
   const current = await Umbrellas.findOne({
     where: {
       name
@@ -41,7 +41,7 @@ export const createUmbrella = async (name: string, status: UmbrellaStatus):
 };
 
 export const updateUmbrella = async (name: string, status: UmbrellaStatus):
-  Promise<Umbrellas | undefined> => {
+  Promise<Umbrellas | NotFound> => {
   const current = await Umbrellas.findOne({
     where: {
       name
@@ -59,7 +59,7 @@ export const updateUmbrella = async (name: string, status: UmbrellaStatus):
   return current;
 };
 
-export const removeUmbrella = async (name: string): Promise<Umbrellas | undefined> => {
+export const removeUmbrella = async (name: string): Promise<Umbrellas | NotFound> => {
   const current = await Umbrellas.findOne({
     where: {
       name

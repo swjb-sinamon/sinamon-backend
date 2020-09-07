@@ -1,4 +1,5 @@
 import Users from '../databases/models/users';
+import { NotFound } from '../types';
 
 interface UserInfoParams {
   readonly email: string;
@@ -10,7 +11,7 @@ interface UserInfoParams {
 
 // eslint-disable-next-line import/prefer-default-export
 export const registerUser = async (userInfo: UserInfoParams):
-  Promise<Record<string, any> | undefined> => {
+  Promise<Record<string, any> | NotFound> => {
   const { email, name, studentGrade, studentClass, studentNumber } = userInfo;
 
   await Users.update({

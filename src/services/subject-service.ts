@@ -1,11 +1,12 @@
 import Subjects from '../databases/models/subjects';
+import { AlreadyExists, NotFound } from '../types';
 
 export const getSubjects = async (): Promise<Subjects[]> => {
   const result = await Subjects.findAll();
   return result;
 };
 
-export const getSubject = async (id: number): Promise<Subjects | undefined> => {
+export const getSubject = async (id: number): Promise<Subjects | NotFound> => {
   const result = await Subjects.findOne({
     where: {
       id
@@ -19,7 +20,7 @@ export const getSubject = async (id: number): Promise<Subjects | undefined> => {
   return result;
 };
 
-export const createSubject = async (subjectName: string): Promise<Subjects | undefined> => {
+export const createSubject = async (subjectName: string): Promise<Subjects | AlreadyExists> => {
   const current = await Subjects.findOne({
     where: {
       subjectName
@@ -38,7 +39,7 @@ export const createSubject = async (subjectName: string): Promise<Subjects | und
 };
 
 export const updateSubject = async (id: number, subjectName: string):
-  Promise<Subjects | undefined> => {
+  Promise<Subjects | NotFound> => {
   const current = await Subjects.findOne({
     where: {
       id
@@ -56,7 +57,7 @@ export const updateSubject = async (id: number, subjectName: string):
   return current;
 };
 
-export const removeSubject = async (id: number): Promise<Subjects | undefined> => {
+export const removeSubject = async (id: number): Promise<Subjects | NotFound> => {
   const current = await Subjects.findOne({
     where: {
       id
