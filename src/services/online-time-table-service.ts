@@ -84,7 +84,7 @@ export const updateOnlineTimeTable = async (id: number, updateProps: OnlineTimeT
   return current;
 };
 
-export const removeOnlineTimeTables = async (id: number): Promise<OnlineTimeTables | NotFound> => {
+export const removeOnlineTimeTable = async (id: number): Promise<OnlineTimeTables | NotFound> => {
   const current = await OnlineTimeTables.findOne({
     where: {
       id
