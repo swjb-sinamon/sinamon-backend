@@ -9,7 +9,9 @@ enum ErrorMessage {
   SUBJECT_ALREADY_EXISTS = '이미 존재하는 과목입니다.',
 
   UMBRELLA_NOT_FOUND = '존재하지 않는 우산입니다.',
-  UMBRELLA_ALREADY_EXISTS = '이미 존재하는 우산입니다.'
+  UMBRELLA_ALREADY_EXISTS = '이미 존재하는 우산입니다.',
+
+  ONLINETIMETABLE_NOT_FOUND = '존재하지 않는 온라인 시간표입니다.'
 }
 
 export default ErrorMessage;
