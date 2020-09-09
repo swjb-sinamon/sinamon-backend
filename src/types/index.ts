@@ -6,7 +6,8 @@ export enum UmbrellaStatus {
 export type NotFound = undefined;
 export type AlreadyExists = undefined;
 
-export type DayWeek = '월' | '화' | '수' | '목' | '금' | '토' | '일';
+export const DayWeekArray = ['월', '화', '수', '목', '금', '토', '일'] as const;
+export type DayWeek = typeof DayWeekArray[number];
 
 export interface TupleError {
   readonly prepareError: boolean;
