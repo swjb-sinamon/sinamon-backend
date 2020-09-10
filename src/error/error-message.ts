@@ -11,7 +11,12 @@ enum ErrorMessage {
   UMBRELLA_NOT_FOUND = '존재하지 않는 우산입니다.',
   UMBRELLA_ALREADY_EXISTS = '이미 존재하는 우산입니다.',
 
-  ONLINETIMETABLE_NOT_FOUND = '존재하지 않는 온라인 시간표입니다.'
+  ONLINETIMETABLE_NOT_FOUND = '존재하지 않는 온라인 시간표입니다.',
+
+  RENTAL_NOT_FOUND = '존재하지 않는 대여 정보입니다.',
+  RENTAL_USER_ALREADY_EXISTS = '이미 대여한 상태입니다.',
+  RENTAL_UMBRELLA_ALREADY_EXISTS = '누군가 대여한 우산입니다.',
+  RENTAL_EXPIRE = '우산이 연체되었습니다.'
 }
 
 export default ErrorMessage;
