@@ -31,7 +31,7 @@ export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => 
     }
   });
 
-  if (!sendedUser) throw new ServiceException(ErrorMessage.USER_NOT_FOUND);
+  if (!sendedUser) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
 
   sendedUser.password = '';
 
