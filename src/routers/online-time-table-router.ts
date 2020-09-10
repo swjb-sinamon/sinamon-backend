@@ -13,6 +13,7 @@ import {
   removeOnlineTimeTable,
   updateOnlineTimeTable
 } from '../services/online-time-table-service';
+import ServiceException from '../exceptions';
 
 const router = express.Router();
 
@@ -39,11 +40,6 @@ router.get('/:id', getOnlineTimeTableValidator, checkValidation, requireAuthenti
     const { id } = req.params;
     const data = await getOnlineTimeTable(parseInt(id, 10));
 
-    if (!data) {
-      res.status(404).json(makeError(ErrorMessage.ONLINETIMETABLE_NOT_FOUND));
-      return;
-    }
-
     res.status(200).json({
       success: true,
       data
@@ -51,6 +47,11 @@ router.get('/:id', getOnlineTimeTableValidator, checkValidation, requireAuthenti
 
     logger.info(`${id} 온라인 시간표를 가져왔습니다.`);
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('온라인 시간표를 가져오는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -78,11 +79,6 @@ router.post('/', createOnlineTimeTableValidator, checkValidation, requireAuthent
       dayWeek
     });
 
-    if (!data) {
-      res.status(404).json(makeError(ErrorMessage.SUBJECT_NOT_FOUND));
-      return;
-    }
-
     res.status(201).json({
       success: true,
       data
@@ -90,6 +86,11 @@ router.post('/', createOnlineTimeTableValidator, checkValidation, requireAuthent
 
     logger.info('새로운 온라인 시간표를 만들었습니다.');
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('온라인 시간표를 추가하는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -115,16 +116,6 @@ router.put('/:id', updateOnlineTimeTableValidator, checkValidation, requireAuthe
         dayWeek
       });
 
-      if ((data as TupleError).prepareError) {
-        res.status(404).json(makeError(ErrorMessage.SUBJECT_NOT_FOUND));
-        return;
-      }
-
-      if ((data as TupleError).error) {
-        res.status(404).json(makeError(ErrorMessage.ONLINETIMETABLE_NOT_FOUND));
-        return;
-      }
-
       res.status(200).json({
         success: true,
         data
@@ -132,6 +123,11 @@ router.put('/:id', updateOnlineTimeTableValidator, checkValidation, requireAuthe
 
       logger.info(`${id} 온라인 시간표를 수정했습니다.`);
     } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
       logger.error('온라인 시간표를 수정하는 중에 오류가 발생하였습니다.');
       logger.error(e);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -147,11 +143,6 @@ router.delete('/:id', removeOnlineTimeTableValidator, checkValidation, requireAu
     try {
       const data = await removeOnlineTimeTable(parseInt(id, 10));
 
-      if (!data) {
-        res.status(404).json(makeError(ErrorMessage.ONLINETIMETABLE_NOT_FOUND));
-        return;
-      }
-
       res.status(200).json({
         success: true,
         data
@@ -159,6 +150,11 @@ router.delete('/:id', removeOnlineTimeTableValidator, checkValidation, requireAu
 
       logger.info(`${id} 온라인 시간표를 삭제했습니다.`);
     } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
       logger.error('온라인 시간표를 삭제하는 중에 오류가 발생하였습니다.');
       logger.error(e);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));

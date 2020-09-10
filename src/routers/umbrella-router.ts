@@ -13,6 +13,7 @@ import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { checkValidation } from '../middlewares/validator';
 import { UmbrellaStatus } from '../types';
+import ServiceException from '../exceptions';
 
 const router = express.Router();
 
@@ -39,11 +40,6 @@ router.get('/:name', getUmbrellaValidator, checkValidation, requireAuthenticated
     const { name } = req.params;
     const data = await getUmbrella(name);
 
-    if (!data) {
-      res.status(404).json(makeError(ErrorMessage.UMBRELLA_NOT_FOUND));
-      return;
-    }
-
     res.status(200).json({
       success: true,
       data
@@ -51,6 +47,11 @@ router.get('/:name', getUmbrellaValidator, checkValidation, requireAuthenticated
 
     logger.info(`${name} 우산을 가져왔습니다.`);
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('우산을 가져오는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -67,11 +68,6 @@ router.post('/', createUmbrellaValidator, checkValidation, requireAuthenticated,
   try {
     const data = await createUmbrella(name, status);
 
-    if (!data) {
-      res.status(409).json(makeError(ErrorMessage.UMBRELLA_ALREADY_EXISTS));
-      return;
-    }
-
     res.status(201).json({
       success: true,
       data
@@ -79,6 +75,11 @@ router.post('/', createUmbrellaValidator, checkValidation, requireAuthenticated,
 
     logger.info(`${name} 우산을 만들었습니다.`);
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('우산을 추가하는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -96,11 +97,6 @@ router.put('/:name', updateUmbrellaValidator, checkValidation, requireAuthentica
     try {
       const data = await updateUmbrella(name, status);
 
-      if (!data) {
-        res.status(404).json(makeError(ErrorMessage.UMBRELLA_NOT_FOUND));
-        return;
-      }
-
       res.status(200).json({
         success: true,
         data
@@ -108,6 +104,11 @@ router.put('/:name', updateUmbrellaValidator, checkValidation, requireAuthentica
 
       logger.info(`${name} 우산을 수정했습니다.`);
     } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
       logger.error('우산을 수정하는 중에 오류가 발생하였습니다.');
       logger.error(e);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -123,11 +124,6 @@ router.delete('/:name', removeUmbrellaValidator, checkValidation, requireAuthent
     try {
       const data = await removeUmbrella(name);
 
-      if (!data) {
-        res.status(404).json(makeError(ErrorMessage.UMBRELLA_NOT_FOUND));
-        return;
-      }
-
       res.status(200).json({
         success: true,
         data
@@ -135,6 +131,11 @@ router.delete('/:name', removeUmbrellaValidator, checkValidation, requireAuthent
 
       logger.info(`${name} 우산을 삭제했습니다.`);
     } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
       logger.error('우산을 삭제하는 중에 오류가 발생하였습니다.');
       logger.error(e);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));

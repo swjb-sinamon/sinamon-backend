@@ -6,6 +6,7 @@ import { checkValidation } from '../middlewares/validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
+import ServiceException from '../exceptions';
 
 const router = express.Router();
 
@@ -33,11 +34,6 @@ router.get('/:id', getSubjectValidator, checkValidation, requireAuthenticated, a
     const { id } = req.params;
     const data = await getSubject(parseInt(id, 10));
 
-    if (!data) {
-      res.status(404).json(makeError(ErrorMessage.SUBJECT_NOT_FOUND));
-      return;
-    }
-
     res.status(200).json({
       success: true,
       data
@@ -45,6 +41,11 @@ router.get('/:id', getSubjectValidator, checkValidation, requireAuthenticated, a
 
     logger.info(`${id} 과목을 불러왔습니다.`);
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('과목을 불러오는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -59,11 +60,6 @@ router.post('/', createSubjectValidator, checkValidation, requireAuthenticated, 
     const { subjectName } = req.body;
     const data = await createSubject(subjectName);
 
-    if (!data) {
-      res.status(409).json(makeError(ErrorMessage.SUBJECT_ALREADY_EXISTS));
-      return;
-    }
-
     res.status(201).json({
       success: true,
       data
@@ -71,6 +67,11 @@ router.post('/', createSubjectValidator, checkValidation, requireAuthenticated, 
 
     logger.info(`${data.id} 새로운 과목을 추가했습니다.`);
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('과목을 추가하는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -87,11 +88,6 @@ router.put('/:id', updateSubjectValidator, checkValidation, requireAuthenticated
     const { subjectName } = req.body;
     const data = await updateSubject(parseInt(id, 10), subjectName);
 
-    if (!data) {
-      res.status(404).json(makeError(ErrorMessage.SUBJECT_NOT_FOUND));
-      return;
-    }
-
     res.status(200).json({
       success: true,
       data
@@ -99,6 +95,11 @@ router.put('/:id', updateSubjectValidator, checkValidation, requireAuthenticated
 
     logger.info(`${id} 과목을 수정하였습니다.`);
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('과목을 수정하는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
@@ -113,11 +114,6 @@ router.delete('/:id', removeSubjectValidator, checkValidation, requireAuthentica
     const { id } = req.params;
     const data = await removeSubject(parseInt(id, 10));
 
-    if (!data) {
-      res.status(404).json(makeError(ErrorMessage.SUBJECT_NOT_FOUND));
-      return;
-    }
-
     res.status(200).json({
       success: true,
       data
@@ -125,6 +121,11 @@ router.delete('/:id', removeSubjectValidator, checkValidation, requireAuthentica
 
     logger.info(`${id} 과목을 삭제하였습니다.`);
   } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
     logger.error('과목을 삭제하는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
