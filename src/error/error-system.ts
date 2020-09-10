@@ -12,7 +12,7 @@ export const makeValidationError = (errors: ValidationError[]):
   };
 };
 
-export const makeError = (message: ErrorMessage): ErrorPayload<ErrorMessage> => {
+export const makeError = (message: ErrorMessage | string): ErrorPayload<ErrorMessage | string> => {
   return {
     success: false,
     error: message
