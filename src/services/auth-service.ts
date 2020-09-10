@@ -1,5 +1,6 @@
 import Users from '../databases/models/users';
-import { NotFound } from '../types';
+import ServiceException from '../exceptions';
+import ErrorMessage from '../error/error-message';
 
 interface UserInfoParams {
   readonly email: string;
@@ -10,8 +11,7 @@ interface UserInfoParams {
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export const registerUser = async (userInfo: UserInfoParams):
-  Promise<Record<string, any> | NotFound> => {
+export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
   const { email, name, studentGrade, studentClass, studentNumber } = userInfo;
 
   await Users.update({
@@ -31,7 +31,7 @@ export const registerUser = async (userInfo: UserInfoParams):
     }
   });
 
-  if (!sendedUser) return undefined;
+  if (!sendedUser) throw new ServiceException(ErrorMessage.USER_NOT_FOUND);
 
   sendedUser.password = '';
 
