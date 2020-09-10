@@ -1,5 +1,4 @@
 import Subjects from '../databases/models/subjects';
-import { AlreadyExists, NotFound } from '../types';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 

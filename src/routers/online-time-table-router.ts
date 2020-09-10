@@ -5,7 +5,7 @@ import { logger } from '../index';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { checkValidation } from '../middlewares/validator';
-import { DayWeekArray, TupleError } from '../types';
+import { DayWeekArray } from '../types';
 import {
   createOnlineTimeTable,
   getOnlineTimeTable,
