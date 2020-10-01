@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import passport from 'passport';
 import rateLimit from 'express-rate-limit';
+import cors from 'cors';
 import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
@@ -47,6 +48,7 @@ db.sync().then(async () => {
 });
 
 app.set('trust proxy', true);
+app.use(cors({ origin: config.frontendHost, credentials: true }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
