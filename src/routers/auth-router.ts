@@ -12,7 +12,7 @@ const router = express.Router();
 
 const loginValidator = [
   body('email').isEmail(),
-  body('password').isLength({ min: 6 })
+  body('password')
 ];
 router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('login', (error, user, info) => {
@@ -54,7 +54,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
 
 const registerValidator = [
   body('email').isEmail(),
-  body('password').isLength({ min: 6 }),
+  body('password'),
   body('name').isString(),
   body('studentGrade').isNumeric(),
   body('studentClass').isNumeric(),
