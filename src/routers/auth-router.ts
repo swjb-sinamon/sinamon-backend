@@ -108,6 +108,19 @@ router.get('/me', requireAuthenticated, (req: express.Request, res: express.Resp
 
   logger.info(`${result.uuid} ${result.email} 님의 정보를 요청했습니다.`);
 });
+
+router.delete('/logout', requireAuthenticated, (req: express.Request, res: express.Response) => {
+  const result: any = req.user;
+
+  result.password = '';
+
+  logger.info(`${result.uuid} ${result.email} 님이 로그아웃을 하였습니다.`);
+  req.logout();
+
+  res.status(200).json({
+    success: true,
+    data: result
+  });
 });
 
 export default router;
