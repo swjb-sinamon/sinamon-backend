@@ -105,6 +105,9 @@ router.get('/me', requireAuthenticated, (req: express.Request, res: express.Resp
     success: true,
     data: result
   });
+
+  logger.info(`${result.uuid} ${result.email} 님의 정보를 요청했습니다.`);
+});
 });
 
 export default router;
