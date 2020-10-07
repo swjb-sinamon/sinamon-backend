@@ -71,4 +71,4 @@ app.use('*', (req, res, next) => {
   next();
 });
 
-app.use('/', Router);
+app.use('/v1', Router);
