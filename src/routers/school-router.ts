@@ -1,7 +1,8 @@
 import express from 'express';
 import { query } from 'express-validator';
-import { getTodayMeal, getTomorrowMeal } from '../services/meal-service';
+import { getTodayMeal, getTomorrowMeal } from '../services/school/meal-service';
 import { checkValidation } from '../middlewares/validator';
+import { getThisWeekCalender } from '../services/school/calender-service';
 
 const router = express.Router();
 
@@ -24,6 +25,14 @@ router.get('/meal', mealValidator, checkValidation, async (req: express.Request,
       data
     });
   }
+});
+
+router.get('/calender', async (req, res) => {
+  const data = await getThisWeekCalender();
+  res.status(200).json({
+    success: true,
+    data
+  });
 });
 
 export default router;
