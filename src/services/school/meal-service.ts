@@ -21,7 +21,7 @@ export const getTodayMeal = async (): Promise<string> => {
 
 export const getTomorrowMeal = async (): Promise<string> => {
   const tomorrowDay = dayjs()
-    .add(1, 'day')
+    .add(1, 'date')
     .format('D');
   const meal: any = await school.getMeal({ default: '내일 급식이 없습니다.' });
   return deleteUnusedString(meal[tomorrowDay]);
