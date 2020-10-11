@@ -4,6 +4,7 @@ import SubjectRouter from './subject-router';
 import UmbrellaRouter from './umbrella-router';
 import OnlineTimeTableRouter from './online-time-table-router';
 import QrRouter from './qr-router';
+import SchoolRouter from './school-router';
 
 const router = express.Router();
 
@@ -12,5 +13,6 @@ router.use('/subject', SubjectRouter);
 router.use('/umbrella', UmbrellaRouter);
 router.use('/ott', OnlineTimeTableRouter);
 router.use('/qr', QrRouter);
+router.use('/school', SchoolRouter);
 
 export default router;
