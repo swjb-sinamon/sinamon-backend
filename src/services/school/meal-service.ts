@@ -1,8 +1,5 @@
-import School from 'school-kr';
 import dayjs from 'dayjs';
-
-const school = new School();
-school.init(School.Type.HIGH, School.Region.GYEONGGI, 'J100000651');
+import school from '../../utils/school-lib';
 
 const deleteUnusedString = (original: string): string => {
   const result = original
