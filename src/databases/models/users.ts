@@ -5,6 +5,7 @@ interface UsersAttributes {
   uuid: string;
   email: string;
   name?: string;
+  department?: number;
   studentGrade?: number;
   studentClass?: number;
   studentNumber?: number;
@@ -19,6 +20,8 @@ class Users extends Model<UsersAttributes> {
   public email!: string;
 
   public name!: string;
+
+  public department!: number;
 
   public studentGrade!: number;
 
@@ -52,6 +55,10 @@ Users.init(
     },
     name: {
       type: DataTypes.CHAR,
+      allowNull: true
+    },
+    department: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     studentGrade: {
