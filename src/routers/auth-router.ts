@@ -56,6 +56,7 @@ const registerValidator = [
   body('email').isEmail(),
   body('password'),
   body('name').isString(),
+  body('department').isNumeric(),
   body('studentGrade').isNumeric(),
   body('studentClass').isNumeric(),
   body('studentNumber').isNumeric()
@@ -77,9 +78,16 @@ router.post('/register', registerValidator, checkValidation, async (req: express
     }
 
     try {
-      const { email, name, studentGrade, studentClass, studentNumber } = req.body;
+      const { email, name, department, studentGrade, studentClass, studentNumber } = req.body;
 
-      const result = await registerUser({ email, name, studentGrade, studentClass, studentNumber });
+      const result = await registerUser({
+        email,
+        name,
+        department,
+        studentGrade,
+        studentClass,
+        studentNumber
+      });
 
       res.status(200).json({
         success: true,
