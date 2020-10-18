@@ -2,7 +2,7 @@ import express from 'express';
 import { query } from 'express-validator';
 import { getTodayMeal, getTomorrowMeal } from '../services/school/meal-service';
 import { checkValidation } from '../middlewares/validator';
-import { getThisWeekCalender } from '../services/school/calender-service';
+import { getThisWeekCalendar } from '../services/school/calendar-service';
 
 const router = express.Router();
 
@@ -27,8 +27,8 @@ router.get('/meal', mealValidator, checkValidation, async (req: express.Request,
   }
 });
 
-router.get('/calender', async (req, res) => {
-  const data = await getThisWeekCalender();
+router.get('/calendar', async (req, res) => {
+  const data = await getThisWeekCalendar();
   res.status(200).json({
     success: true,
     data

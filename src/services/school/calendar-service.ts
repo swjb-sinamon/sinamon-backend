@@ -3,7 +3,7 @@ import { range } from 'fxjs';
 import school from '../../utils/school-lib';
 
 // eslint-disable-next-line import/prefer-default-export
-export const getThisWeekCalender = async (): Promise<string[]> => {
+export const getThisWeekCalendar = async (): Promise<string[]> => {
   const calender: any = await school.getCalendar();
 
   const result = range(0, 5)
