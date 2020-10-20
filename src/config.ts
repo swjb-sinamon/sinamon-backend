@@ -13,8 +13,9 @@ const config = {
   frontendHost: process.env.FRONTEND_HOST!,
   sessionSecret: process.env.SESSION_SECRET!,
   saltRound: parseInt(process.env.BCRYPT_SALT_ROUNDS!, 10),
-  openWeatherApiKey: process.env.OPENWEATHER_API_KEY,
-  dustApiKey: process.env.DUST_API_KEY
+  qrSecret: process.env.QR_SECRET!,
+  openWeatherApiKey: process.env.OPENWEATHER_API_KEY!,
+  dustApiKey: process.env.DUST_API_KEY!
 };
 
 export default config;
