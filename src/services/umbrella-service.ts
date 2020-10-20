@@ -2,10 +2,40 @@ import Umbrellas from '../databases/models/umbrellas';
 import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
+import Rentals from '../databases/models/rentals';
 
 export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   const result = await Umbrellas.findAll();
   return result;
+};
+
+export const getAbleUmbrellaWithStatus = async (status: UmbrellaStatus):
+  Promise<string | undefined> => {
+  const umbrellas = await Umbrellas.findAll({
+    where: {
+      status
+    }
+  });
+
+  if (umbrellas.length === 0) return undefined;
+
+  const resultPromises = umbrellas
+    .map((umbrella) => umbrella.name)
+    .map(async (umbrellaName) => {
+      const rental = await Rentals.findOne({
+        where: {
+          umbrellaName
+        }
+      });
+
+      if (!rental) return umbrellaName;
+      return undefined;
+    })
+    .filter((value) => value);
+
+  const result = await Promise.all(resultPromises);
+  if (result.length === 0) return undefined;
+  return result[0];
 };
 
 export const getUmbrella = async (name: string): Promise<Umbrellas> => {
