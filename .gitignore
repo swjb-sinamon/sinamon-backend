@@ -31,3 +31,6 @@ yarn.lock
 
 # log
 /logs
+
+# apidoc
+/apidoc

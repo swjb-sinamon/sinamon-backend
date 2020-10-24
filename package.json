@@ -5,7 +5,8 @@
     "start": "nodemon",
     "build": "tsc",
     "start:production": "node ./dist/server.js",
-    "lint": "eslint src/**/*.ts[x]"
+    "lint": "eslint src/**/*.ts[x]",
+    "apidoc": "apidoc -i ./src/ -o ./apidoc/"
   },
   "repository": {
     "type": "git",
@@ -52,6 +53,7 @@
     "@types/xml2js": "^0.4.5",
     "@typescript-eslint/eslint-plugin": "^3.9.0",
     "@typescript-eslint/parser": "^3.9.0",
+    "apidoc": "^0.25.0",
     "eslint": "^7.6.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
