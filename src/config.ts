@@ -11,6 +11,7 @@ const config = {
     db: process.env.DATABASE_DB! || 'sinamon'
   },
   frontendHost: process.env.FRONTEND_HOST!,
+  adminHost: process.env.ADMIN_HOST!,
   sessionSecret: process.env.SESSION_SECRET!,
   saltRound: parseInt(process.env.BCRYPT_SALT_ROUNDS!, 10),
   qrSecret: process.env.QR_SECRET!,

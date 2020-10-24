@@ -50,7 +50,7 @@ db.sync().then(async () => {
 
 app.set('trust proxy', true);
 app.use(helmet());
-app.use(cors({ origin: config.frontendHost, credentials: true }));
+app.use(cors({ origin: [config.frontendHost, config.adminHost], credentials: true }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
