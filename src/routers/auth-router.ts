@@ -14,6 +14,17 @@ const loginValidator = [
   body('email').isEmail(),
   body('password')
 ];
+/**
+ * @api {post} /auth/login User Login
+ * @apiName UserLogin
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 로그인한 유저 데이터
+ *
+ * @apiError (Error 404) USER_NOT_FOUND 이메일이 존재하지 않거나 비밀번호가 올바르지 않습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('login', (error, user, info) => {
     if (error) {
@@ -61,6 +72,17 @@ const registerValidator = [
   body('studentClass').isNumeric(),
   body('studentNumber').isNumeric()
 ];
+/**
+ * @api {post} /auth/register User Register
+ * @apiName UserRegister
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 회원가입한 유저 데이터
+ *
+ * @apiError (Error 409) USER_ALREADY_EXISTS 이미 존재하는 이메일입니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('register', async (error, user, info) => {
     if (error) {
@@ -103,6 +125,16 @@ router.post('/register', registerValidator, checkValidation, async (req: express
   })(req, res, next);
 });
 
+/**
+ * @api {get} /auth/me Get User Profile
+ * @apiName GetUserProfile
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 현재 로그인한 유저 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ */
 router.get('/me', requireAuthenticated, (req: express.Request, res: express.Response) => {
   const result: any = req.user;
   if (!result) return;
@@ -117,6 +149,16 @@ router.get('/me', requireAuthenticated, (req: express.Request, res: express.Resp
   logger.info(`${result.uuid} ${result.email} 님의 정보를 요청했습니다.`);
 });
 
+/**
+ * @api {delete} /auth/logout User Logout
+ * @apiName UserLogout
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 로그아웃한 유저 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ */
 router.delete('/logout', requireAuthenticated, (req: express.Request, res: express.Response) => {
   const result: any = req.user;
 
