@@ -31,7 +31,7 @@ jobs:
           aws s3 cp \
             --recursive \
             --region ap-northeast-2 \
-            build s3://sinamon-doc
+            apidoc s3://sinamon-doc
 
       - name: Discord Alert Success
         uses: sarisia/actions-status-discord@v1
