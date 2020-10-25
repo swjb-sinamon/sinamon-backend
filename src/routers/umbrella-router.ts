@@ -17,6 +17,17 @@ import ServiceException from '../exceptions';
 
 const router = express.Router();
 
+/**
+ * @api {get} /umbrella Get Umbrellas
+ * @apiName GetUmbrellas
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 모든 우산 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.get('/', requireAuthenticated, async (req, res) => {
   try {
     const data = await getUmbrellas();
@@ -35,6 +46,20 @@ router.get('/', requireAuthenticated, async (req, res) => {
 const getUmbrellaValidator = [
   param('name').isString()
 ];
+/**
+ * @api {get} /umbrella/:name Get Umbrella
+ * @apiName GetUmbrella
+ * @apiGroup Umbrella
+ *
+ * @apiParam {String} name 우산 이름
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 우산 데이터
+ *
+ * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.get('/:name', getUmbrellaValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   try {
     const { name } = req.params;
@@ -62,6 +87,18 @@ const createUmbrellaValidator = [
   body('name').isString(),
   body('status').isIn(Object.values(UmbrellaStatus))
 ];
+/**
+ * @api {post} /umbrella Create Umbrella
+ * @apiName CreateUmbrella
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 추가된 우산 데이터
+ *
+ * @apiError (Error 409) UMBRELLA_ALREADY_EXISTS 이미 존재하는 우산입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/', createUmbrellaValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   const { name, status } = req.body;
 
@@ -90,6 +127,20 @@ const updateUmbrellaValidator = [
   param('name').isString(),
   body('status').isIn(Object.values(UmbrellaStatus))
 ];
+/**
+ * @api {put} /umbrella/:name Update Umbrella
+ * @apiName UpdateUmbrella
+ * @apiGroup Umbrella
+ *
+ * @apiParam {String} name 우산 이름
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 수정된 우산 데이터
+ *
+ * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.put('/:name', updateUmbrellaValidator, checkValidation, requireAuthenticated,
   async (req: express.Request, res: express.Response) => {
     const { name } = req.params;
@@ -118,6 +169,20 @@ router.put('/:name', updateUmbrellaValidator, checkValidation, requireAuthentica
 const removeUmbrellaValidator = [
   param('name').isString()
 ];
+/**
+ * @api {delete} /umbrella/:name Delete Umbrella
+ * @apiName DeleteUmbrella
+ * @apiGroup Umbrella
+ *
+ * @apiParam {String} name 우산 이름
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 삭제된 우산 데이터
+ *
+ * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.delete('/:name', removeUmbrellaValidator, checkValidation, requireAuthenticated,
   async (req: express.Request, res: express.Response) => {
     const { name } = req.params;

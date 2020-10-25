@@ -10,6 +10,17 @@ import ServiceException from '../exceptions';
 
 const router = express.Router();
 
+/**
+ * @api {get} /subject Get Subjects
+ * @apiName GetSubjects
+ * @apiGroup Subject
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 모든 과목 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.get('/', requireAuthenticated, async (req, res) => {
   try {
     const data = await getSubjects();
@@ -29,6 +40,20 @@ router.get('/', requireAuthenticated, async (req, res) => {
 const getSubjectValidator = [
   param('id').isNumeric()
 ];
+/**
+ * @api {get} /subject/:id Get Subject
+ * @apiName GetSubject
+ * @apiGroup Subject
+ *
+ * @apiParam {Number} id 과목 ID
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 과목 데이터
+ *
+ * @apiError (Error 404) SUBJECT_NOT_FOUND 존재하지 않는 과목입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.get('/:id', getSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
@@ -55,6 +80,18 @@ router.get('/:id', getSubjectValidator, checkValidation, requireAuthenticated, a
 const createSubjectValidator = [
   body('subjectName').isString()
 ];
+/**
+ * @api {post} /subject Create Subject
+ * @apiName CreateSubject
+ * @apiGroup Subject
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 추가된 과목 데이터
+ *
+ * @apiError (Error 404) SUBJECT_NOT_FOUND 존재하지 않는 과목입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/', createSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   try {
     const { subjectName } = req.body;
@@ -82,6 +119,20 @@ const updateSubjectValidator = [
   param('id').isNumeric(),
   body('subjectName').isString()
 ];
+/**
+ * @api {put} /subject/:id Update Subject
+ * @apiName UpdateSubject
+ * @apiGroup Subject
+ *
+ * @apiParam {Number} id 과목 ID
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 수정된 과목 데이터
+ *
+ * @apiError (Error 404) SUBJECT_NOT_FOUND 존재하지 않는 과목입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.put('/:id', updateSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
@@ -109,6 +160,20 @@ router.put('/:id', updateSubjectValidator, checkValidation, requireAuthenticated
 const removeSubjectValidator = [
   param('id').isNumeric()
 ];
+/**
+ * @api {delete} /subject/:id Delete Subject
+ * @apiName DeleteSubject
+ * @apiGroup Subject
+ *
+ * @apiParam {Number} id 과목 ID
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 삭제된 과목 데이터
+ *
+ * @apiError (Error 404) SUBJECT_NOT_FOUND 존재하지 않는 과목입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.delete('/:id', removeSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
