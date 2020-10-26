@@ -15,9 +15,11 @@ const loginValidator = [
   body('password')
 ];
 /**
- * @api {post} /auth/login User Login
+ * @api {post} /auth/login?admin=:admin User Login
  * @apiName UserLogin
  * @apiGroup Auth
+ *
+ * @apiParam {Boolean} admin 관리자 페이지 로그인 여부 (true 시 권한이 없으면 로그인을 무시합니다.)
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 로그인한 유저 데이터
@@ -26,6 +28,11 @@ const loginValidator = [
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const { admin } = req.query;
+
+  const adminQuery = admin || 'false';
+  const isAdminLogin = adminQuery.toString().toLowerCase() === 'true';
+
   passport.authenticate('login', (error, user, info) => {
     if (error) {
       logger.error('로그인 완료 중 오류가 발생하였습니다.');
@@ -39,6 +46,13 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
         res.status(404).json(makeError(ErrorMessage.USER_NOT_FOUND));
         return;
       }
+      return;
+    }
+
+    const isHavePermission = user.isAdmin || user.isTeacher;
+    if (isAdminLogin && !isHavePermission) {
+      logger.warn(`${user.uuid} ${user.email} 사용자가 관리자 페이지 로그인을 시도하였습니다.`);
+      res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
       return;
     }
 
