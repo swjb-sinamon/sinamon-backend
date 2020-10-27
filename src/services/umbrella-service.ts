@@ -9,33 +9,23 @@ export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   return result;
 };
 
-export const getAbleUmbrellaWithStatus = async (status: UmbrellaStatus):
-  Promise<string | undefined> => {
-  const umbrellas = await Umbrellas.findAll({
-    where: {
-      status
-    }
+export const getNoRentalUmbrellas = async (): Promise<Umbrellas[]> => {
+  const umbrellas = await Umbrellas.findAll();
+
+  if (umbrellas.length === 0) return [];
+
+  const resultPromises = umbrellas.filter(async (umbrellaName) => {
+    const rental = await Rentals.findOne({
+      where: {
+        umbrellaName: umbrellaName.name
+      }
+    });
+
+    return !rental;
   });
 
-  if (umbrellas.length === 0) return undefined;
-
-  const resultPromises = umbrellas
-    .map((umbrella) => umbrella.name)
-    .map(async (umbrellaName) => {
-      const rental = await Rentals.findOne({
-        where: {
-          umbrellaName
-        }
-      });
-
-      if (!rental) return umbrellaName;
-      return undefined;
-    })
-    .filter((value) => value);
-
   const result = await Promise.all(resultPromises);
-  if (result.length === 0) return undefined;
-  return result[0];
+  return result;
 };
 
 export const getUmbrella = async (name: string): Promise<Umbrellas> => {
