@@ -3,6 +3,7 @@ import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Rentals from '../databases/models/rentals';
+import { logger } from '../index';
 
 export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   const result = await Umbrellas.findAll();
@@ -14,17 +15,18 @@ export const getNoRentalUmbrellas = async (): Promise<Umbrellas[]> => {
 
   if (umbrellas.length === 0) return [];
 
-  const resultPromises = umbrellas.filter(async (umbrellaName) => {
+  const resultPromises = umbrellas.map(async (umbrella) => {
     const rental = await Rentals.findOne({
       where: {
-        umbrellaName: umbrellaName.name
+        umbrellaName: umbrella.name
       }
     });
 
-    return !rental;
+    if (!rental) return umbrella;
+    return undefined;
   });
 
-  const result = await Promise.all(resultPromises);
+  const result = (await Promise.all(resultPromises)).filter((i) => i) as Umbrellas[];
   return result;
 };
 
