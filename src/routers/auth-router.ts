@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
@@ -11,6 +11,7 @@ import { checkValidation } from '../middlewares/validator';
 const router = express.Router();
 
 const loginValidator = [
+  param('admin').isBoolean(),
   body('email').isEmail(),
   body('password')
 ];
