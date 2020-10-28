@@ -11,7 +11,6 @@ interface UserInfoParams {
   readonly studentNumber: number;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
   const { email, name, department, studentGrade, studentClass, studentNumber } = userInfo;
 
@@ -38,4 +37,20 @@ export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => 
   sendedUser.password = '';
 
   return sendedUser;
+};
+
+export const getUser = async (name: string, grade: number, clazz: number, number: number):
+  Promise<Users> => {
+  const result = await Users.findOne({
+    where: {
+      name,
+      studentGrade: grade,
+      studentClass: clazz,
+      studentNumber: number
+    }
+  });
+
+  if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+
+  return result;
 };
