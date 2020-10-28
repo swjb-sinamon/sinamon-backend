@@ -1,8 +1,11 @@
 import express from 'express';
 import { body, param, query } from 'express-validator';
+import crypto from 'crypto';
+import dayjs from 'dayjs';
 import { requireAuthenticated } from '../middlewares/permission';
 import {
-  createUmbrella, getNoRentalUmbrellas,
+  createUmbrella,
+  getNoRentalUmbrellas,
   getUmbrella,
   getUmbrellas,
   removeUmbrella,
@@ -14,6 +17,7 @@ import ErrorMessage from '../error/error-message';
 import { checkValidation } from '../middlewares/validator';
 import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
+import { qrKey } from '../managers/qr-crypto';
 
 const router = express.Router();
 
@@ -226,5 +230,37 @@ router.delete('/:name', removeUmbrellaValidator, checkValidation, requireAuthent
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
     }
   });
+
+const decodeValidator = [
+  body('data').isString()
+];
+router.post('/qr', decodeValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+  const { data } = req.body;
+
+  const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
+  let plain = passDecipher.update(data, 'base64', 'utf8');
+  plain += passDecipher.final('utf8');
+
+  const decodeData: {
+    uuid: string;
+    email: string;
+    createdAt: number;
+    expiresIn: number;
+  } = JSON.parse(plain);
+
+  const now = dayjs().unix();
+
+  if (now > decodeData.expiresIn) {
+    // TODO: QR 만료 시 코드
+    return;
+  }
+
+  // TODO: 우산 대여하는 코드
+  // TODO: 연체 시 거부하는 코드
+
+  res.status(200).json({
+    success: true
+  });
+});
 
 export default router;
