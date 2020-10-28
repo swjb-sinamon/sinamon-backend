@@ -278,6 +278,10 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, asy
     });
   } catch (e) {
     if (e instanceof ServiceException) {
+      if (e.message === ErrorMessage.RENTAL_EXPIRE) {
+        logger.warn(`연체된 ${decodeData.uuid} 사용자가 대여를 시도하였습니다.`);
+      }
+
       res.status(e.httpStatus).json(makeError(e.message));
       return;
     }
