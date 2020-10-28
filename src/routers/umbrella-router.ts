@@ -257,7 +257,7 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, asy
 
   if (now > decodeData.expiresIn) {
     logger.warn(`${user.uuid} ${user.email} 사용자가 만료된 QR코드를 사용했습니다.`);
-    res.json(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
+    res.status(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
     return;
   }
 
