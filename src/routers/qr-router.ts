@@ -11,7 +11,7 @@ router.get('/', requireAuthenticated, (req, res) => {
   const { uuid, email }: any = req.user;
   if (!uuid) return;
 
-  const expire = dayjs().add(QRCODE_EXPIRE_MINUTE, 'second').unix();
+  const expire = dayjs().add(QRCODE_EXPIRE_MINUTE, 'minute').unix();
   const data = {
     uuid,
     email,
