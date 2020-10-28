@@ -18,6 +18,7 @@ import { checkValidation } from '../middlewares/validator';
 import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import { qrKey } from '../managers/qr-crypto';
+import { borrowRental } from '../services/rental-service';
 
 const router = express.Router();
 
@@ -231,11 +232,15 @@ router.delete('/:name', removeUmbrellaValidator, checkValidation, requireAuthent
     }
   });
 
-const decodeValidator = [
-  body('data').isString()
+const qrRentalValidator = [
+  body('data').isString(),
+  body('umbrellaName').isString()
 ];
-router.post('/qr', decodeValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
-  const { data } = req.body;
+router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+  const { data, umbrellaName } = req.body;
+
+  if (!req.user) return;
+  const { user }: any = req;
 
   const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
   let plain = passDecipher.update(data, 'base64', 'utf8');
@@ -251,16 +256,36 @@ router.post('/qr', decodeValidator, checkValidation, requireAuthenticated, async
   const now = dayjs().unix();
 
   if (now > decodeData.expiresIn) {
-    // TODO: QR 만료 시 코드
+    logger.warn(`${user.uuid} ${user.email} 사용자가 만료된 QR코드를 사용했습니다.`);
+    res.json(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
     return;
   }
 
-  // TODO: 우산 대여하는 코드
-  // TODO: 연체 시 거부하는 코드
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  res.status(200).json({
-    success: true
-  });
+  try {
+    await borrowRental({
+      lender: decodeData.uuid,
+      umbrellaName,
+      expiryDate: tomorrow
+    });
+
+    logger.info(`${user.uuid} 사용자가 ${decodeData.uuid} 사용자의 우산을 QR코드로 대여 처리하였습니다.`);
+
+    res.status(200).json({
+      success: true
+    });
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    logger.error('우산을 QR코드를 이용하여 대여하는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
 });
 
 export default router;
