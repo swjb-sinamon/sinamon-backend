@@ -18,7 +18,7 @@ import { checkValidation } from '../middlewares/validator';
 import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import { qrKey } from '../managers/qr-crypto';
-import { borrowRental } from '../services/rental-service';
+import { borrowRentalBySchoolInfo, borrowRentalByUUID } from '../services/rental-service';
 
 const router = express.Router();
 
@@ -265,8 +265,7 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, asy
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   try {
-    await borrowRental({
-      lender: decodeData.uuid,
+    await borrowRentalByUUID(decodeData.uuid, {
       umbrellaName,
       expiryDate: tomorrow
     });
@@ -287,6 +286,57 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, asy
     }
 
     logger.error('우산을 QR코드를 이용하여 대여하는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
+});
+
+const infoRentalValidator = [
+  body('name').isString(),
+  body('department').isNumeric(),
+  body('grade').isNumeric(),
+  body('class').isNumeric(),
+  body('number').isNumeric(),
+  body('umbrellaName').isString()
+];
+router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+  const { name, department, grade, class: clazz, number, umbrellaName } = req.body;
+
+  if (!req.user) return;
+  const { user }: any = req;
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  try {
+    await borrowRentalBySchoolInfo(
+      name,
+      parseInt(department, 10),
+      parseInt(grade, 10),
+      parseInt(clazz, 10),
+      parseInt(number, 10),
+      {
+        umbrellaName,
+        expiryDate: tomorrow
+      }
+    );
+
+    logger.info(`${user.uuid} 사용자가 ${name} 사용자의 우산을 학번으로 대여 처리하였습니다.`);
+
+    res.status(200).json({
+      success: true
+    });
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      if (e.message === ErrorMessage.RENTAL_EXPIRE) {
+        logger.warn(`연체된 ${name} 사용자가 대여를 시도하였습니다.`);
+      }
+
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    logger.error('우산을 학번을 이용하여 대여하는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
   }
