@@ -12,6 +12,7 @@ import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
 import Router from './routers';
+import ServerConfigs from './databases/models/server-configs';
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -46,6 +47,21 @@ db.sync().then(async () => {
   await db.query('ALTER TABLE subjects AUTO_INCREMENT=100;');
   await db.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
+
+  const notice = await ServerConfigs.findOne({
+    where: {
+      configKey: 'notice'
+    }
+  });
+
+  if (!notice) {
+    await ServerConfigs.create({
+      configKey: 'notice',
+      configValue: ''
+    });
+
+    logger.info('ServerConfigs initialized successfully');
+  }
 });
 
 app.set('trust proxy', true);
