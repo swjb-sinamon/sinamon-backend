@@ -2,14 +2,22 @@ import axios from 'axios';
 import { parseStringPromise } from 'xml2js';
 import config from '../config';
 
+interface WeatherPayload {
+  readonly status: string;
+  readonly temp: number;
+}
+
 interface DustPayload {
   readonly pm25: number;
   readonly pm10: number;
 }
 
-export const getWeatherStatus = async (): Promise<string> => {
+export const getWeatherStatus = async (): Promise<WeatherPayload> => {
   const result = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=Suwon,KR&appid=${config.openWeatherApiKey}&units=metric`);
-  return result.data.weather[0].main.toUpperCase();
+  return {
+    status: result.data.weather[0].main.toUpperCase(),
+    temp: Math.floor(result.data.main.temp)
+  };
 };
 
 export const getDustData = async (): Promise<DustPayload> => {
