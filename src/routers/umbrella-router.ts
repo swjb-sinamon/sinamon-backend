@@ -236,6 +236,21 @@ const qrRentalValidator = [
   body('data').isString(),
   body('umbrellaName').isString()
 ];
+/**
+ * @api {post} /umbrella/qr Borrow Umbrella with QRCode
+ * @apiName BorrowUmbrellawithQRCode
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ *
+ * @apiError (Error 401) QRCODE_EXPIRE QR코드 유효기간이 지났습니다.
+ * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
+ * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
+ * @apiError (Error 409) RENTAL_USER_ALREADY_EXISTS 이미 우산을 대여한 학생입니다.
+ * @apiError (Error 409) RENTAL_UMBRELLA_ALREADY_EXISTS 누군가 대여한 우산입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   const { data, umbrellaName } = req.body;
 
@@ -299,6 +314,20 @@ const infoRentalValidator = [
   body('number').isNumeric(),
   body('umbrellaName').isString()
 ];
+/**
+ * @api {post} /umbrella/info Borrow Umbrella with Manual
+ * @apiName BorrowUmbrellawithManual
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ *
+ * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
+ * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
+ * @apiError (Error 409) RENTAL_USER_ALREADY_EXISTS 이미 우산을 대여한 학생입니다.
+ * @apiError (Error 409) RENTAL_UMBRELLA_ALREADY_EXISTS 누군가 대여한 우산입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   const { name, department, grade, class: clazz, number, umbrellaName } = req.body;
 
