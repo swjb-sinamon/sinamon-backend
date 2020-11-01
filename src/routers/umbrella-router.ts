@@ -18,7 +18,12 @@ import { checkValidation } from '../middlewares/validator';
 import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import { qrKey } from '../managers/qr-crypto';
-import { borrowRentalBySchoolInfo, borrowRentalByUUID } from '../services/rental-service';
+import {
+  borrowRentalBySchoolInfo,
+  borrowRentalByUUID,
+  returnRental,
+  returnRentalBySchoolInfo
+} from '../services/rental-service';
 
 const router = express.Router();
 
@@ -367,6 +372,101 @@ router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated,
     }
 
     logger.error('우산을 학번을 이용하여 대여하는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
+});
+
+const qrReturnValidator = [
+  body('data').isString()
+];
+router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+  const { data } = req.body;
+
+  if (!req.user) return;
+  const { user }: any = req;
+
+  const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
+  let plain = passDecipher.update(data, 'base64', 'utf8');
+  plain += passDecipher.final('utf8');
+
+  const decodeData: {
+    uuid: string;
+    email: string;
+    createdAt: number;
+    expiresIn: number;
+  } = JSON.parse(plain);
+
+  const now = dayjs().unix();
+
+  if (now > decodeData.expiresIn) {
+    logger.warn(`${user.uuid} ${user.email} 사용자가 만료된 QR코드를 사용했습니다.`);
+    res.status(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
+    return;
+  }
+
+  try {
+    await returnRental(decodeData.uuid);
+
+    logger.info(`${user.uuid} 사용자가 ${decodeData.uuid} 사용자의 우산을 QR코드로 반납 처리하였습니다.`);
+
+    res.status(200).json({
+      success: true
+    });
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      if (e.message === ErrorMessage.RENTAL_EXPIRE) {
+        logger.warn(`연체된 ${decodeData.uuid} 사용자가 반납을 시도하였습니다.`);
+      }
+
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    logger.error('우산을 QR코드를 이용하여 반납하는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
+});
+
+const infoReturnValidator = [
+  body('name').isString(),
+  body('department').isNumeric(),
+  body('grade').isNumeric(),
+  body('class').isNumeric(),
+  body('number').isNumeric()
+];
+router.post('/return/info', infoReturnValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+  const { name, department, grade, class: clazz, number } = req.body;
+
+  if (!req.user) return;
+  const { user }: any = req;
+
+  try {
+    await returnRentalBySchoolInfo(
+      name,
+      parseInt(department, 10),
+      parseInt(grade, 10),
+      parseInt(clazz, 10),
+      parseInt(number, 10)
+    );
+
+    logger.info(`${user.uuid} 사용자가 ${name} 사용자의 우산을 학번으로 반납 처리하였습니다.`);
+
+    res.status(200).json({
+      success: true
+    });
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      if (e.message === ErrorMessage.RENTAL_EXPIRE) {
+        logger.warn(`연체된 ${name} 사용자가 반납을 시도하였습니다.`);
+      }
+
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    logger.error('우산을 학번을 이용하여 반납하는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
   }

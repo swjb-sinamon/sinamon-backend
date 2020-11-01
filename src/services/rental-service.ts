@@ -125,7 +125,7 @@ export const borrowRentalBySchoolInfo = async (
 export const returnRental = async (uuid: string): Promise<Rentals> => {
   const current = await Rentals.findOne({
     where: {
-      uuid
+      lender: uuid
     }
   });
 
@@ -134,6 +134,28 @@ export const returnRental = async (uuid: string): Promise<Rentals> => {
   await current.destroy();
 
   return current;
+};
+
+export const returnRentalBySchoolInfo = async (
+  name: string,
+  department: number,
+  grade: number,
+  clazz: number,
+  number: number
+): Promise<Rentals> => {
+  const lenderUser = await Users.findOne({
+    where: {
+      name,
+      department,
+      studentGrade: grade,
+      studentClass: clazz,
+      studentNumber: number
+    }
+  });
+  if (!lenderUser) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+
+  const result = await returnRental(lenderUser.uuid);
+  return result;
 };
 
 export const setExpire = async (uuid: string): Promise<Rentals> => {
