@@ -130,6 +130,7 @@ export const returnRental = async (uuid: string): Promise<Rentals> => {
   });
 
   if (!current) throw new ServiceException(ErrorMessage.RENTAL_NOT_FOUND, 404);
+  if (current.isExpire) throw new ServiceException(ErrorMessage.RENTAL_EXPIRE, 403);
 
   await current.destroy();
 
