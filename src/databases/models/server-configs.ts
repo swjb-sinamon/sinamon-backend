@@ -6,13 +6,13 @@ interface ServerConfigAttributes {
   configValue: string;
 }
 
-class ServerConfig extends Model<ServerConfigAttributes> {
+class ServerConfigs extends Model<ServerConfigAttributes> {
   public configKey!: string;
 
   public configValue!: string;
 }
 
-ServerConfig.init(
+ServerConfigs.init(
   {
     configKey: {
       type: DataTypes.STRING,
@@ -25,7 +25,7 @@ ServerConfig.init(
       allowNull: false
     }
   },
-  { sequelize, modelName: 'serverconfig', timestamps: false }
+  { sequelize, modelName: 'serverconfigs', timestamps: false }
 );
 
-export default ServerConfig;
+export default ServerConfigs;
