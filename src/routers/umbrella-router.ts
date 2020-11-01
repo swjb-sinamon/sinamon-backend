@@ -380,6 +380,20 @@ router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated,
 const qrReturnValidator = [
   body('data').isString()
 ];
+/**
+ * @api {post} /umbrella/return/qr Return Umbrella with QRCode
+ * @apiName ReturnUmbrellawithQRCode
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ *
+ * @apiError (Error 401) QRCODE_EXPIRE QR코드 유효기간이 지났습니다.
+ * @apiError (Error 404) USER_NOT_FOUND 존재하지 않는 사용자입니다.
+ * @apiError (Error 404) RENTAL_NOT_FOUND 존재하지 않는 대여 정보입니다.
+ * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   const { data } = req.body;
 
@@ -436,6 +450,19 @@ const infoReturnValidator = [
   body('class').isNumeric(),
   body('number').isNumeric()
 ];
+/**
+ * @api {post} /umbrella/return/info Return Umbrella with Manual
+ * @apiName ReturnUmbrellawithManual
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ *
+ * @apiError (Error 404) USER_NOT_FOUND 존재하지 않는 사용자입니다.
+ * @apiError (Error 404) RENTAL_NOT_FOUND 존재하지 않는 대여 정보입니다.
+ * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
 router.post('/return/info', infoReturnValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
   const { name, department, grade, class: clazz, number } = req.body;
 

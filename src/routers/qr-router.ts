@@ -7,6 +7,16 @@ import { QRCODE_EXPIRE_MINUTE, qrKey } from '../managers/qr-crypto';
 
 const router = express.Router();
 
+/**
+ * @api {get} /qr Get QRCode
+ * @apiName GetQRCode
+ * @apiGroup QR
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {String} data 암호화된 QR코드 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ */
 router.get('/', requireAuthenticated, (req, res) => {
   const { uuid, email }: any = req.user;
   if (!uuid) return;
