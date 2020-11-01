@@ -35,8 +35,7 @@ Rentals.init(
     },
     lender: {
       type: DataTypes.UUID,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     umbrellaName: {
       type: DataTypes.STRING,
