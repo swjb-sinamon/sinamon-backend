@@ -321,6 +321,7 @@ const infoRentalValidator = [
  *
  * @apiSuccess {Boolean} success 성공 여부
  *
+ * @apiError (Error 404) USER_NOT_FOUND 존재하지 않는 사용자입니다.
  * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
  * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
  * @apiError (Error 409) RENTAL_USER_ALREADY_EXISTS 이미 우산을 대여한 학생입니다.
