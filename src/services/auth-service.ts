@@ -39,14 +39,10 @@ export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => 
   return sendedUser;
 };
 
-export const getUser = async (name: string, grade: number, clazz: number, number: number):
-  Promise<Users> => {
+export const getUser = async (uuid: string): Promise<Users> => {
   const result = await Users.findOne({
     where: {
-      name,
-      studentGrade: grade,
-      studentClass: clazz,
-      studentNumber: number
+      uuid
     }
   });
 

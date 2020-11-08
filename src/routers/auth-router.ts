@@ -4,7 +4,7 @@ import { body, query } from 'express-validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import { registerUser } from '../services/auth-service';
+import { getUser, registerUser } from '../services/auth-service';
 import { requireAuthenticated } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
 
@@ -162,6 +162,33 @@ router.get('/me', requireAuthenticated, (req: express.Request, res: express.Resp
   });
 
   logger.info(`${result.uuid} ${result.email} 님의 정보를 요청했습니다.`);
+});
+
+/**
+ * @api {get} /auth/user/:uuid Get User Profile By UUID
+ * @apiName GetUserProfileByUUID
+ * @apiGroup Auth
+ *
+ * @apiParam {String} uuid UUID
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 현재 로그인한 유저 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ */
+router.get('/user/:uuid', requireAuthenticated, async (req: express.Request, res: express.Response) => {
+  const { uuid } = req.params;
+
+  const data = await getUser(uuid);
+
+  data.password = '';
+
+  res.status(200).json({
+    success: true,
+    data
+  });
+
+  logger.info(`${uuid} 님의 정보를 요청했습니다.`);
 });
 
 /**
