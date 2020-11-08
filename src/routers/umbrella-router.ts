@@ -8,6 +8,7 @@ import {
   getNoRentalUmbrellas,
   getUmbrella,
   getUmbrellas,
+  getUmbrellasWithRentals,
   removeUmbrella,
   updateUmbrella
 } from '../services/umbrella-service';
@@ -50,8 +51,6 @@ router.get('/', getUmbrellasValidator, checkValidation, requireAuthenticated, as
   const isRental = rentalQuery.toString().toLowerCase() === 'true';
 
   try {
-    logger.info('전체 우산을 가져왔습니다.');
-
     if (isRental) {
       const data = await getUmbrellas();
       res.status(200).json({
@@ -66,8 +65,37 @@ router.get('/', getUmbrellasValidator, checkValidation, requireAuthenticated, as
       success: true,
       data
     });
+
+    logger.info('전체 우산을 가져왔습니다.');
   } catch (e) {
     logger.error('전체 우산을 가져오는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
+});
+
+/**
+ * @api {get} /umbrella/all Get Umbrellas With Rental Data
+ * @apiName GetUmbrellasWithRentalData
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 모든 대여 정보를 포함한 모든 우산 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
+router.get('/all', requireAuthenticated, async (req: express.Request, res: express.Response) => {
+  try {
+    const data = await getUmbrellasWithRentals();
+    res.status(200).json({
+      success: true,
+      data
+    });
+
+    logger.info('대여 정보와 함께 전체 우산을 가져왔습니다.');
+  } catch (e) {
+    logger.error('대여 정보와 함께 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
   }

@@ -3,10 +3,22 @@ import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Rentals from '../databases/models/rentals';
-import { logger } from '../index';
 
 export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   const result = await Umbrellas.findAll();
+  return result;
+};
+
+export const getUmbrellasWithRentals = async (): Promise<Umbrellas[]> => {
+  const result = await Umbrellas.findAll({
+    include: [
+      {
+        model: Rentals,
+        attributes: ['lender', 'expiryDate', 'isExpire']
+      }
+    ] as never
+  });
+
   return result;
 };
 
