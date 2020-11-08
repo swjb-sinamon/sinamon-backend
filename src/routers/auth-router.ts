@@ -80,7 +80,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
 
 const registerValidator = [
   body('email').isEmail(),
-  body('password'),
+  body('password').isString(),
   body('name').isString(),
   body('department').isNumeric(),
   body('studentGrade').isNumeric(),
