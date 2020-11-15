@@ -2,10 +2,10 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../index';
 
 interface ActivationCodeAttributes {
-  id: number;
+  id?: number;
   code: string;
   isUse: boolean;
-  useAt: Date;
+  useAt?: Date;
 }
 
 class ActivationCode extends Model<ActivationCodeAttributes> {
