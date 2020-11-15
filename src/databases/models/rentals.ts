@@ -39,8 +39,7 @@ Rentals.init(
     },
     umbrellaName: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     expiryDate: {
       type: DataTypes.DATE,
