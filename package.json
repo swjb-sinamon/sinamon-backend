@@ -6,7 +6,8 @@
     "build": "tsc",
     "start:production": "node ./dist/server.js",
     "lint": "eslint src/**/*.ts[x]",
-    "apidoc": "apidoc -i ./src/ -o ./apidoc/"
+    "apidoc": "apidoc -i ./src/ -o ./apidoc/",
+    "makecode": "ts-node bin/makeActivationCode.ts"
   },
   "repository": {
     "type": "git",
