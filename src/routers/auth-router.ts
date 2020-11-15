@@ -7,6 +7,8 @@ import { logger } from '../index';
 import { getUser, registerUser } from '../services/auth-service';
 import { requireAuthenticated } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
+import { useActivationCode } from '../services/activation-code-service';
+import ServiceException from '../exceptions';
 
 const router = express.Router();
 
@@ -85,7 +87,8 @@ const registerValidator = [
   body('department').isNumeric(),
   body('studentGrade').isNumeric(),
   body('studentClass').isNumeric(),
-  body('studentNumber').isNumeric()
+  body('studentNumber').isNumeric(),
+  body('code').isString()
 ];
 /**
  * @api {post} /auth/register User Register
@@ -96,48 +99,60 @@ const registerValidator = [
  * @apiSuccess {Object} data 회원가입한 유저 데이터
  *
  * @apiError (Error 409) USER_ALREADY_EXISTS 이미 존재하는 이메일입니다.
+ * @apiError (Error 404) ACTIVATION_CODE_NOT_FOUND 존재하지 않는 인증코드입니다.
+ * @apiError (Error 409) ACTIVATION_CODE_USED 이미 사용된 인증코드입니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  passport.authenticate('register', async (error, user, info) => {
-    if (error) {
-      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-      return;
-    }
-
-    if (info) {
-      if (info.message === ErrorMessage.USER_ALREADY_EXISTS) {
-        res.status(409).json(makeError(ErrorMessage.USER_ALREADY_EXISTS));
+  try {
+    const { code } = req.body;
+    passport.authenticate('register', async (error, user, info) => {
+      if (error) {
+        logger.error('회원가입 완료 중 오류가 발생하였습니다.');
+        logger.error(error);
+        res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+        return;
       }
-      return;
+
+      if (info) {
+        if (info.message === ErrorMessage.USER_ALREADY_EXISTS) {
+          res.status(409).json(makeError(ErrorMessage.USER_ALREADY_EXISTS));
+        }
+        return;
+      }
+
+      await useActivationCode(code);
+
+      try {
+        const { email, name, department, studentGrade, studentClass, studentNumber } = req.body;
+
+        const result = await registerUser({
+          email,
+          name,
+          department,
+          studentGrade,
+          studentClass,
+          studentNumber
+        });
+
+        res.status(200).json({
+          success: true,
+          data: result
+        });
+
+        logger.info(`${user.uuid} ${user.email} 님이 ${code} 인증코드를 사용하였습니다.`);
+        logger.info(`${result.uuid} ${result.email} 님이 회원가입하였습니다.`);
+      } catch (e) {
+        logger.error('회원가입 완료 중 오류가 발생하였습니다.');
+        logger.error(error);
+        res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      }
+    })(req, res, next);
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
     }
-
-    try {
-      const { email, name, department, studentGrade, studentClass, studentNumber } = req.body;
-
-      const result = await registerUser({
-        email,
-        name,
-        department,
-        studentGrade,
-        studentClass,
-        studentNumber
-      });
-
-      res.status(200).json({
-        success: true,
-        data: result
-      });
-
-      logger.info(`${user.uuid} ${user.email} 님이 회원가입하였습니다.`);
-    } catch (e) {
-      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-    }
-  })(req, res, next);
+  }
 });
 
 /**
