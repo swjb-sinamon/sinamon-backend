@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, param } from 'express-validator';
-import { requireAuthenticated } from '../middlewares/permission';
+import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import { createSubject, getSubject, getSubjects, removeSubject, updateSubject } from '../services/subject-service';
 import { checkValidation } from '../middlewares/validator';
 import { makeError } from '../error/error-system';
@@ -92,7 +92,7 @@ const createSubjectValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.post('/', createSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+router.post('/', createSubjectValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { subjectName } = req.body;
     const data = await createSubject(subjectName);
@@ -133,7 +133,7 @@ const updateSubjectValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.put('/:id', updateSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+router.put('/:id', updateSubjectValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
     const { subjectName } = req.body;
@@ -174,7 +174,7 @@ const removeSubjectValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.delete('/:id', removeSubjectValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+router.delete('/:id', removeSubjectValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
     const data = await removeSubject(parseInt(id, 10));

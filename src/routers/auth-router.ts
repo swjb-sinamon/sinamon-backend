@@ -4,8 +4,8 @@ import { body, query } from 'express-validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import { getUser, initUserPermission, registerUser } from '../services/auth-service';
-import { requireAuthenticated } from '../middlewares/permission';
+import { getMyPermission, getUser, initUserPermission, registerUser } from '../services/auth-service';
+import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
 import { useActivationCode } from '../services/activation-code-service';
 import ServiceException from '../exceptions';
@@ -37,7 +37,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
   const adminQuery = admin || 'false';
   const isAdminLogin = adminQuery.toString().toLowerCase() === 'true';
 
-  passport.authenticate('login', (error, user, info) => {
+  passport.authenticate('login', async (error, user, info) => {
     if (error) {
       logger.error('로그인 완료 중 오류가 발생하였습니다.');
       logger.error(error);
@@ -53,7 +53,8 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
       return;
     }
 
-    const isHavePermission = user.isAdmin || user.isTeacher;
+    const myPermission = await getMyPermission(user.uuid);
+    const isHavePermission = myPermission.some((v) => ['admin', 'teacher', 'schoolunion'].includes(v));
     if (isAdminLogin && !isHavePermission) {
       logger.warn(`${user.uuid} ${user.email} 사용자가 관리자 페이지 로그인을 시도하였습니다.`);
       res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
@@ -172,7 +173,7 @@ router.post('/register', registerValidator, checkValidation, async (req: express
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
-router.get('/me', requireAuthenticated, (req: express.Request, res: express.Response) => {
+router.get('/me', requireAuthenticated, async (req: express.Request, res: express.Response) => {
   const result: any = req.user;
   if (!result) return;
 
@@ -198,7 +199,7 @@ router.get('/me', requireAuthenticated, (req: express.Request, res: express.Resp
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
-router.get('/user/:uuid', requireAuthenticated, async (req: express.Request, res: express.Response) => {
+router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { uuid } = req.params;
 
   const data = await getUser(uuid);

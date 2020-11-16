@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, param } from 'express-validator';
-import { requireAuthenticated } from '../middlewares/permission';
+import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import { logger } from '../index';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
@@ -103,7 +103,7 @@ const createOnlineTimeTableValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.post('/', createOnlineTimeTableValidator, checkValidation, requireAuthenticated, async (req: express.Request, res: express.Response) => {
+router.post('/', createOnlineTimeTableValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { subjectId, teacher, type, url, startTime, dayWeek } = req.body;
 
   try {
@@ -153,7 +153,7 @@ const updateOnlineTimeTableValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.put('/:id', updateOnlineTimeTableValidator, checkValidation, requireAuthenticated,
+router.put('/:id', updateOnlineTimeTableValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const { subjectId, teacher, type, url, startTime, dayWeek } = req.body;
@@ -203,7 +203,7 @@ const removeOnlineTimeTableValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.delete('/:id', removeOnlineTimeTableValidator, checkValidation, requireAuthenticated,
+router.delete('/:id', removeOnlineTimeTableValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     try {
