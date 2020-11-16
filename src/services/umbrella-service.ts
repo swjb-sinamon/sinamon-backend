@@ -34,6 +34,7 @@ export const getRentalUmbrellas = async (containsRental: boolean): Promise<Umbre
       }
     });
 
+    if (containsRental && rental) return umbrella;
     if (!containsRental && !rental) return umbrella;
     return undefined;
   });
