@@ -4,7 +4,6 @@ import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Users from '../databases/models/users';
 import Umbrellas from '../databases/models/umbrellas';
-import { logger } from '../index';
 
 interface RentalProps {
   readonly umbrellaName: string;
