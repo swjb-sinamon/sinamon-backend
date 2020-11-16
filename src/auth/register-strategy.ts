@@ -26,9 +26,7 @@ export default () => {
       const user = await Users.create({
         uuid: uuidv4(),
         email,
-        password: hashed,
-        isAdmin: false,
-        isTeacher: false
+        password: hashed
       });
 
       return done(null, user);
