@@ -82,7 +82,14 @@ export const getUser = async (uuid: string): Promise<Users> => {
   const result = await Users.findOne({
     where: {
       uuid
-    }
+    },
+    include: [
+      {
+        model: Permissions,
+        attributes: ['isAdmin', 'isTeacher', 'isSchoolUnion'],
+        as: 'permission'
+      }
+    ] as never
   });
 
   if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
