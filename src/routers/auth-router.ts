@@ -178,6 +178,10 @@ router.get('/me', requireAuthenticated, async (req: express.Request, res: expres
   if (!result) return;
 
   result.password = '';
+  const myPermission = await getMyPermission(result.uuid);
+  const isPermission = myPermission.some((v) => ['admin', 'teacher', 'schoolunion'].includes(v));
+
+  result.isPermission = isPermission;
 
   res.status(200).json({
     success: true,
@@ -202,9 +206,13 @@ router.get('/me', requireAuthenticated, async (req: express.Request, res: expres
 router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { uuid } = req.params;
 
-  const data = await getUser(uuid);
+  const data: any = await getUser(uuid);
 
   data.password = '';
+  const myPermission = await getMyPermission(uuid);
+  const isPermission = myPermission.some((v) => ['admin', 'teacher', 'schoolunion'].includes(v));
+
+  data.isPermission = isPermission;
 
   res.status(200).json({
     success: true,
