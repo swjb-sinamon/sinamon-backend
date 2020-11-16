@@ -4,10 +4,9 @@ import crypto from 'crypto';
 import dayjs from 'dayjs';
 import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import {
-  createUmbrella,
-  getNoRentalUmbrellas,
+  createUmbrella, getExpiryUmbrellas,
+  getRentalUmbrellas,
   getUmbrella,
-  getUmbrellas,
   getUmbrellasWithRentals,
   removeUmbrella,
   updateUmbrella
@@ -36,7 +35,7 @@ const getUmbrellasValidator = [
  * @apiName GetUmbrellas
  * @apiGroup Umbrella
  *
- * @apiParam {Boolean} rental 빌려간 우산을 포함할지 안할지 (false일시 미포함)
+ * @apiParam {Boolean} rental 빌린 우산 표시 여부 (false일시 미포함)
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 모든 우산 데이터
@@ -51,24 +50,44 @@ router.get('/', getUmbrellasValidator, checkValidation, requireAuthenticated, re
   const isRental = rentalQuery.toString().toLowerCase() === 'true';
 
   try {
-    if (isRental) {
-      const data = await getUmbrellas();
-      res.status(200).json({
-        success: true,
-        data
-      });
-      return;
-    }
-
-    const data = await getNoRentalUmbrellas();
+    const data = await getRentalUmbrellas(isRental);
     res.status(200).json({
       success: true,
       data
     });
 
-    logger.info('전체 우산을 가져왔습니다.');
+    const log = isRental ? '빌린 우산을 포함한' : '빌린 우산을 포함하지 않은';
+    logger.info(`${log} 전체 우산을 가져왔습니다.`);
   } catch (e) {
     logger.error('전체 우산을 가져오는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
+});
+
+/**
+ * @api {get} /umbrella/expiry Get Umbrellas With Expiry
+ * @apiName GetUmbrellasWithExpiry
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 연체된 모든 우산 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
+router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+  try {
+    const data = await getExpiryUmbrellas();
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+
+    logger.info('연체된 전체 우산을 가져왔습니다.');
+  } catch (e) {
+    logger.error('연체된 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
   }

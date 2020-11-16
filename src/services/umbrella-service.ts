@@ -22,7 +22,7 @@ export const getUmbrellasWithRentals = async (): Promise<Umbrellas[]> => {
   return result;
 };
 
-export const getNoRentalUmbrellas = async (): Promise<Umbrellas[]> => {
+export const getRentalUmbrellas = async (containsRental: boolean): Promise<Umbrellas[]> => {
   const umbrellas = await Umbrellas.findAll();
 
   if (umbrellas.length === 0) return [];
@@ -34,7 +34,28 @@ export const getNoRentalUmbrellas = async (): Promise<Umbrellas[]> => {
       }
     });
 
-    if (!rental) return umbrella;
+    if (!containsRental && !rental) return umbrella;
+    return undefined;
+  });
+
+  const result = (await Promise.all(resultPromises)).filter((i) => i) as Umbrellas[];
+  return result;
+};
+
+export const getExpiryUmbrellas = async (): Promise<Umbrellas[]> => {
+  const umbrellas = await Umbrellas.findAll();
+
+  if (umbrellas.length === 0) return [];
+
+  const resultPromises = umbrellas.map(async (umbrella) => {
+    const rental = await Rentals.findOne({
+      where: {
+        umbrellaName: umbrella.name,
+        isExpire: true
+      }
+    });
+
+    if (rental) return umbrella;
     return undefined;
   });
 
