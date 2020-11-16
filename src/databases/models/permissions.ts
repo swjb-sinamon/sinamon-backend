@@ -42,7 +42,7 @@ Permissions.init(
       defaultValue: false
     }
   },
-  { sequelize, modelName: 'permissions' }
+  { sequelize, modelName: 'permissions', timestamps: false }
 );
 
 export default Permissions;
