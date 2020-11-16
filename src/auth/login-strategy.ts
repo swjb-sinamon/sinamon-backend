@@ -7,13 +7,13 @@ import Permissions from '../databases/models/permissions';
 
 export default () => {
   passport.use('login', new LocalStrategy({
-    usernameField: 'email',
+    usernameField: 'id',
     passwordField: 'password'
-  }, async (email, password, done) => {
+  }, async (id, password, done) => {
     try {
       const user = await Users.findOne({
         where: {
-          email
+          id
         },
         include: [
           {

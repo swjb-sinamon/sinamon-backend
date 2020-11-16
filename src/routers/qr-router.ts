@@ -18,13 +18,13 @@ const router = express.Router();
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
 router.get('/', requireAuthenticated, (req, res) => {
-  const { uuid, email }: any = req.user;
+  const { uuid, id }: any = req.user;
   if (!uuid) return;
 
   const expire = dayjs().add(QRCODE_EXPIRE_MINUTE, 'minute').unix();
   const data = {
     uuid,
-    email,
+    id,
     createdAt: dayjs().unix(),
     expiresIn: expire
   };
@@ -38,7 +38,7 @@ router.get('/', requireAuthenticated, (req, res) => {
     data: cipher
   });
 
-  logger.info(`${uuid} ${email} 님이 QR코드를 발급하였습니다.`);
+  logger.info(`${uuid} ${id} 님이 QR코드를 발급하였습니다.`);
 });
 
 export default router;

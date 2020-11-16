@@ -3,7 +3,7 @@ enum ErrorMessage {
   NO_PERMISSION = '권한이 없습니다.',
 
   USER_NOT_FOUND = '존재하지 않는 사용자입니다.',
-  USER_ALREADY_EXISTS = '이미 존재하는 이메일입니다.',
+  USER_ALREADY_EXISTS = '이미 존재하는 아이디입니다.',
 
   SUBJECT_NOT_FOUND = '존재하지 않는 과목입니다.',
   SUBJECT_ALREADY_EXISTS = '이미 존재하는 과목입니다.',

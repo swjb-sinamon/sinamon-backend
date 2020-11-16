@@ -8,13 +8,13 @@ import config from '../config';
 
 export default () => {
   passport.use('register', new LocalStrategy({
-    usernameField: 'email',
+    usernameField: 'id',
     passwordField: 'password'
-  }, async (email, password, done) => {
+  }, async (id, password, done) => {
     try {
       const prevUser = await Users.findOne({
         where: {
-          email
+          id
         }
       });
 
@@ -25,7 +25,7 @@ export default () => {
       const hashed = await bcrypt.hash(password, config.saltRound);
       const user = await Users.create({
         uuid: uuidv4(),
-        email,
+        id,
         password: hashed
       });
 

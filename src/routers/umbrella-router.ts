@@ -315,7 +315,7 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, req
 
   const decodeData: {
     uuid: string;
-    email: string;
+    id: string;
     createdAt: number;
     expiresIn: number;
   } = JSON.parse(plain);
@@ -323,7 +323,7 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, req
   const now = dayjs().unix();
 
   if (now > decodeData.expiresIn) {
-    logger.warn(`${user.uuid} ${user.email} 사용자가 만료된 QR코드를 사용했습니다.`);
+    logger.warn(`${user.uuid} ${user.id} 사용자가 만료된 QR코드를 사용했습니다.`);
     res.status(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
     return;
   }
@@ -453,7 +453,7 @@ router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticat
 
   const decodeData: {
     uuid: string;
-    email: string;
+    id: string;
     createdAt: number;
     expiresIn: number;
   } = JSON.parse(plain);
@@ -461,7 +461,7 @@ router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticat
   const now = dayjs().unix();
 
   if (now > decodeData.expiresIn) {
-    logger.warn(`${user.uuid} ${user.email} 사용자가 만료된 QR코드를 사용했습니다.`);
+    logger.warn(`${user.uuid} ${user.id} 사용자가 만료된 QR코드를 사용했습니다.`);
     res.status(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
     return;
   }

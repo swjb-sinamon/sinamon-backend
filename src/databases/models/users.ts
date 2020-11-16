@@ -3,7 +3,7 @@ import sequelize from '../index';
 
 interface UsersAttributes {
   uuid: string;
-  email: string;
+  id: string;
   name?: string;
   department?: number;
   studentGrade?: number;
@@ -15,7 +15,7 @@ interface UsersAttributes {
 class Users extends Model<UsersAttributes> {
   public uuid!: string;
 
-  public email!: string;
+  public id!: string;
 
   public name!: string;
 
@@ -42,7 +42,7 @@ Users.init(
       unique: true,
       primaryKey: true
     },
-    email: {
+    id: {
       type: DataTypes.CHAR,
       allowNull: false,
       unique: true

@@ -15,7 +15,7 @@ const router = express.Router();
 
 const loginValidator = [
   query('admin').isBoolean(),
-  body('email').isEmail(),
+  body('id').isString(),
   body('password')
 ];
 /**
@@ -56,7 +56,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
     const myPermission = await getMyPermission(user.uuid);
     const isHavePermission = myPermission.some((v) => ['admin', 'teacher', 'schoolunion'].includes(v));
     if (isAdminLogin && !isHavePermission) {
-      logger.warn(`${user.uuid} ${user.email} 사용자가 관리자 페이지 로그인을 시도하였습니다.`);
+      logger.warn(`${user.uuid} ${user.id} 사용자가 관리자 페이지 로그인을 시도하였습니다.`);
       res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
       return;
     }
@@ -69,7 +69,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
         return;
       }
 
-      logger.info(`${user.uuid} ${user.email} 님이 로그인하였습니다.`);
+      logger.info(`${user.uuid} ${user.id} 님이 로그인하였습니다.`);
 
       const result = user;
       result.password = '';
@@ -83,7 +83,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
 });
 
 const registerValidator = [
-  body('email').isEmail(),
+  body('id').isString(),
   body('password').isString(),
   body('name').isString(),
   body('department').isNumeric(),
@@ -106,7 +106,7 @@ const registerValidator = [
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const { email, name, department, studentGrade, studentClass, studentNumber, code } = req.body;
+  const { id, name, department, studentGrade, studentClass, studentNumber, code } = req.body;
   passport.authenticate('register', async (error, user, info) => {
     if (error) {
       logger.error('회원가입 완료 중 오류가 발생하였습니다.');
@@ -126,7 +126,7 @@ router.post('/register', registerValidator, checkValidation, async (req: express
       await useActivationCode(code);
 
       const result = await registerUser({
-        email,
+        id,
         name,
         department,
         studentGrade,
@@ -141,14 +141,14 @@ router.post('/register', registerValidator, checkValidation, async (req: express
         data: result
       });
 
-      logger.info(`${user.uuid} ${user.email} 님이 ${code} 인증코드를 사용하였습니다.`);
-      logger.info(`${result.uuid} ${result.email} 님이 회원가입하였습니다.`);
-      logger.info(`${result.uuid} ${result.email} 님의 권한을 설정했습니다.`);
+      logger.info(`${user.uuid} ${user.id} 님이 ${code} 인증코드를 사용하였습니다.`);
+      logger.info(`${result.uuid} ${result.id} 님이 회원가입하였습니다.`);
+      logger.info(`${result.uuid} ${result.id} 님의 권한을 설정했습니다.`);
     } catch (e) {
       if (e instanceof ServiceException) {
         await Users.destroy({
           where: {
-            email
+            id
           },
           force: true
         });
@@ -184,7 +184,7 @@ router.get('/me', requireAuthenticated, async (req: express.Request, res: expres
     data: result
   });
 
-  logger.info(`${result.uuid} ${result.email} 님의 정보를 요청했습니다.`);
+  logger.info(`${result.uuid} ${result.id} 님의 정보를 요청했습니다.`);
 });
 
 /**
@@ -229,7 +229,7 @@ router.delete('/logout', requireAuthenticated, (req: express.Request, res: expre
 
   result.password = '';
 
-  logger.info(`${result.uuid} ${result.email} 님이 로그아웃을 하였습니다.`);
+  logger.info(`${result.uuid} ${result.id} 님이 로그아웃을 하였습니다.`);
   req.logout();
 
   res.status(200).json({

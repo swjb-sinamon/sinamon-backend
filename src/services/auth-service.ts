@@ -5,7 +5,7 @@ import Permissions from '../databases/models/permissions';
 import { PermissionType } from '../types';
 
 interface UserInfoParams {
-  readonly email: string;
+  readonly id: string;
   readonly name: string;
   readonly department: number;
   readonly studentGrade: number;
@@ -14,7 +14,7 @@ interface UserInfoParams {
 }
 
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
-  const { email, name, department, studentGrade, studentClass, studentNumber } = userInfo;
+  const { id, name, department, studentGrade, studentClass, studentNumber } = userInfo;
 
   await Users.update({
     name,
@@ -24,13 +24,13 @@ export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => 
     studentNumber
   }, {
     where: {
-      email
+      id
     }
   });
 
   const sendedUser = await Users.findOne({
     where: {
-      email
+      id
     }
   });
 
