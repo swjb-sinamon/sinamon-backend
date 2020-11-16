@@ -4,7 +4,7 @@ import { body, query } from 'express-validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import { getUser, registerUser } from '../services/auth-service';
+import { getUser, initUserPermission, registerUser } from '../services/auth-service';
 import { requireAuthenticated } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
 import { useActivationCode } from '../services/activation-code-service';
@@ -133,6 +133,8 @@ router.post('/register', registerValidator, checkValidation, async (req: express
         studentNumber
       });
 
+      await initUserPermission(result.uuid);
+
       res.status(200).json({
         success: true,
         data: result
@@ -140,6 +142,7 @@ router.post('/register', registerValidator, checkValidation, async (req: express
 
       logger.info(`${user.uuid} ${user.email} 님이 ${code} 인증코드를 사용하였습니다.`);
       logger.info(`${result.uuid} ${result.email} 님이 회원가입하였습니다.`);
+      logger.info(`${result.uuid} ${result.email} 님의 권한을 설정했습니다.`);
     } catch (e) {
       if (e instanceof ServiceException) {
         await Users.destroy({

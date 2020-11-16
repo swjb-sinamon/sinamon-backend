@@ -1,6 +1,7 @@
 import Users from '../databases/models/users';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
+import Permissions from '../databases/models/permissions';
 
 interface UserInfoParams {
   readonly email: string;
@@ -37,6 +38,17 @@ export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => 
   sendedUser.password = '';
 
   return sendedUser;
+};
+
+export const initUserPermission = async (uuid: string): Promise<Permissions> => {
+  const result = await Permissions.create({
+    uuid,
+    isAdmin: false,
+    isTeacher: false,
+    isSchoolUnion: false
+  });
+
+  return result;
 };
 
 export const getUser = async (uuid: string): Promise<Users> => {
