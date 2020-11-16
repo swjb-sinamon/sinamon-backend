@@ -7,12 +7,14 @@ import passport from 'passport';
 import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import helmet from 'helmet';
+import { schedule } from 'node-cron';
 import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
 import Router from './routers';
 import ServerConfigs from './databases/models/server-configs';
+import Rentals from './databases/models/rentals';
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -90,3 +92,30 @@ app.use('*', (req, res, next) => {
 });
 
 app.use('/v1', Router);
+
+schedule('* */2 * * *', async () => {
+  logger.info('우산 연체 여부를 확인합니다.');
+
+  const now = Math.floor(new Date().getTime() / 1000);
+  const current = await Rentals.findAll({
+    where: {
+      isExpire: false
+    }
+  });
+
+  let count = 0;
+  const promise = current.map(async (info) => {
+    const time = Math.floor(info.expiryDate.getTime() / 1000);
+    if (now >= time) {
+      await info.update({
+        isExpire: true
+      });
+      count += 1;
+    }
+  });
+
+  await Promise.all(promise);
+
+  logger.info(`우산 ${count}개가 연체되었습니다.`);
+  logger.info('우산 연체 여부를 확인 완료했습니다.');
+});
