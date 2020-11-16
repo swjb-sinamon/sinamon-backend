@@ -3,7 +3,7 @@ import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { PermissionType } from '../types';
 import Permissions from '../databases/models/permissions';
-import { logger } from '../index';
+import { getMyPermission } from '../services/auth-service';
 
 export const requireAuthenticated = (
   req: express.Request,
@@ -37,24 +37,12 @@ export const requirePermission = (type: PermissionType[]) => (
   }).then((data) => {
     if (!data) {
       res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
-      return;
+      return Promise.reject();
     }
 
-    const myPermission: PermissionType[] = [];
-
-    if (data.isAdmin) {
-      myPermission.push('admin');
-    }
-
-    if (data.isTeacher) {
-      myPermission.push('teacher');
-    }
-
-    if (data.isSchoolUnion) {
-      myPermission.push('schoolunion');
-    }
-
-    const result = myPermission.some((v) => type.includes(v));
+    return getMyPermission(data.uuid);
+  }).then((my) => {
+    const result = my.some((v) => type.includes(v));
     if (result) next();
     else res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
   });

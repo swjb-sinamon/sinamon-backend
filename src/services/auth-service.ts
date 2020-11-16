@@ -2,6 +2,7 @@ import Users from '../databases/models/users';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
+import { PermissionType } from '../types';
 
 interface UserInfoParams {
   readonly email: string;
@@ -49,6 +50,32 @@ export const initUserPermission = async (uuid: string): Promise<Permissions> => 
   });
 
   return result;
+};
+
+export const getMyPermission = async (uuid: string): Promise<PermissionType[]> => {
+  const data = await Permissions.findOne({
+    where: {
+      uuid
+    }
+  });
+
+  if (!data) return [];
+
+  const myPermission: PermissionType[] = [];
+
+  if (data.isAdmin) {
+    myPermission.push('admin');
+  }
+
+  if (data.isTeacher) {
+    myPermission.push('teacher');
+  }
+
+  if (data.isSchoolUnion) {
+    myPermission.push('schoolunion');
+  }
+
+  return myPermission;
 };
 
 export const getUser = async (uuid: string): Promise<Users> => {
