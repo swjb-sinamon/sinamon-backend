@@ -5,7 +5,7 @@
     "start": "nodemon",
     "build": "tsc",
     "start:production": "node ./dist/server.js",
-    "lint": "eslint src/**/*.ts[x]",
+    "lint": "eslint src/**/*.ts",
     "apidoc": "apidoc -i ./src/ -o ./apidoc/",
     "makecode": "ts-node bin/makeActivationCode.ts"
   },
