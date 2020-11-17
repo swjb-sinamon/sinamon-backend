@@ -330,6 +330,7 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, req
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(19);
 
   try {
     await borrowRentalByUUID(decodeData.uuid, {
@@ -389,6 +390,7 @@ router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated,
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(19);
 
   try {
     await borrowRentalBySchoolInfo(
