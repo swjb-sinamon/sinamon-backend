@@ -8,6 +8,7 @@ import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import helmet from 'helmet';
 import { schedule } from 'node-cron';
+import redis from 'redis';
 import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
@@ -15,6 +16,9 @@ import db from './databases';
 import Router from './routers';
 import ServerConfigs from './databases/models/server-configs';
 import Rentals from './databases/models/rentals';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const connectRedis = require('connect-redis');
 
 export const app = express();
 export const logger = log4js.getLogger();
@@ -66,6 +70,9 @@ db.sync().then(async () => {
   }
 });
 
+const RedisStore = connectRedis(session);
+const client = redis.createClient(config.redis.port, config.redis.host);
+
 app.set('trust proxy', true);
 app.use(helmet());
 app.use(cors({ origin: [config.frontendHost, config.adminHost], credentials: true }));
@@ -73,9 +80,16 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(session({
+  store: new RedisStore({
+    client
+  }),
   secret: config.sessionSecret,
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: false
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
