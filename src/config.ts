@@ -16,7 +16,11 @@ const config = {
   saltRound: parseInt(process.env.BCRYPT_SALT_ROUNDS!, 10),
   qrSecret: process.env.QR_SECRET!,
   openWeatherApiKey: process.env.OPENWEATHER_API_KEY!,
-  dustApiKey: process.env.DUST_API_KEY!
+  dustApiKey: process.env.DUST_API_KEY!,
+  redis: {
+    host: process.env.REDIS_HOST! || '127.0.0.1',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  }
 };
 
 export default config;
