@@ -82,7 +82,7 @@ app.use(express.json());
 app.use(session({
   store: new RedisStore({
     client,
-	ttl: 2592000
+    ttl: 2592000
   }),
   secret: config.sessionSecret,
   resave: false,
