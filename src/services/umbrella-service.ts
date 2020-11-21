@@ -3,14 +3,19 @@ import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Rentals from '../databases/models/rentals';
+import { pagination } from '../utils/pagination';
 
 export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   const result = await Umbrellas.findAll();
   return result;
 };
 
-export const getUmbrellasWithRentals = async (): Promise<Umbrellas[]> => {
+export const getUmbrellasWithRentals = async (usePagination = false, page = 0, limit = 10):
+  Promise<Umbrellas[]> => {
+  const option = pagination(usePagination, page, limit);
+
   const result = await Umbrellas.findAll({
+    ...option,
     include: [
       {
         model: Rentals,
@@ -22,13 +27,20 @@ export const getUmbrellasWithRentals = async (): Promise<Umbrellas[]> => {
   return result;
 };
 
-export const getRentalUmbrellas = async (containsRental: boolean): Promise<Umbrellas[]> => {
+export const getRentalUmbrellas = async (
+  containsRental: boolean,
+  usePagination = false,
+  page = 0,
+  limit = 10
+): Promise<Umbrellas[]> => {
+  const option = pagination(usePagination, page, limit);
   const umbrellas = await Umbrellas.findAll();
 
   if (umbrellas.length === 0) return [];
 
   const resultPromises = umbrellas.map(async (umbrella) => {
     const rental = await Rentals.findOne({
+      ...option,
       where: {
         umbrellaName: umbrella.name
       }
