@@ -68,6 +68,7 @@
     "mysql2": "^2.1.0",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
+    "ts-node": "^9.0.0",
     "typescript": "^3.9.7"
   }
 }
