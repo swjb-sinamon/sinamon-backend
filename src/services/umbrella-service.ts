@@ -5,11 +5,6 @@ import ErrorMessage from '../error/error-message';
 import Rentals from '../databases/models/rentals';
 import { pagination } from '../utils/pagination';
 
-export const getUmbrellas = async (): Promise<Umbrellas[]> => {
-  const result = await Umbrellas.findAll();
-  return result;
-};
-
 export const getUmbrellasWithRentals = async (usePagination = false, page = 0, limit = 10):
   Promise<Umbrellas[]> => {
   const option = pagination(usePagination, page, limit);
