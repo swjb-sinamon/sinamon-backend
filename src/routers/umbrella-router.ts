@@ -1,13 +1,12 @@
 import express from 'express';
-import { body, param, query } from 'express-validator';
+import { body, param } from 'express-validator';
 import crypto from 'crypto';
 import dayjs from 'dayjs';
 import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import {
-  createUmbrella, getExpiryUmbrellas,
-  getRentalUmbrellas,
-  getUmbrella,
-  getUmbrellasWithRentals,
+  createUmbrella, getBorrowedUmbrellas,
+  getExpiryUmbrellas,
+  getUmbrella, getUmbrellaAllData, getUmbrellas,
   removeUmbrella,
   updateUmbrella
 } from '../services/umbrella-service';
@@ -27,15 +26,10 @@ import {
 
 const router = express.Router();
 
-const getUmbrellasValidator = [
-  query('rental').isBoolean()
-];
 /**
- * @api {get} /umbrella?rental=:rental Get Umbrellas
+ * @api {get} /umbrella 빌릴 수 있는 우산 가져오기
  * @apiName GetUmbrellas
  * @apiGroup Umbrella
- *
- * @apiParam {Boolean} rental 빌린 우산 표시 여부 (false일시 미포함)
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 모든 우산 데이터
@@ -43,30 +37,53 @@ const getUmbrellasValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/', getUmbrellasValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  const { rental } = req.query;
-
-  const rentalQuery = rental || 'false';
-  const isRental = rentalQuery.toString().toLowerCase() === 'true';
-
+router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
-    const data = await getRentalUmbrellas(isRental);
+    const data = await getUmbrellas();
+
     res.status(200).json({
       success: true,
       data
     });
 
-    const log = isRental ? '빌린 우산을 포함한' : '빌린 우산을 포함하지 않은';
-    logger.info(`${log} 전체 우산을 가져왔습니다.`);
+    logger.info('빌릴 수 있는 전체 우산을 가져왔습니다.');
   } catch (e) {
-    logger.error('전체 우산을 가져오는 중에 오류가 발생하였습니다.');
+    logger.error('빌릴 수 있는 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
   }
 });
 
 /**
- * @api {get} /umbrella/expiry Get Umbrellas With Expiry
+ * @api {get} /umbrella/rental 빌린 우산 가져오기
+ * @apiName GetUmbrellasWithRental
+ * @apiGroup Umbrella
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 모든 우산 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
+router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+  try {
+    const data = await getBorrowedUmbrellas();
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+
+    logger.info('대여 상태인 전체 우산을 가져왔습니다.');
+  } catch (e) {
+    logger.error('대여 상태인 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
+});
+
+/**
+ * @api {get} /umbrella/expiry 연체된 우산 가져오기
  * @apiName GetUmbrellasWithExpiry
  * @apiGroup Umbrella
  *
@@ -94,9 +111,12 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
 });
 
 /**
- * @api {get} /umbrella/all Get Umbrellas With Rental Data
+ * @api {get} /umbrella/all?limit=:limit&offset=:offset 대여 정보를 포함한 모든 우산 가져오기
  * @apiName GetUmbrellasWithRentalData
  * @apiGroup Umbrella
+ *
+ * @apiParam {Number} limit 한 페이지당 데이터 수
+ * @apiParam {Number} offset 페이지
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 모든 대여 정보를 포함한 모든 우산 데이터
@@ -106,10 +126,22 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
  */
 router.get('/all', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
-    const data = await getUmbrellasWithRentals();
+    const { offset, limit } = req.query;
+    let result;
+    if (offset && limit) {
+      result = await getUmbrellaAllData(
+        true,
+        parseInt(offset.toString(), 10),
+        parseInt(limit.toString(), 10)
+      );
+    } else {
+      result = await getUmbrellaAllData();
+    }
+
     res.status(200).json({
       success: true,
-      data
+      total: result.count,
+      data: result.data
     });
 
     logger.info('대여 정보와 함께 전체 우산을 가져왔습니다.');

@@ -5,9 +5,13 @@ import ErrorMessage from '../error/error-message';
 import Rentals from '../databases/models/rentals';
 import { pagination } from '../utils/pagination';
 
-export const getUmbrellasWithRentals = async (usePagination = false, page = 0, limit = 10):
-  Promise<Umbrellas[]> => {
+type UmbrellaReturn = { data: Umbrellas[], count: number };
+
+export const getUmbrellaAllData = async (usePagination = false, page = 0, limit = 10):
+  Promise<UmbrellaReturn> => {
   const option = pagination(usePagination, page, limit);
+
+  const count = await Umbrellas.count();
 
   const result = await Umbrellas.findAll({
     ...option,
@@ -19,34 +23,47 @@ export const getUmbrellasWithRentals = async (usePagination = false, page = 0, l
     ] as never
   });
 
-  return result;
+  return {
+    data: result,
+    count
+  };
 };
 
-export const getRentalUmbrellas = async (
-  containsRental: boolean,
-  usePagination = false,
-  page = 0,
-  limit = 10
-): Promise<Umbrellas[]> => {
-  const option = pagination(usePagination, page, limit);
+export const getUmbrellas = async (): Promise<Umbrellas[]> => {
   const umbrellas = await Umbrellas.findAll();
-
-  if (umbrellas.length === 0) return [];
 
   const resultPromises = umbrellas.map(async (umbrella) => {
     const rental = await Rentals.findOne({
-      ...option,
       where: {
         umbrellaName: umbrella.name
       }
     });
 
-    if (containsRental && rental) return umbrella;
-    if (!containsRental && !rental) return umbrella;
+    if (!rental) return umbrella;
     return undefined;
   });
 
   const result = (await Promise.all(resultPromises)).filter((i) => i) as Umbrellas[];
+
+  return result;
+};
+
+export const getBorrowedUmbrellas = async (): Promise<Umbrellas[]> => {
+  const umbrellas = await Umbrellas.findAll();
+
+  const resultPromises = umbrellas.map(async (umbrella) => {
+    const rental = await Rentals.findOne({
+      where: {
+        umbrellaName: umbrella.name
+      }
+    });
+
+    if (rental) return umbrella;
+    return undefined;
+  });
+
+  const result = (await Promise.all(resultPromises)).filter((i) => i) as Umbrellas[];
+
   return result;
 };
 
