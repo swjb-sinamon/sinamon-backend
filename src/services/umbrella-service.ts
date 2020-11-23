@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import Umbrellas from '../databases/models/umbrellas';
 import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
@@ -68,24 +69,26 @@ export const getBorrowedUmbrellas = async (): Promise<Umbrellas[]> => {
 };
 
 export const getExpiryUmbrellas = async (): Promise<Umbrellas[]> => {
-  const umbrellas = await Umbrellas.findAll();
-
-  if (umbrellas.length === 0) return [];
-
-  const resultPromises = umbrellas.map(async (umbrella) => {
-    const rental = await Rentals.findOne({
+  const umbrellas = await Umbrellas.findAll({
+    include: {
+      model: Rentals,
+      attributes: [],
       where: {
-        umbrellaName: umbrella.name,
-        isExpire: true
+        [Op.and]: [
+          {
+            uuid: {
+              [Op.not]: null
+            }
+          },
+          {
+            isExpire: true
+          }
+        ]
       }
-    });
-
-    if (rental) return umbrella;
-    return undefined;
+    } as never
   });
 
-  const result = (await Promise.all(resultPromises)).filter((i) => i) as Umbrellas[];
-  return result;
+  return umbrellas;
 };
 
 export const getUmbrella = async (name: string): Promise<Umbrellas> => {
