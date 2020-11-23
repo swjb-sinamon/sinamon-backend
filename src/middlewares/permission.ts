@@ -2,7 +2,6 @@ import express from 'express';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { PermissionType } from '../types';
-import Permissions from '../databases/models/permissions';
 import { getMyPermission } from '../services/auth-service';
 
 export const requireAuthenticated = (
@@ -30,20 +29,17 @@ export const requirePermission = (type: PermissionType[]) => (
     return;
   }
 
-  Permissions.findOne({
-    where: {
-      uuid: user.uuid
-    }
-  }).then((data) => {
-    if (!data) {
+  getMyPermission(user.uuid).then((my) => {
+    if (my.length === 0) {
       res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
-      return Promise.reject();
+      return;
     }
 
-    return getMyPermission(data.uuid);
-  }).then((my) => {
     const result = my.some((v) => type.includes(v));
-    if (result) next();
-    else res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
+    if (result) {
+      next();
+    } else {
+      res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
+    }
   });
 };
