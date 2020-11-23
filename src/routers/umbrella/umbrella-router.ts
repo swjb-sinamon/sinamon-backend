@@ -2,195 +2,23 @@ import express from 'express';
 import { body, param } from 'express-validator';
 import crypto from 'crypto';
 import dayjs from 'dayjs';
-import { requireAuthenticated, requirePermission } from '../middlewares/permission';
-import {
-  createUmbrella, getBorrowedUmbrellas,
-  getExpiryUmbrellas,
-  getUmbrella, getUmbrellaAllData, getUmbrellas,
-  removeUmbrella,
-  updateUmbrella
-} from '../services/umbrella-service';
-import { logger } from '../index';
-import { makeError } from '../error/error-system';
-import ErrorMessage from '../error/error-message';
-import { checkValidation } from '../middlewares/validator';
-import { UmbrellaStatus } from '../types';
-import ServiceException from '../exceptions';
-import { qrKey } from '../managers/qr-crypto';
+import { requireAuthenticated, requirePermission } from '../../middlewares/permission';
+import { createUmbrella, removeUmbrella, updateUmbrella } from '../../services/umbrella-service';
+import { logger } from '../../index';
+import { makeError } from '../../error/error-system';
+import ErrorMessage from '../../error/error-message';
+import { checkValidation } from '../../middlewares/validator';
+import { UmbrellaStatus } from '../../types';
+import ServiceException from '../../exceptions';
+import { qrKey } from '../../managers/qr-crypto';
 import {
   borrowRentalBySchoolInfo,
   borrowRentalByUUID,
   returnRental,
   returnRentalBySchoolInfo
-} from '../services/rental-service';
+} from '../../services/rental-service';
 
 const router = express.Router();
-
-/**
- * @api {get} /umbrella 빌릴 수 있는 우산 가져오기
- * @apiName GetUmbrellas
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
-router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  try {
-    const data = await getUmbrellas();
-
-    res.status(200).json({
-      success: true,
-      data
-    });
-
-    logger.info('빌릴 수 있는 전체 우산을 가져왔습니다.');
-  } catch (e) {
-    logger.error('빌릴 수 있는 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
-    logger.error(e);
-    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-  }
-});
-
-/**
- * @api {get} /umbrella/rental 빌린 우산 가져오기
- * @apiName GetUmbrellasWithRental
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
-router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  try {
-    const data = await getBorrowedUmbrellas();
-
-    res.status(200).json({
-      success: true,
-      data
-    });
-
-    logger.info('대여 상태인 전체 우산을 가져왔습니다.');
-  } catch (e) {
-    logger.error('대여 상태인 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
-    logger.error(e);
-    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-  }
-});
-
-/**
- * @api {get} /umbrella/expiry 연체된 우산 가져오기
- * @apiName GetUmbrellasWithExpiry
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 연체된 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
-router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  try {
-    const data = await getExpiryUmbrellas();
-
-    res.status(200).json({
-      success: true,
-      data
-    });
-
-    logger.info('연체된 전체 우산을 가져왔습니다.');
-  } catch (e) {
-    logger.error('연체된 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
-    logger.error(e);
-    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-  }
-});
-
-/**
- * @api {get} /umbrella/all?limit=:limit&offset=:offset 대여 정보를 포함한 모든 우산 가져오기
- * @apiName GetUmbrellasWithRentalData
- * @apiGroup Umbrella
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 모든 대여 정보를 포함한 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
-router.get('/all', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  try {
-    const { offset, limit } = req.query;
-    let result;
-    if (offset && limit) {
-      result = await getUmbrellaAllData(
-        true,
-        parseInt(offset.toString(), 10),
-        parseInt(limit.toString(), 10)
-      );
-    } else {
-      result = await getUmbrellaAllData();
-    }
-
-    res.status(200).json({
-      success: true,
-      total: result.count,
-      data: result.data
-    });
-
-    logger.info('대여 정보와 함께 전체 우산을 가져왔습니다.');
-  } catch (e) {
-    logger.error('대여 정보와 함께 전체 우산을 가져오는 중에 오류가 발생하였습니다.');
-    logger.error(e);
-    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-  }
-});
-
-const getUmbrellaValidator = [
-  param('name').isString()
-];
-/**
- * @api {get} /umbrella/:name Get Umbrella
- * @apiName GetUmbrella
- * @apiGroup Umbrella
- *
- * @apiParam {String} name 우산 이름
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 우산 데이터
- *
- * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
-router.get('/:name', getUmbrellaValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  try {
-    const { name } = req.params;
-    const data = await getUmbrella(name);
-
-    res.status(200).json({
-      success: true,
-      data
-    });
-
-    logger.info(`${name} 우산을 가져왔습니다.`);
-  } catch (e) {
-    if (e instanceof ServiceException) {
-      res.status(e.httpStatus).json(makeError(e.message));
-      return;
-    }
-
-    logger.error('우산을 가져오는 중에 오류가 발생하였습니다.');
-    logger.error(e);
-    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-  }
-});
 
 const createUmbrellaValidator = [
   body('name').isString(),
