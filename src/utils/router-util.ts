@@ -1,4 +1,5 @@
-// eslint-disable-next-line import/prefer-default-export
+import { Op } from 'sequelize';
+
 export const pagination = (usePagination = false, page = 0, limit = 10): Record<string, number> => {
   const option: Record<string, number> = {};
   if (usePagination) {
@@ -10,6 +11,22 @@ export const pagination = (usePagination = false, page = 0, limit = 10): Record<
 
     option.offset = offset;
     option.limit = limit;
+  }
+
+  return option;
+};
+
+export const search = <T>(searchQuery?: string, key?: keyof T): Record<string, number> => {
+  let option = {};
+
+  if (searchQuery && key) {
+    option = {
+      where: {
+        [key]: {
+          [Op.like]: `%${searchQuery}%`
+        }
+      }
+    };
   }
 
   return option;
