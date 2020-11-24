@@ -74,16 +74,7 @@ export const getExpiryUmbrellas = async (): Promise<Umbrellas[]> => {
       model: Rentals,
       attributes: [],
       where: {
-        [Op.and]: [
-          {
-            uuid: {
-              [Op.not]: null
-            }
-          },
-          {
-            isExpire: true
-          }
-        ]
+        isExpire: true
       }
     } as never
   });
