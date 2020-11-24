@@ -31,45 +31,39 @@ export const getUmbrellaAllData = async (usePagination = false, page = 0, limit 
 };
 
 export const getUmbrellas = async (): Promise<Umbrellas[]> => {
-  const umbrellas = await Umbrellas.findAll();
-
-  const resultPromises = umbrellas.map(async (umbrella) => {
-    const rental = await Rentals.findOne({
-      where: {
-        umbrellaName: umbrella.name
-      }
-    });
-
-    if (!rental) return umbrella;
-    return undefined;
+  const umbrellas = await Umbrellas.findAll({
+    include: {
+      model: Rentals,
+      attributes: ['uuid']
+    } as never
   });
 
-  const result = (await Promise.all(resultPromises)).filter((i) => i) as Umbrellas[];
+  const result = umbrellas
+    .filter((umbrella: any) => !umbrella.rental)
+    .map((item: any) => item.dataValues)
+    .map(({ rental, ...current }: any) => current);
 
   return result;
 };
 
 export const getBorrowedUmbrellas = async (): Promise<Umbrellas[]> => {
-  const umbrellas = await Umbrellas.findAll();
-
-  const resultPromises = umbrellas.map(async (umbrella) => {
-    const rental = await Rentals.findOne({
+  const result = await Umbrellas.findAll({
+    include: {
+      model: Rentals,
+      attributes: [],
       where: {
-        umbrellaName: umbrella.name
+        uuid: {
+          [Op.not]: null
+        }
       }
-    });
-
-    if (rental) return umbrella;
-    return undefined;
+    } as never
   });
-
-  const result = (await Promise.all(resultPromises)).filter((i) => i) as Umbrellas[];
 
   return result;
 };
 
 export const getExpiryUmbrellas = async (): Promise<Umbrellas[]> => {
-  const umbrellas = await Umbrellas.findAll({
+  const result = await Umbrellas.findAll({
     include: {
       model: Rentals,
       attributes: [],
@@ -79,7 +73,7 @@ export const getExpiryUmbrellas = async (): Promise<Umbrellas[]> => {
     } as never
   });
 
-  return umbrellas;
+  return result;
 };
 
 export const getUmbrella = async (name: string): Promise<Umbrellas> => {
