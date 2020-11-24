@@ -4,18 +4,24 @@ import { UmbrellaStatus } from '../types';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Rentals from '../databases/models/rentals';
-import { pagination } from '../utils/pagination';
+import { pagination, search } from '../utils/router-util';
 
 type UmbrellaReturn = { data: Umbrellas[], count: number };
 
-export const getUmbrellaAllData = async (usePagination = false, page = 0, limit = 10):
-  Promise<UmbrellaReturn> => {
+export const getUmbrellaAllData = async (
+  usePagination = false,
+  page = 0,
+  limit = 10,
+  searchQuery?: string
+): Promise<UmbrellaReturn> => {
   const option = pagination(usePagination, page, limit);
+  const searchOption = search<Umbrellas>(searchQuery, 'name');
 
   const count = await Umbrellas.count();
 
   const result = await Umbrellas.findAll({
     ...option,
+    ...searchOption,
     include: [
       {
         model: Rentals,
@@ -30,24 +36,47 @@ export const getUmbrellaAllData = async (usePagination = false, page = 0, limit 
   };
 };
 
-export const getUmbrellas = async (): Promise<Umbrellas[]> => {
+export const getUmbrellas = async (
+  // eslint-disable-next-line no-unused-vars
+  usePagination = false,
+  page = 0,
+  limit = 10,
+  searchQuery?: string
+): Promise<Umbrellas[]> => {
+  const searchOption = search<Umbrellas>(searchQuery, 'name');
+
   const umbrellas = await Umbrellas.findAll({
+    ...searchOption,
     include: {
       model: Rentals,
       attributes: ['uuid']
     } as never
   });
 
-  const result = umbrellas
+  const data = umbrellas
     .filter((umbrella: any) => !umbrella.rental)
     .map((item: any) => item.dataValues)
     .map(({ rental, ...current }: any) => current);
 
-  return result;
+  const indexOfLastPost = page * limit;
+  const indexOfFirstPost = indexOfLastPost - limit;
+  const currentPageData = data.slice(indexOfFirstPost, indexOfLastPost);
+
+  return currentPageData;
 };
 
-export const getBorrowedUmbrellas = async (): Promise<Umbrellas[]> => {
+export const getBorrowedUmbrellas = async (
+  usePagination = false,
+  page = 0,
+  limit = 10,
+  searchQuery?: string
+): Promise<Umbrellas[]> => {
+  const option = pagination(usePagination, page, limit);
+  const searchOption = search<Umbrellas>(searchQuery, 'name');
+
   const result = await Umbrellas.findAll({
+    ...option,
+    ...searchOption,
     include: {
       model: Rentals,
       attributes: [],
@@ -62,8 +91,18 @@ export const getBorrowedUmbrellas = async (): Promise<Umbrellas[]> => {
   return result;
 };
 
-export const getExpiryUmbrellas = async (): Promise<Umbrellas[]> => {
+export const getExpiryUmbrellas = async (
+  usePagination = false,
+  page = 0,
+  limit = 10,
+  searchQuery?: string
+): Promise<Umbrellas[]> => {
+  const option = pagination(usePagination, page, limit);
+  const searchOption = search<Umbrellas>(searchQuery, 'name');
+
   const result = await Umbrellas.findAll({
+    ...option,
+    ...searchOption,
     include: {
       model: Rentals,
       attributes: [],
