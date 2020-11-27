@@ -62,7 +62,7 @@ export const getUmbrellas = async (
   const indexOfFirstPost = indexOfLastPost - limit;
   const currentPageData = data.slice(indexOfFirstPost, indexOfLastPost);
 
-  return currentPageData;
+  return usePagination ? currentPageData : data;
 };
 
 export const getBorrowedUmbrellas = async (
