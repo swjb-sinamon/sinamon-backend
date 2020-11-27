@@ -19,6 +19,10 @@ const router = express.Router();
  * @apiName GetUmbrellas
  * @apiGroup Umbrella
  *
+ * @apiParam {Number} limit 한 페이지당 데이터 수
+ * @apiParam {Number} offset 페이지
+ * @apiParam {Number} search 검색
+ *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 모든 우산 데이터
  *
@@ -27,7 +31,14 @@ const router = express.Router();
  */
 router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
-    const data = await getUmbrellas();
+    const { offset, limit, search } = req.query;
+    const isPagination = offset !== undefined && limit !== undefined;
+
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const searchValue = search ? search.toString() : undefined;
+
+    const data = await getUmbrellas(isPagination, offsetValue, limitValue, searchValue);
 
     res.status(200).json({
       success: true,
@@ -47,6 +58,10 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'sc
  * @apiName GetUmbrellasWithRental
  * @apiGroup Umbrella
  *
+ * @apiParam {Number} limit 한 페이지당 데이터 수
+ * @apiParam {Number} offset 페이지
+ * @apiParam {Number} search 검색
+ *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 모든 우산 데이터
  *
@@ -55,7 +70,19 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'sc
  */
 router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
-    const data = await getBorrowedUmbrellas();
+    const { offset, limit, search } = req.query;
+    const isPagination = offset !== undefined && limit !== undefined;
+
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const searchValue = search ? search.toString() : undefined;
+
+    const data = await getBorrowedUmbrellas(
+      isPagination,
+      offsetValue,
+      limitValue,
+      searchValue
+    );
 
     res.status(200).json({
       success: true,
@@ -75,6 +102,10 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
  * @apiName GetUmbrellasWithExpiry
  * @apiGroup Umbrella
  *
+ * @apiParam {Number} limit 한 페이지당 데이터 수
+ * @apiParam {Number} offset 페이지
+ * @apiParam {Number} search 검색
+ *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 연체된 모든 우산 데이터
  *
@@ -83,7 +114,19 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
  */
 router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
-    const data = await getExpiryUmbrellas();
+    const { offset, limit, search } = req.query;
+    const isPagination = offset !== undefined && limit !== undefined;
+
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const searchValue = search ? search.toString() : undefined;
+
+    const data = await getExpiryUmbrellas(
+      isPagination,
+      offsetValue,
+      limitValue,
+      searchValue
+    );
 
     res.status(200).json({
       success: true,
@@ -99,12 +142,13 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
 });
 
 /**
- * @api {get} /umbrella/all?limit=:limit&offset=:offset 대여 정보를 포함한 모든 우산 가져오기
+ * @api {get} /umbrella/all?limit=:limit&offset=:offset&search=:search 대여 정보를 포함한 모든 우산 가져오기
  * @apiName GetUmbrellasWithRentalData
  * @apiGroup Umbrella
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
+ * @apiParam {Number} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 모든 대여 정보를 포함한 모든 우산 데이터
@@ -114,17 +158,19 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
  */
 router.get('/all', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
-    const { offset, limit } = req.query;
-    let result;
-    if (offset && limit) {
-      result = await getUmbrellaAllData(
-        true,
-        parseInt(offset.toString(), 10),
-        parseInt(limit.toString(), 10)
-      );
-    } else {
-      result = await getUmbrellaAllData();
-    }
+    const { offset, limit, search } = req.query;
+    const isPagination = offset !== undefined && limit !== undefined;
+
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const searchValue = search ? search.toString() : undefined;
+
+    const result = await getUmbrellaAllData(
+      isPagination,
+      offsetValue,
+      limitValue,
+      searchValue
+    );
 
     res.status(200).json({
       success: true,
