@@ -17,7 +17,9 @@ export const getUmbrellaAllData = async (
   const option = pagination(usePagination, page, limit);
   const searchOption = search<Umbrellas>(searchQuery, 'name');
 
-  const count = await Umbrellas.count();
+  const count = await Umbrellas.count({
+    ...searchOption
+  });
 
   const result = await Umbrellas.findAll({
     ...option,
