@@ -38,10 +38,11 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'sc
     const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
     const searchValue = search ? search.toString() : undefined;
 
-    const data = await getUmbrellas(isPagination, offsetValue, limitValue, searchValue);
+    const { data, count } = await getUmbrellas(isPagination, offsetValue, limitValue, searchValue);
 
     res.status(200).json({
       success: true,
+      count,
       data
     });
 
@@ -77,7 +78,7 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
     const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
     const searchValue = search ? search.toString() : undefined;
 
-    const data = await getBorrowedUmbrellas(
+    const { data, count } = await getBorrowedUmbrellas(
       isPagination,
       offsetValue,
       limitValue,
@@ -86,6 +87,7 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
 
     res.status(200).json({
       success: true,
+      count,
       data
     });
 
@@ -121,7 +123,7 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
     const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
     const searchValue = search ? search.toString() : undefined;
 
-    const data = await getExpiryUmbrellas(
+    const { data, count } = await getExpiryUmbrellas(
       isPagination,
       offsetValue,
       limitValue,
@@ -130,6 +132,7 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
 
     res.status(200).json({
       success: true,
+      count,
       data
     });
 
@@ -174,7 +177,7 @@ router.get('/all', requireAuthenticated, requirePermission(['admin', 'teacher', 
 
     res.status(200).json({
       success: true,
-      total: result.count,
+      count: result.count,
       data: result.data
     });
 

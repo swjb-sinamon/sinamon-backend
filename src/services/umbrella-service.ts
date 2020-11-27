@@ -42,7 +42,7 @@ export const getUmbrellas = async (
   page = 0,
   limit = 10,
   searchQuery?: string
-): Promise<Umbrellas[]> => {
+): Promise<UmbrellaReturn> => {
   const searchOption = search<Umbrellas>(searchQuery, 'name');
 
   const umbrellas = await Umbrellas.findAll({
@@ -62,7 +62,10 @@ export const getUmbrellas = async (
   const indexOfFirstPost = indexOfLastPost - limit;
   const currentPageData = data.slice(indexOfFirstPost, indexOfLastPost);
 
-  return usePagination ? currentPageData : data;
+  return {
+    count: data.length,
+    data: usePagination ? currentPageData : data
+  };
 };
 
 export const getBorrowedUmbrellas = async (
@@ -70,9 +73,22 @@ export const getBorrowedUmbrellas = async (
   page = 0,
   limit = 10,
   searchQuery?: string
-): Promise<Umbrellas[]> => {
+): Promise<UmbrellaReturn> => {
   const option = pagination(usePagination, page, limit);
   const searchOption = search<Umbrellas>(searchQuery, 'name');
+
+  const count = await Umbrellas.count({
+    ...searchOption,
+    include: {
+      model: Rentals,
+      attributes: [],
+      where: {
+        uuid: {
+          [Op.not]: null
+        }
+      }
+    } as never
+  });
 
   const result = await Umbrellas.findAll({
     ...option,
@@ -88,7 +104,10 @@ export const getBorrowedUmbrellas = async (
     } as never
   });
 
-  return result;
+  return {
+    count,
+    data: result
+  };
 };
 
 export const getExpiryUmbrellas = async (
@@ -96,9 +115,20 @@ export const getExpiryUmbrellas = async (
   page = 0,
   limit = 10,
   searchQuery?: string
-): Promise<Umbrellas[]> => {
+): Promise<UmbrellaReturn> => {
   const option = pagination(usePagination, page, limit);
   const searchOption = search<Umbrellas>(searchQuery, 'name');
+
+  const count = await Umbrellas.count({
+    ...searchOption,
+    include: {
+      model: Rentals,
+      attributes: [],
+      where: {
+        isExpire: true
+      }
+    } as never
+  });
 
   const result = await Umbrellas.findAll({
     ...option,
@@ -112,7 +142,10 @@ export const getExpiryUmbrellas = async (
     } as never
   });
 
-  return result;
+  return {
+    count,
+    data: result
+  };
 };
 
 export const getUmbrella = async (name: string): Promise<Umbrellas> => {
