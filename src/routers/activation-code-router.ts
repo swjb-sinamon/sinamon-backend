@@ -3,7 +3,7 @@ import { requireAuthenticated, requirePermission } from '../middlewares/permissi
 import { logger } from '../index';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
-import { getActivationCodes } from '../services/activation-code-service';
+import { addActivationCode, getActivationCodes } from '../services/activation-code-service';
 
 const router = express.Router();
 
@@ -41,6 +41,23 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher']), a
     logger.info('전체 인증코드를 가져왔습니다.');
   } catch (e) {
     logger.error('전체 인증코드를 가져오는 중에 오류가 발생하였습니다.');
+    logger.error(e);
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
+});
+
+router.post('/', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
+  try {
+    const code = await addActivationCode();
+
+    res.status(200).json({
+      success: true,
+      data: code.code
+    });
+
+    logger.info('인증코드를 만들었습니다.');
+  } catch (e) {
+    logger.error('인증코드를 만드는 중에 오류가 발생하였습니다.');
     logger.error(e);
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
   }
