@@ -24,6 +24,7 @@ const router = express.Router();
  * @apiParam {Number} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Number} count 전체 데이터 개수
  * @apiSuccess {Object} data 모든 우산 데이터
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
@@ -64,6 +65,7 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'sc
  * @apiParam {Number} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Number} count 전체 데이터 개수
  * @apiSuccess {Object} data 모든 우산 데이터
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
@@ -109,6 +111,7 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
  * @apiParam {Number} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Number} count 전체 데이터 개수
  * @apiSuccess {Object} data 연체된 모든 우산 데이터
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
@@ -154,6 +157,7 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
  * @apiParam {Number} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Number} count 전체 데이터 개수
  * @apiSuccess {Object} data 모든 대여 정보를 포함한 모든 우산 데이터
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
