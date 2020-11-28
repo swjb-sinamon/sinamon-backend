@@ -3,6 +3,7 @@ import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
 import { PermissionType } from '../types';
+import { pagination } from '../utils/router-util';
 
 interface UserInfoParams {
   readonly id: string;
@@ -95,4 +96,31 @@ export const getUser = async (uuid: string): Promise<Users> => {
   if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
 
   return result;
+};
+
+export const getUsers = async (
+  usePagination = false,
+  page = 0,
+  limit = 10
+): Promise<{ count: number, data: Users[] }> => {
+  const option = pagination(usePagination, page, limit);
+
+  const { count, rows } = await Users.findAndCountAll({
+    ...option,
+    attributes: {
+      exclude: ['password']
+    },
+    include: [
+      {
+        model: Permissions,
+        attributes: ['isAdmin', 'isTeacher', 'isSchoolUnion'],
+        as: 'permission'
+      }
+    ] as never
+  });
+
+  return {
+    count,
+    data: rows
+  };
 };

@@ -4,7 +4,7 @@ import { body, query } from 'express-validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import { getMyPermission, getUser, initUserPermission, registerUser } from '../services/auth-service';
+import { getMyPermission, getUser, getUsers, initUserPermission, registerUser } from '../services/auth-service';
 import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
 import { useActivationCode } from '../services/activation-code-service';
@@ -212,6 +212,38 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
   });
 
   logger.info(`${uuid} 님의 정보를 요청했습니다.`);
+});
+
+/**
+ * @api {get} /auth/user?limit=:limit&offset=:offset 모든 유저 가져오기
+ * @apiName GetUsers
+ * @apiGroup Auth
+ *
+ * @apiParam {Number} limit 한 페이지당 데이터 수
+ * @apiParam {Number} offset 페이지
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Number} count 전체 데이터 개수
+ * @apiSuccess {Object} data 현재 로그인한 유저 데이터
+ *
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ */
+router.get('/user', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
+  const { offset, limit } = req.query;
+  const isPagination = offset !== undefined && limit !== undefined;
+
+  const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
+  const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+
+  const { data, count } = await getUsers(isPagination, offsetValue, limitValue);
+
+  res.status(200).json({
+    success: true,
+    count,
+    data
+  });
+
+  logger.info('모든 유저 정보를 요청했습니다.');
 });
 
 /**
