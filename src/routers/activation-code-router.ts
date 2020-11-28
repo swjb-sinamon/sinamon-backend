@@ -8,7 +8,7 @@ import { getActivationCodes } from '../services/activation-code-service';
 const router = express.Router();
 
 /**
- * @api {get} /code 모든 인증코드 가져오기
+ * @api {get} /code?limit=:limit&offset=:offset 모든 인증코드 가져오기
  * @apiName GetActivationCodes
  * @apiGroup ActivationCode
  *
