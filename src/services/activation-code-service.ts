@@ -1,6 +1,7 @@
 import ActivationCode from '../databases/models/activation-code';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
+import { pagination } from '../utils/router-util';
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const numbers = '0123456789';
@@ -19,7 +20,7 @@ const generateCode = (): string => {
   return result;
 };
 
-const getAbleActivationCode = async (): Promise<string> => {
+const makeAbleActivationCode = async (): Promise<string> => {
   const code = generateCode();
 
   const current = await ActivationCode.findOne({
@@ -29,14 +30,14 @@ const getAbleActivationCode = async (): Promise<string> => {
   });
 
   if (current) {
-    setTimeout(() => getAbleActivationCode(), 10);
+    setTimeout(() => makeAbleActivationCode(), 10);
   }
 
   return code;
 };
 
 export const addActivationCode = async (): Promise<ActivationCode> => {
-  const code = await getAbleActivationCode();
+  const code = await makeAbleActivationCode();
 
   const result = await ActivationCode.create({
     code,
@@ -67,4 +68,21 @@ export const useActivationCode = async (code: string): Promise<ActivationCode> =
   });
 
   return current;
+};
+
+export const getActivationCodes = async (
+  usePagination = false,
+  page = 0,
+  limit = 10
+): Promise<{ count: number, data: ActivationCode[] }> => {
+  const option = pagination(usePagination, page, limit);
+
+  const { count, rows } = await ActivationCode.findAndCountAll({
+    ...option
+  });
+
+  return {
+    count,
+    data: rows
+  };
 };

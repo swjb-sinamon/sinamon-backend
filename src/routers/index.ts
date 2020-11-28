@@ -8,6 +8,7 @@ import QrRouter from './qr-router';
 import SchoolRouter from './school-router';
 import WeatherRouter from './weather-router';
 import NoticeRouter from './notice-router';
+import CodeRouter from './activation-code-router';
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use('/qr', QrRouter);
 router.use('/school', SchoolRouter);
 router.use('/weather', WeatherRouter);
 router.use('/notice', NoticeRouter);
+router.use('/code', CodeRouter);
 
 export default router;
