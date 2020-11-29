@@ -24,6 +24,7 @@ export const app = express();
 export const logger = log4js.getLogger();
 
 const RATE_MINUTES = 1;
+const MAXAGE_DATE = 14;
 
 dotenv.config();
 
@@ -81,15 +82,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(session({
   store: new RedisStore({
-    client,
-    ttl: 2592000
+    client
   }),
   secret: config.sessionSecret,
   resave: false,
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: true
+    secure: true,
+    maxAge: Date.now() + (MAXAGE_DATE * 86400 * 1000)
   }
 }));
 app.use(passport.initialize());
