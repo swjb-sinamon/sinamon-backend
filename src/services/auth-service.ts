@@ -3,7 +3,8 @@ import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
 import { PermissionType } from '../types';
-import { pagination } from '../utils/router-util';
+import { pagination, search } from '../utils/router-util';
+import Umbrellas from '../databases/models/umbrellas';
 
 interface UserInfoParams {
   readonly id: string;
@@ -101,11 +102,18 @@ export const getUser = async (uuid: string): Promise<Users> => {
 export const getUsers = async (
   usePagination = false,
   page = 0,
-  limit = 10
+  limit = 10,
+  searchQuery?: string
 ): Promise<{ count: number, data: Users[] }> => {
+  const searchOption = search<Users>(searchQuery, 'name');
   const option = pagination(usePagination, page, limit);
 
-  const { count, rows } = await Users.findAndCountAll({
+  const count = await Users.count({
+    ...searchOption
+  });
+
+  const data = await Users.findAll({
+    ...searchOption,
     ...option,
     attributes: {
       exclude: ['password']
@@ -121,6 +129,6 @@ export const getUsers = async (
 
   return {
     count,
-    data: rows
+    data
   };
 };

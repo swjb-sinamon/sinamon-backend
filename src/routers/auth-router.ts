@@ -215,12 +215,13 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
 });
 
 /**
- * @api {get} /auth/user?limit=:limit&offset=:offset 모든 유저 가져오기
+ * @api {get} /auth/user?limit=:limit&offset=:offset&search=:search 모든 유저 가져오기
  * @apiName GetUsers
  * @apiGroup Auth
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
+ * @apiParam {String} 검색어
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
@@ -229,13 +230,14 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
 router.get('/user', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
-  const { offset, limit } = req.query;
+  const { offset, limit, search } = req.query;
   const isPagination = offset !== undefined && limit !== undefined;
 
   const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
   const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+  const searchValue = search ? search.toString() : undefined;
 
-  const { data, count } = await getUsers(isPagination, offsetValue, limitValue);
+  const { data, count } = await getUsers(isPagination, offsetValue, limitValue, searchValue);
 
   res.status(200).json({
     success: true,
