@@ -21,7 +21,7 @@ const router = express.Router();
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
- * @apiParam {Number} search 검색
+ * @apiParam {String} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
@@ -62,7 +62,7 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'sc
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
- * @apiParam {Number} search 검색
+ * @apiParam {String} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
@@ -108,7 +108,7 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
- * @apiParam {Number} search 검색
+ * @apiParam {String} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
@@ -154,7 +154,7 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
- * @apiParam {Number} search 검색
+ * @apiParam {String} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수

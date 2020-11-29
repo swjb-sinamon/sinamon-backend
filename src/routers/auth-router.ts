@@ -221,7 +221,7 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
- * @apiParam {String} 검색어
+ * @apiParam {String} search 검색어
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
