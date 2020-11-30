@@ -16,6 +16,7 @@ import db from './databases';
 import Router from './routers';
 import ServerConfigs from './databases/models/server-configs';
 import Rentals from './databases/models/rentals';
+import { initializeServerConfig, initializeUniformData } from './databases/Initialize';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const connectRedis = require('connect-redis');
@@ -55,20 +56,8 @@ db.sync().then(async () => {
   await db.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
 
-  const notice = await ServerConfigs.findOne({
-    where: {
-      configKey: 'notice'
-    }
-  });
-
-  if (!notice) {
-    await ServerConfigs.create({
-      configKey: 'notice',
-      configValue: ''
-    });
-
-    logger.info('ServerConfigs initialized successfully');
-  }
+  await initializeServerConfig();
+  await initializeUniformData();
 });
 
 const RedisStore = connectRedis(session);
