@@ -9,6 +9,7 @@ import SchoolRouter from './school-router';
 import WeatherRouter from './weather-router';
 import NoticeRouter from './notice-router';
 import CodeRouter from './activation-code-router';
+import UniformRouter from './uniform-router';
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use('/school', SchoolRouter);
 router.use('/weather', WeatherRouter);
 router.use('/notice', NoticeRouter);
 router.use('/code', CodeRouter);
+router.use('/uniform', UniformRouter);
 
 export default router;
