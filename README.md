@@ -54,6 +54,10 @@ BCRYPT_SALT_ROUNDS=
 # 날씨, 미세먼지 API KEY
 OPENWEATHER_API_KEY=
 DUST_API_KEY=
+
+# Redis 정보
+REDIS_HOST=
+REDIS_PORT=
 ```
 
 ## 📑 Commit Convention
