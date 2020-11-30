@@ -16,7 +16,7 @@ class Uniform extends Model<UniformAttributes> {
 
   public date!: Date;
 
-  public score!: boolean;
+  public score!: number;
 }
 
 Uniform.init(
