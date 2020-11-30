@@ -57,6 +57,8 @@ export const subUniformScore = async (
 
   const currentScore = current.score;
 
+  if (currentScore === 0) throw new ServiceException(ErrorMessage.UNIFORM_NOT_MINUS, 409);
+
   await current.update({
     score: currentScore - 1
   });

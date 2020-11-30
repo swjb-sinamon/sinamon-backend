@@ -126,6 +126,7 @@ router.put('/:grade/:fullClass',
  * @apiSuccess {Object} data 교복데이 데이터
  *
  * @apiError (Error 404) UNIFORM_NOT_FOUND 존재하지 않는 교복데이 데이터입니다.
+ * @apiError (Error 409) UNIFORM_NOT_MINUS 점수를 더 내릴 수 없습니다.
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */

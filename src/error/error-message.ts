@@ -23,7 +23,8 @@ enum ErrorMessage {
   ACTIVATION_CODE_NOT_FOUND = '존재하지 않는 인증코드입니다.',
   ACTIVATION_CODE_USED = '이미 사용된 인증코드입니다.',
 
-  UNIFORM_NOT_FOUND = '존재하지 않는 교복데이 데이터입니다.'
+  UNIFORM_NOT_FOUND = '존재하지 않는 교복데이 데이터입니다.',
+  UNIFORM_NOT_MINUS = '점수를 더 내릴 수 없습니다.'
 }
 
 export default ErrorMessage;
