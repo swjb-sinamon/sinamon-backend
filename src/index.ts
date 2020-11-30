@@ -14,7 +14,6 @@ import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
 import Router from './routers';
-import ServerConfigs from './databases/models/server-configs';
 import Rentals from './databases/models/rentals';
 import { initializeServerConfig, initializeUniformData } from './databases/Initialize';
 
