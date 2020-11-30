@@ -7,7 +7,10 @@ export const getUniforms = async (grade: number, fullClass: number): Promise<Uni
     where: {
       grade,
       fullClass
-    }
+    },
+    order: [
+      ['date', 'ASC']
+    ]
   });
 
   return result;
