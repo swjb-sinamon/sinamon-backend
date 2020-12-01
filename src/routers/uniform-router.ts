@@ -1,5 +1,5 @@
 import express from 'express';
-import { body, param } from 'express-validator';
+import { param, query } from 'express-validator';
 import { checkValidation } from '../middlewares/validator';
 import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import ServiceException from '../exceptions';
@@ -63,15 +63,16 @@ router.get('/:grade/:fullClass',
 
 const scoreValidator = [
   ...getUniformsValidator,
-  body('date').isString()
+  query('date').isString()
 ];
 /**
- * @api {put} /uniform/:grade/:fullClass 반별 교복데이 점수 올리기
+ * @api {put} /uniform/:grade/:fullClass?date=:date 반별 교복데이 점수 올리기
  * @apiName AddUniformScoreByClass
  * @apiGroup Uniform
  *
  * @apiParam {Number} grade 학년
  * @apiParam {Number} fullClass 반 (1반 ~ 9반)
+ * @apiParam {String} date 날짜
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 교복데이 데이터
@@ -87,7 +88,9 @@ router.put('/:grade/:fullClass',
   requirePermission(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { grade, fullClass } = req.params;
-    const { date } = req.body;
+
+    const { date: originDate } = req.query;
+    const date = new Date(originDate ? originDate.toString() : '');
 
     try {
       const result = await addUniformScore(
@@ -121,6 +124,7 @@ router.put('/:grade/:fullClass',
  *
  * @apiParam {Number} grade 학년
  * @apiParam {Number} fullClass 반 (1반 ~ 9반)
+ * @apiParam {String} date 날짜
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Object} data 교복데이 데이터
@@ -137,7 +141,9 @@ router.delete('/:grade/:fullClass',
   requirePermission(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { grade, fullClass } = req.params;
-    const { date } = req.body;
+
+    const { date: originDate } = req.query;
+    const date = new Date(originDate ? originDate.toString() : '');
 
     try {
       const result = await subUniformScore(
