@@ -3,8 +3,9 @@ import dayjs from 'dayjs';
 import Uniform from '../databases/models/uniform';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
-import { getUser } from './auth-service';
+import { getUser, getUserWithInfo } from './auth-service';
 import UniformPersonal from '../databases/models/uniform-personal';
+import Users from '../databases/models/users';
 
 export const getUniforms = async (grade: number, fullClass: number): Promise<Uniform[]> => {
   const result = await Uniform.findAll({
@@ -70,14 +71,18 @@ export const subUniformScore = async (
   return current;
 };
 
-const initUniformPersonalData = async (uuid: string): Promise<void> => {
-  const user = await getUser(uuid);
-
-  if (!user) return;
+const initUniformPersonalData = async (
+  name: string,
+  department: number,
+  grade: number,
+  clazz: number,
+  number: number
+): Promise<void> => {
+  const user = await getUserWithInfo(name, department, grade, clazz, number);
 
   const current = await UniformPersonal.findAll({
     where: {
-      uuid
+      uuid: user.uuid
     }
   });
 
@@ -91,7 +96,7 @@ const initUniformPersonalData = async (uuid: string): Promise<void> => {
         .toDate();
 
       await UniformPersonal.create({
-        uuid,
+        uuid: user.uuid,
         date,
         score: 0
       });
@@ -100,12 +105,21 @@ const initUniformPersonalData = async (uuid: string): Promise<void> => {
   await Promise.all(promise);
 };
 
-export const getUniformPersonal = async (uuid: string, date: Date): Promise<UniformPersonal> => {
-  await initUniformPersonalData(uuid);
+export const getUniformPersonal = async (
+  name: string,
+  department: number,
+  grade: number,
+  clazz: number,
+  number: number,
+  date: Date
+): Promise<UniformPersonal> => {
+  await initUniformPersonalData(name, department, grade, clazz, number);
+
+  const user = await getUserWithInfo(name, department, grade, clazz, number);
 
   const current = await UniformPersonal.findOne({
     where: {
-      uuid,
+      uuid: user.uuid,
       date
     }
   });
@@ -116,14 +130,20 @@ export const getUniformPersonal = async (uuid: string, date: Date): Promise<Unif
 };
 
 export const addUniformPersonalScore = async (
-  uuid: string,
+  name: string,
+  department: number,
+  grade: number,
+  clazz: number,
+  number: number,
   date: Date
 ): Promise<UniformPersonal> => {
-  await initUniformPersonalData(uuid);
+  await initUniformPersonalData(name, department, grade, clazz, number);
+
+  const user = await getUserWithInfo(name, department, grade, clazz, number);
 
   const current = await UniformPersonal.findOne({
     where: {
-      uuid,
+      uuid: user.uuid,
       date
     }
   });
@@ -140,14 +160,20 @@ export const addUniformPersonalScore = async (
 };
 
 export const subUniformPersonalScore = async (
-  uuid: string,
+  name: string,
+  department: number,
+  grade: number,
+  clazz: number,
+  number: number,
   date: Date
 ): Promise<UniformPersonal> => {
-  await initUniformPersonalData(uuid);
+  await initUniformPersonalData(name, department, grade, clazz, number);
+
+  const user = await getUserWithInfo(name, department, grade, clazz, number);
 
   const current = await UniformPersonal.findOne({
     where: {
-      uuid,
+      uuid: user.uuid,
       date
     }
   });

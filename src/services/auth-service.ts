@@ -98,6 +98,28 @@ export const getUser = async (uuid: string): Promise<Users> => {
   return result;
 };
 
+export const getUserWithInfo = async (
+  name: string,
+  department: number,
+  grade: number,
+  clazz: number,
+  number: number
+): Promise<Users> => {
+  const user = await Users.findOne({
+    where: {
+      name,
+      department,
+      studentGrade: grade,
+      studentClass: clazz,
+      studentNumber: number
+    }
+  });
+
+  if (!user) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+
+  return user;
+};
+
 export const getUsers = async (
   usePagination = false,
   page = 0,
