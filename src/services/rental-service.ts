@@ -4,6 +4,7 @@ import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Users from '../databases/models/users';
 import Umbrellas from '../databases/models/umbrellas';
+import { getUserWithInfo } from './auth-service';
 
 interface RentalProps {
   readonly umbrellaName: string;
@@ -106,16 +107,7 @@ export const borrowRentalBySchoolInfo = async (
   number: number,
   createProps: RentalProps
 ): Promise<Rentals> => {
-  const lenderUser = await Users.findOne({
-    where: {
-      name,
-      department,
-      studentGrade: grade,
-      studentClass: clazz,
-      studentNumber: number
-    }
-  });
-  if (!lenderUser) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+  const lenderUser = await getUserWithInfo(name, department, grade, clazz, number);
 
   const result = await borrowRental(lenderUser.uuid, createProps);
   return result;
@@ -143,16 +135,7 @@ export const returnRentalBySchoolInfo = async (
   clazz: number,
   number: number
 ): Promise<Rentals> => {
-  const lenderUser = await Users.findOne({
-    where: {
-      name,
-      department,
-      studentGrade: grade,
-      studentClass: clazz,
-      studentNumber: number
-    }
-  });
-  if (!lenderUser) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+  const lenderUser = await getUserWithInfo(name, department, grade, clazz, number);
 
   const result = await returnRental(lenderUser.uuid);
   return result;
