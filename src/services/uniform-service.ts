@@ -1,6 +1,6 @@
 import { range } from 'fxjs';
 import dayjs from 'dayjs';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import Uniform from '../databases/models/uniform';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
@@ -142,15 +142,24 @@ export const getUniformPersonalRank = async (
   const option = pagination(usePagination, page, limit);
 
   const count = await UniformPersonal.count({
+    attributes: [
+      'uuid',
+      [Sequelize.fn('sum', Sequelize.col('score')), 'totalScore']
+    ],
     where: {
       score: {
         [Op.gt]: 0
       }
-    }
+    },
+    group: ['uuid']
   });
 
   const data = await UniformPersonal.findAll({
     ...option,
+    attributes: [
+      'uuid',
+      [Sequelize.fn('sum', Sequelize.col('score')), 'totalScore']
+    ],
     where: {
       score: {
         [Op.gt]: 0
@@ -162,11 +171,12 @@ export const getUniformPersonalRank = async (
     include: {
       model: Users,
       attributes: ['name', 'department', 'studentGrade', 'studentClass', 'studentNumber']
-    } as never
+    } as never,
+    group: ['uuid']
   });
 
   return {
-    count,
+    count: count.length,
     data
   };
 };

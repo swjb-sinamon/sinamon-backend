@@ -8,8 +8,7 @@ import { logger } from '../index';
 import ErrorMessage from '../error/error-message';
 import {
   addUniformPersonalScore,
-  addUniformScore,
-  getUniformPersonal,
+  addUniformScore, getUniformPersonalRank, getUniformPersonals,
   getUniforms, subUniformPersonalScore,
   subUniformScore
 } from '../services/uniform-service';
@@ -176,28 +175,20 @@ router.put('/down/:grade/:fullClass',
     }
   });
 
-const getUniformPersonalValidator = [
-  query('name').isString(),
-  query('department').isNumeric(),
-  query('grade').isNumeric(),
-  query('class').isNumeric(),
-  query('number').isNumeric(),
+const getUniformPersonalsValidator = [
   query('date').isString()
 ];
-/* eslint-disable max-len */ // For apidoc
 /**
- * @api {get} /uniform/personal?name=:name&department=:department&grade=:grade&class=:class&number=:number&date=:date 개인별 교복데이 데이터 가져오기
- * @apiName GetUniformPersonalByInfo
+ * @api {get} /uniform/personal?date=:date&limit:limit&offset=:offset 날짜별 교복데이 데이터 가져오기
+ * @apiName GetUniformPersonals
  * @apiGroup Uniform
  *
- * @apiParam {String} name 이름
- * @apiParam {Number} department 학과
- * @apiParam {Number} grade 학년
- * @apiParam {Number} class 반 (1~2)
- * @apiParam {Number} number 번호
- * @apiParam {String} date 날짜
+ * @apiParam {String} date 날짜 (필수)
+ * @apiParam {Number} limit 한 페이지당 데이터 수
+ * @apiParam {Number} offset 페이지
  *
  * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Number} count 전체 데이터 개수
  * @apiSuccess {Object} data 교복데이 데이터
  *
  * @apiError (Error 404) UNIFORM_NOT_FOUND 존재하지 않는 교복데이 데이터입니다.
@@ -205,50 +196,101 @@ const getUniformPersonalValidator = [
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.get('/personal',
-  getUniformPersonalValidator,
+  getUniformPersonalsValidator,
   checkValidation,
   requireAuthenticated,
   requirePermission(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const {
-      name: oName,
-      department: oDepartment,
-      grade: oGrade,
-      class: oClass,
-      number: oNumber,
-      date: oDate
+      date: oDate,
+      offset,
+      limit
     } = req.query;
 
-    const name = oName ? oName.toString() : '';
-    const department = oDepartment ? parseInt(oDepartment.toString(), 10) : 0;
-    const grade = oGrade ? parseInt(oGrade.toString(), 10) : 0;
-    const clazz = oClass ? parseInt(oClass.toString(), 10) : 0;
-    const number = oNumber ? parseInt(oNumber.toString(), 10) : 0;
+    const isPagination = offset !== undefined && limit !== undefined;
+
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
     const date = new Date(oDate ? oDate.toString() : '');
 
     try {
-      const result = await getUniformPersonal(
-        name,
-        department,
-        grade,
-        clazz,
-        number,
-        date
+      const { count, data } = await getUniformPersonals(
+        date,
+        isPagination,
+        offsetValue,
+        limitValue
       );
 
       res.status(200).json({
         success: true,
-        data: result
+        count,
+        data
       });
 
-      logger.info('개인별 교복데이 데이터를 가져왔습니다.');
+      logger.info('개인별 교복데이 데이터를 날짜 기준으로 가져왔습니다.');
     } catch (e) {
       if (e instanceof ServiceException) {
         res.status(e.httpStatus).json(makeError(e.message));
         return;
       }
 
-      logger.error('개인별 교복데이 데이터를 가져오는 중 오류가 발생하였습니다.');
+      logger.error('개인별 교복데이 데이터를 날짜 기준으로 가져오는 중 오류가 발생하였습니다.');
+      logger.error(e);
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    }
+  });
+
+/**
+ * @api {get} /uniform/prank?limit:limit&offset=:offset 개인별 교복데이 데이터 랭킹
+ * @apiName GetUniformPersonalRank
+ * @apiGroup Uniform
+ *
+ * @apiParam {Number} limit 한 페이지당 데이터 수
+ * @apiParam {Number} offset 페이지
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Number} count 전체 데이터 개수
+ * @apiSuccess {Object} data 교복데이 데이터
+ *
+ * @apiError (Error 404) UNIFORM_NOT_FOUND 존재하지 않는 교복데이 데이터입니다.
+ * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
+router.get('/prank',
+  requireAuthenticated,
+  requirePermission(['admin', 'teacher', 'schoolunion']),
+  async (req: express.Request, res: express.Response) => {
+    const {
+      offset,
+      limit
+    } = req.query;
+
+    const isPagination = offset !== undefined && limit !== undefined;
+
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+
+    try {
+      const { count, data } = await getUniformPersonalRank(
+        isPagination,
+        offsetValue,
+        limitValue
+      );
+
+      res.status(200).json({
+        success: true,
+        count,
+        data
+      });
+
+      logger.info('개인별 교복데이 랭킹을 가져왔습니다.');
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
+      logger.error('개인별 교복데이 랭킹을 가져오는 중 오류가 발생하였습니다.');
       logger.error(e);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
     }
