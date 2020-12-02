@@ -88,7 +88,7 @@ const initUniformPersonalData = async (
     }
   });
 
-  if (current.length === 9) return;
+  if (current.length === 8) return;
 
   const promise = range(9, 17)
     .map(async (i: number) => {
