@@ -40,6 +40,8 @@ export const addUniformScore = async (
 
   const currentScore = current.score;
 
+  if (currentScore === 2) throw new ServiceException(ErrorMessage.UNIFORM_DO_NOT_PLUS, 409);
+
   await current.update({
     score: currentScore + 1
   });
@@ -213,6 +215,8 @@ export const addUniformPersonalScore = async (
   if (!current) throw new ServiceException(ErrorMessage.UNIFORM_NOT_FOUND, 404);
 
   const currentScore = current.score;
+
+  if (currentScore === 2) throw new ServiceException(ErrorMessage.UNIFORM_DO_NOT_PLUS, 409);
 
   await current.update({
     score: currentScore + 1
