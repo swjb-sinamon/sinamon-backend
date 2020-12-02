@@ -72,7 +72,7 @@ const scoreValidator = [
   query('date').isString()
 ];
 /**
- * @api {put} /uniform/:grade/:fullClass?date=:date 반별 교복데이 점수 올리기
+ * @api {put} /uniform/up/:grade/:fullClass?date=:date 반별 교복데이 점수 올리기
  * @apiName AddUniformScoreByClass
  * @apiGroup Uniform
  *
@@ -87,7 +87,7 @@ const scoreValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.put('/:grade/:fullClass',
+router.put('/up/:grade/:fullClass',
   scoreValidator,
   checkValidation,
   requireAuthenticated,
@@ -124,7 +124,7 @@ router.put('/:grade/:fullClass',
   });
 
 /**
- * @api {delete} /uniform/:grade/:fullClass 반별 교복데이 점수 내리기
+ * @api {put} /uniform/down/:grade/:fullClass 반별 교복데이 점수 내리기
  * @apiName SubUniformScoreByClass
  * @apiGroup Uniform
  *
@@ -140,7 +140,7 @@ router.put('/:grade/:fullClass',
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.delete('/:grade/:fullClass',
+router.put('/down/:grade/:fullClass',
   scoreValidator,
   checkValidation,
   requireAuthenticated,
