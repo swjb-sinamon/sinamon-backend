@@ -125,7 +125,11 @@ export const getUniformPersonals = async (
     ...option,
     where: {
       date
-    }
+    },
+    include: {
+      model: Users,
+      attributes: ['name', 'department', 'studentGrade', 'studentClass', 'studentNumber']
+    } as never,
   });
 
   return {
