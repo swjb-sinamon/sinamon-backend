@@ -2,6 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../index';
 
 interface UniformPersonalAttributes {
+  id?: number;
   uuid: string;
   date: Date;
   score: number;
@@ -17,11 +18,16 @@ class UniformPersonal extends Model<UniformPersonalAttributes> {
 
 UniformPersonal.init(
   {
-    uuid: {
-      type: DataTypes.UUID,
+    id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
+    },
+    uuid: {
+      type: DataTypes.UUID,
+      allowNull: false
     },
     date: {
       type: DataTypes.DATEONLY,
