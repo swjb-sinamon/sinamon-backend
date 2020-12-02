@@ -117,14 +117,20 @@ export const getUniformPersonals = async (
 
   const count = await UniformPersonal.count({
     where: {
-      date
+      date,
+      score: {
+        [Op.gt]: 0
+      }
     }
   });
 
   const data = await UniformPersonal.findAll({
     ...option,
     where: {
-      date
+      date,
+      score: {
+        [Op.gt]: 0
+      }
     },
     include: {
       model: Users,
