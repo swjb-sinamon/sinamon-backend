@@ -1,11 +1,13 @@
 import { range } from 'fxjs';
 import dayjs from 'dayjs';
+import { Op } from 'sequelize';
 import Uniform from '../databases/models/uniform';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import { getUser, getUserWithInfo } from './auth-service';
 import UniformPersonal from '../databases/models/uniform-personal';
 import Users from '../databases/models/users';
+import { pagination } from '../utils/router-util';
 
 export const getUniforms = async (grade: number, fullClass: number): Promise<Uniform[]> => {
   const result = await Uniform.findAll({
@@ -105,28 +107,68 @@ const initUniformPersonalData = async (
   await Promise.all(promise);
 };
 
-export const getUniformPersonal = async (
-  name: string,
-  department: number,
-  grade: number,
-  clazz: number,
-  number: number,
-  date: Date
-): Promise<UniformPersonal> => {
-  await initUniformPersonalData(name, department, grade, clazz, number);
+export const getUniformPersonals = async (
+  date: Date,
+  usePagination = false,
+  page = 0,
+  limit = 10,
+): Promise<{ count: number, data: UniformPersonal[] }> => {
+  const option = pagination(usePagination, page, limit);
 
-  const user = await getUserWithInfo(name, department, grade, clazz, number);
-
-  const current = await UniformPersonal.findOne({
+  const count = await UniformPersonal.count({
     where: {
-      uuid: user.uuid,
       date
     }
   });
 
-  if (!current) throw new ServiceException(ErrorMessage.UNIFORM_NOT_FOUND, 404);
+  const data = await UniformPersonal.findAll({
+    ...option,
+    where: {
+      date
+    }
+  });
 
-  return current;
+  return {
+    count,
+    data
+  };
+};
+
+export const getUniformPersonalRank = async (
+  usePagination = false,
+  page = 0,
+  limit = 10,
+): Promise<{ count: number, data: UniformPersonal[] }> => {
+  const option = pagination(usePagination, page, limit);
+
+  const count = await UniformPersonal.count({
+    where: {
+      score: {
+        [Op.gt]: 0
+      }
+    }
+  });
+
+  const data = await UniformPersonal.findAll({
+    ...option,
+    where: {
+      score: {
+        [Op.gt]: 0
+      }
+    },
+    order: [
+      ['score', 'DESC']
+    ],
+    include: {
+      model: Users,
+      attributes: ['name', 'department', 'studentGrade', 'studentClass', 'studentNumber']
+    } as never
+  });
+
+  return {
+    count,
+    data
+  };
 };
 
 export const addUniformPersonalScore = async (
