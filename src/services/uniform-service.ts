@@ -4,7 +4,7 @@ import { Op, Sequelize } from 'sequelize';
 import Uniform from '../databases/models/uniform';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
-import { getUser, getUserWithInfo } from './auth-service';
+import { getUserWithInfo } from './auth-service';
 import UniformPersonal from '../databases/models/uniform-personal';
 import Users from '../databases/models/users';
 import { pagination } from '../utils/router-util';
