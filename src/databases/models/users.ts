@@ -3,22 +3,23 @@ import sequelize from '../index';
 
 interface UsersAttributes {
   uuid: string;
-  email: string;
+  id: string;
   name?: string;
+  department?: number;
   studentGrade?: number;
   studentClass?: number;
   studentNumber?: number;
   password: string;
-  isAdmin: boolean;
-  isTeacher: boolean;
 }
 
 class Users extends Model<UsersAttributes> {
   public uuid!: string;
 
-  public email!: string;
+  public id!: string;
 
   public name!: string;
+
+  public department!: number;
 
   public studentGrade!: number;
 
@@ -27,10 +28,6 @@ class Users extends Model<UsersAttributes> {
   public studentNumber!: number;
 
   public password!: string;
-
-  public isAdmin!: boolean;
-
-  public isTeacher!: boolean;
 
   public readonly createdAt!: Date;
 
@@ -45,13 +42,17 @@ Users.init(
       unique: true,
       primaryKey: true
     },
-    email: {
+    id: {
       type: DataTypes.CHAR,
       allowNull: false,
       unique: true
     },
     name: {
       type: DataTypes.CHAR,
+      allowNull: true
+    },
+    department: {
+      type: DataTypes.INTEGER,
       allowNull: true
     },
     studentGrade: {
@@ -68,14 +69,6 @@ Users.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    isAdmin: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    isTeacher: {
-      type: DataTypes.BOOLEAN,
       allowNull: false
     }
   },

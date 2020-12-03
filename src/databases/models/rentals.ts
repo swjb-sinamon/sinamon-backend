@@ -35,13 +35,11 @@ Rentals.init(
     },
     lender: {
       type: DataTypes.UUID,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     umbrellaName: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     expiryDate: {
       type: DataTypes.DATE,
