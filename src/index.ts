@@ -16,6 +16,7 @@ import db from './databases';
 import Router from './routers';
 import Rentals from './databases/models/rentals';
 import { initializeServerConfig, initializeUniformData } from './databases/Initialize';
+import { setExpire } from './services/rental-service';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const connectRedis = require('connect-redis');
@@ -111,9 +112,7 @@ schedule('0 */2 * * *', async () => {
   const promise = current.map(async (info) => {
     const time = Math.floor(info.expiryDate.getTime() / 1000);
     if (now >= time) {
-      await info.update({
-        isExpire: true
-      });
+      await setExpire(info.uuid);
       count += 1;
     }
   });
