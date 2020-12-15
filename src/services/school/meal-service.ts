@@ -8,6 +8,7 @@ const deleteUnusedString = (original: string): string => {
     .replace(/\./g, '')
     .replace(/J/g, '')
     .replace(/H/g, '')
+    .replace(/N/g, '')
     .replace(/\*/g, '')
     .replace('&amp;', '&');
 
