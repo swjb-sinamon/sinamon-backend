@@ -8,6 +8,7 @@ import { getUserWithInfo } from './auth-service';
 import UniformPersonal from '../databases/models/uniform-personal';
 import Users from '../databases/models/users';
 import { pagination } from '../utils/router-util';
+import config from '../config';
 
 export const getUniforms = async (grade: number, fullClass: number): Promise<Uniform[]> => {
   const result = await Uniform.findAll({
@@ -90,9 +91,13 @@ const initUniformPersonalData = async (
     }
   });
 
-  if (current.length === 8) return;
+  const UNIFORM_START_DATE = config.uniform.start;
+  const UNIFORM_END_DATE = config.uniform.end;
+  const UNIFORM_TOTAL_DATA = UNIFORM_END_DATE - UNIFORM_START_DATE + 1;
 
-  const promise = range(9, 17)
+  if (current.length === UNIFORM_TOTAL_DATA) return;
+
+  const promise = range(UNIFORM_START_DATE, UNIFORM_END_DATE + 1)
     .map(async (i: number) => {
       const date = dayjs()
         .set('month', 11)

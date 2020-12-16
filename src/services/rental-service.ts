@@ -113,6 +113,22 @@ export const borrowRentalBySchoolInfo = async (
   return result;
 };
 
+export const setExpire = async (uuid: string): Promise<Rentals> => {
+  const current = await Rentals.findOne({
+    where: {
+      uuid
+    }
+  });
+
+  if (!current) throw new ServiceException(ErrorMessage.RENTAL_NOT_FOUND, 404);
+
+  await current.update({
+    isExpire: true
+  });
+
+  return current;
+};
+
 export const returnRental = async (uuid: string): Promise<Rentals> => {
   const current = await Rentals.findOne({
     where: {
@@ -121,6 +137,14 @@ export const returnRental = async (uuid: string): Promise<Rentals> => {
   });
 
   if (!current) throw new ServiceException(ErrorMessage.RENTAL_NOT_FOUND, 404);
+
+  const now = Math.floor(new Date().getTime() / 1000);
+  const time = Math.floor(current.expiryDate.getTime() / 1000);
+  if (now >= time) {
+    await setExpire(uuid);
+    throw new ServiceException(ErrorMessage.RENTAL_EXPIRE, 403);
+  }
+
   if (current.isExpire) throw new ServiceException(ErrorMessage.RENTAL_EXPIRE, 403);
 
   await current.destroy();
@@ -139,20 +163,4 @@ export const returnRentalBySchoolInfo = async (
 
   const result = await returnRental(lenderUser.uuid);
   return result;
-};
-
-export const setExpire = async (uuid: string): Promise<Rentals> => {
-  const current = await Rentals.findOne({
-    where: {
-      uuid
-    }
-  });
-
-  if (!current) throw new ServiceException(ErrorMessage.RENTAL_NOT_FOUND, 404);
-
-  await current.update({
-    isExpire: true
-  });
-
-  return current;
 };
