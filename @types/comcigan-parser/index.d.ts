@@ -6,7 +6,7 @@ declare module 'comcigan-parser' {
   }
 
   export default class Timetable {
-    init(option: option): Promise<any>
+    init(option?: option): Promise<any>
 
     setSchool(keyword: string): Promise<any>
 
