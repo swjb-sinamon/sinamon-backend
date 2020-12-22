@@ -97,7 +97,7 @@ app.use('*', (req, res, next) => {
 
 app.use('/v1', Router);
 
-schedule('0 */2 * * *', async () => {
+schedule('0 */4 * * *', async () => {
   logger.info('우산 연체 여부를 확인합니다.');
 
   const now = Math.floor(new Date().getTime() / 1000);
