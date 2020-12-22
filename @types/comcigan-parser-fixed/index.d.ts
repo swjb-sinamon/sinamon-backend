@@ -1,4 +1,4 @@
-declare module 'comcigan-parser' {
+declare module 'comcigan-parser-fixed' {
   interface option {
     readonly firstNames: any[];
     readonly maxGrade: number;
