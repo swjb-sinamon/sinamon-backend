@@ -52,8 +52,7 @@ logger.level = 'ALL';
 
 DatabaseAssociation();
 db.sync().then(async () => {
-  await db.query('ALTER TABLE subjects AUTO_INCREMENT=100;');
-  await db.query('ALTER TABLE onlinetimetables AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE timetables AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
 
   await initializeServerConfig();
