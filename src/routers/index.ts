@@ -8,6 +8,7 @@ import WeatherRouter from './weather-router';
 import NoticeRouter from './notice-router';
 import CodeRouter from './activation-code-router';
 import UniformRouter from './uniform-router';
+import TimetableRouter from './timetable-router';
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use('/weather', WeatherRouter);
 router.use('/notice', NoticeRouter);
 router.use('/code', CodeRouter);
 router.use('/uniform', UniformRouter);
+router.use('/timetable', TimetableRouter);
 
 export default router;
