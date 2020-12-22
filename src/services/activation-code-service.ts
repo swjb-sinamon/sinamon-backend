@@ -71,11 +71,10 @@ export const useActivationCode = async (code: string): Promise<ActivationCode> =
 };
 
 export const getActivationCodes = async (
-  usePagination = false,
-  page = 0,
-  limit = 10
+  page?: number,
+  limit?: number
 ): Promise<{ count: number, data: ActivationCode[] }> => {
-  const option = pagination(usePagination, page, limit);
+  const option = pagination(page, limit);
 
   const { count, rows } = await ActivationCode.findAndCountAll({
     ...option
