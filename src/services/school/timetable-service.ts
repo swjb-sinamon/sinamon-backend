@@ -22,12 +22,11 @@ interface SearchOption {
 }
 
 export const getTimetables = async (
-  usePagination = false,
   page = 0,
   limit = 10,
   searchQuery?: SearchOption
 ): Promise<{ data: TimeTables[], count: number }> => {
-  const paginationOption = pagination(usePagination, page, limit);
+  const paginationOption = pagination(page, limit);
   const searchOption = search<TimeTables>(searchQuery?.query, searchQuery?.key);
 
   const count = await TimeTables.count({
