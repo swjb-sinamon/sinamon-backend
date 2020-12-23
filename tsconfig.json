@@ -6,7 +6,11 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "strictNullChecks": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./@types"
+    ]
   },
   "exclude": [
     "node_modules"

@@ -33,13 +33,12 @@ const router = express.Router();
 router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
-    const isPagination = offset !== undefined && limit !== undefined;
 
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
     const searchValue = search ? search.toString() : undefined;
 
-    const { data, count } = await getUmbrellas(isPagination, offsetValue, limitValue, searchValue);
+    const { data, count } = await getUmbrellas(offsetValue, limitValue, searchValue);
 
     res.status(200).json({
       success: true,
@@ -74,14 +73,12 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'sc
 router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
-    const isPagination = offset !== undefined && limit !== undefined;
 
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
     const searchValue = search ? search.toString() : undefined;
 
     const { data, count } = await getBorrowedUmbrellas(
-      isPagination,
       offsetValue,
       limitValue,
       searchValue
@@ -120,14 +117,12 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
 router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
-    const isPagination = offset !== undefined && limit !== undefined;
 
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
     const searchValue = search ? search.toString() : undefined;
 
     const { data, count } = await getExpiryUmbrellas(
-      isPagination,
       offsetValue,
       limitValue,
       searchValue
@@ -166,14 +161,12 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
 router.get('/all', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
-    const isPagination = offset !== undefined && limit !== undefined;
 
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
     const searchValue = search ? search.toString() : undefined;
 
     const result = await getUmbrellaAllData(
-      isPagination,
       offsetValue,
       limitValue,
       searchValue
