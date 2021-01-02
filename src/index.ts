@@ -9,6 +9,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { schedule } from 'node-cron';
 import redis from 'redis';
+import { promisify } from 'util';
 import config from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
@@ -23,6 +24,11 @@ const connectRedis = require('connect-redis');
 
 export const app = express();
 export const logger = log4js.getLogger();
+export const redisClient = redis.createClient(config.redis.port, config.redis.host);
+export const redisUtil = {
+  getAsync: promisify(redisClient.get).bind(redisClient),
+  setAsync: promisify(redisClient.set).bind(redisClient)
+};
 
 const RATE_MINUTES = 1;
 const MAXAGE_DATE = 14;
@@ -59,18 +65,17 @@ db.sync().then(async () => {
   await initializeUniformData();
 });
 
-const RedisStore = connectRedis(session);
-const client = redis.createClient(config.redis.port, config.redis.host);
-
 app.set('trust proxy', true);
 app.use(helmet());
 app.use(cors({ origin: [config.frontendHost, config.adminHost], credentials: true }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+const RedisStore = connectRedis(session);
 app.use(session({
   store: new RedisStore({
-    client
+    client: redisClient
   }),
   secret: config.sessionSecret,
   resave: false,
