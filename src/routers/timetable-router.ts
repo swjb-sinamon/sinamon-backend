@@ -92,8 +92,6 @@ router.get('/:grade/:fullClass', requireAuthenticated, async (req, res) => {
       success: true,
       data
     });
-
-    logger.info('이번주 시간표를 불러왔습니다.');
   } catch (e) {
     logger.error('이번주 시간표를 불러오는 중 오류가 발생하였습니다.');
     logger.error(e);
