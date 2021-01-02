@@ -51,10 +51,12 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
     const thisWeekTimetable = v[grade][fullClass];
     const result = thisWeekTimetable.map((today: ComciganTimetable[]) => {
       const timeTableWithURL = today.map(async (value: ComciganTimetable) => {
+        const subject = value.subject.trim().replace('d', '').replace('Ⅰ', '');
+
         const timeTable = await TimeTables.findOne({
           where: {
             subject: {
-              [Op.like]: `%${value.subject}%`
+              [Op.like]: `%${subject}%`
             },
             teacher: {
               [Op.like]: `%${value.teacher.replace('*', '')}%`
@@ -65,12 +67,14 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
         if (!timeTable) {
           return {
             ...value,
+            subject,
             url: null
           };
         }
 
         return {
           ...value,
+          subject,
           url: timeTable.url
         };
       });
