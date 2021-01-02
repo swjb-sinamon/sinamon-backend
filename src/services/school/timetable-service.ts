@@ -5,6 +5,7 @@ import TimeTables from '../../databases/models/time-tables';
 import ServiceException from '../../exceptions';
 import ErrorMessage from '../../error/error-message';
 import { pagination, search } from '../../utils/router-util';
+import { logger } from '../../index';
 
 type TimetableType = Record<string, // Grade
   Record<string, // fullClass
@@ -46,44 +47,43 @@ export const getTimetables = async (
 
 export const getThisWeekTimetables = async (grade: number, fullClass: number): Promise<unknown> => {
   const timetable = await getTimetableInstance();
+  const timetableData = await timetable.getTimetable();
 
-  return timetable.getTimetable().then((v: TimetableType) => {
-    const thisWeekTimetable = v[grade][fullClass];
-    const result = thisWeekTimetable.map((today: ComciganTimetable[]) => {
-      const timeTableWithURL = today.map(async (value: ComciganTimetable) => {
-        const subject = value.subject.trim().replace('d', '').replace('Ⅰ', '');
+  const thisWeekTimetable = timetableData[grade][fullClass];
+  const result = thisWeekTimetable.map((today: ComciganTimetable[]) => {
+    const timeTableWithURL = today.map(async (value: ComciganTimetable) => {
+      const subject = value.subject.trim().replace('d', '').replace('Ⅰ', '');
 
-        const timeTable = await TimeTables.findOne({
-          where: {
-            subject: {
-              [Op.like]: `%${subject}%`
-            },
-            teacher: {
-              [Op.like]: `%${value.teacher.replace('*', '')}%`
-            }
+      const timeTable = await TimeTables.findOne({
+        where: {
+          subject: {
+            [Op.like]: `%${subject}%`
+          },
+          teacher: {
+            [Op.like]: `%${value.teacher.replace('*', '')}%`
           }
-        });
-
-        if (!timeTable) {
-          return {
-            ...value,
-            subject,
-            url: null
-          };
         }
+      });
 
+      if (!timeTable) {
         return {
           ...value,
           subject,
-          url: timeTable.url
+          url: null
         };
-      });
+      }
 
-      return Promise.all(timeTableWithURL);
+      return {
+        ...value,
+        subject,
+        url: timeTable.url
+      };
     });
 
-    return Promise.all(result);
+    return Promise.all(timeTableWithURL);
   });
+
+  return Promise.all(result);
 };
 
 export const createTimetable = async (data: CreateTimetableProps): Promise<TimeTables> => {
