@@ -2,7 +2,7 @@ import axios from 'axios';
 import { parseStringPromise } from 'xml2js';
 import { redisUtil } from '../index';
 import config from '../config';
-import { DustPayload, WeatherPayload } from '../types';
+import { ComciganTimetable, DustPayload, WeatherPayload } from '../types';
 import school from '../utils/school-lib';
 import { getTimetableInstance } from '../utils/timetable-lib';
 
@@ -58,7 +58,7 @@ export const getDustCache = async (): Promise<DustPayload> => {
   return JSON.parse(result as string);
 };
 
-export const fetchMealCache = async (): Promise<any> => {
+export const fetchMealCache = async (): Promise<void> => {
   const meal = await school.getMeal({ default: '오늘 급식이 없습니다.' });
   await redisUtil.setAsync(MEAL_KEY, JSON.stringify(meal));
 };
@@ -74,7 +74,7 @@ export const getMealCache = async (): Promise<any> => {
   return JSON.parse(result as string);
 };
 
-export const fetchCalendarCache = async (): Promise<any> => {
+export const fetchCalendarCache = async (): Promise<void> => {
   const data = await school.getCalendar();
   await redisUtil.setAsync(CALENDAR_KEY, JSON.stringify(data));
 };
@@ -90,13 +90,17 @@ export const getCalendarCache = async (): Promise<any> => {
   return JSON.parse(result as string);
 };
 
-export const fetchTimetableCache = async (): Promise<any> => {
+type TimetableType = Record<string, // Grade
+  Record<string, // fullClass
+    ComciganTimetable[][]>>; // thisWeek
+
+export const fetchTimetableCache = async (): Promise<void> => {
   const timetable = await getTimetableInstance();
   const data = await timetable.getTimetable();
   await redisUtil.setAsync(TIMETALBE_KEY, JSON.stringify(data));
 };
 
-export const getTimetableCache = async (): Promise<any> => {
+export const getTimetableCache = async (): Promise<TimetableType> => {
   const current = await redisUtil.getAsync(TIMETALBE_KEY);
 
   if (!current) {
