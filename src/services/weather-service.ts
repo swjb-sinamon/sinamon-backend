@@ -1,16 +1,7 @@
 import axios from 'axios';
 import { parseStringPromise } from 'xml2js';
 import config from '../config';
-
-interface WeatherPayload {
-  readonly status: string;
-  readonly temp: number;
-}
-
-interface DustPayload {
-  readonly pm25: number;
-  readonly pm10: number;
-}
+import { DustPayload, WeatherPayload } from '../types';
 
 export const getWeatherStatus = async (): Promise<WeatherPayload> => {
   const result = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=Suwon,KR&appid=${config.openWeatherApiKey}&units=metric`);

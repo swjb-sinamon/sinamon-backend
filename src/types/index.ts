@@ -19,3 +19,13 @@ export interface ComciganTimetable {
   readonly teacher: string;
   readonly subject: string;
 }
+
+export interface WeatherPayload {
+  readonly status: string;
+  readonly temp: number;
+}
+
+export interface DustPayload {
+  readonly pm25: number;
+  readonly pm10: number;
+}
