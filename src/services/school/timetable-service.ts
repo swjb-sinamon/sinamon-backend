@@ -6,6 +6,7 @@ import ServiceException from '../../exceptions';
 import ErrorMessage from '../../error/error-message';
 import { pagination, search } from '../../utils/router-util';
 import { logger } from '../../index';
+import { getTimetableCache } from '../../cache/api-cache';
 
 type TimetableType = Record<string, // Grade
   Record<string, // fullClass
@@ -46,8 +47,7 @@ export const getTimetables = async (
 };
 
 export const getThisWeekTimetables = async (grade: number, fullClass: number): Promise<unknown> => {
-  const timetable = await getTimetableInstance();
-  const timetableData = await timetable.getTimetable();
+  const timetableData = await getTimetableCache();
 
   const thisWeekTimetable = timetableData[grade][fullClass];
   const result = thisWeekTimetable.map((today: ComciganTimetable[]) => {

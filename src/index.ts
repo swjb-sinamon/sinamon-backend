@@ -18,6 +18,8 @@ import Router from './routers';
 import Rentals from './databases/models/rentals';
 import { initializeServerConfig, initializeUniformData } from './databases/Initialize';
 import { setExpire } from './services/rental-service';
+import { initApiCache } from './cache/init-cache';
+import cron from './cron';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const connectRedis = require('connect-redis');
@@ -86,9 +88,9 @@ app.use(session({
     maxAge: Date.now() + (MAXAGE_DATE * 86400 * 1000)
   }
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
-
 AuthPassport();
 
 app.use(rateLimit({
@@ -102,27 +104,6 @@ app.use('*', (req, res, next) => {
 
 app.use('/v1', Router);
 
-schedule('0 */4 * * *', async () => {
-  logger.info('우산 연체 여부를 확인합니다.');
+cron();
 
-  const now = Math.floor(new Date().getTime() / 1000);
-  const current = await Rentals.findAll({
-    where: {
-      isExpire: false
-    }
-  });
-
-  let count = 0;
-  const promise = current.map(async (info) => {
-    const time = Math.floor(info.expiryDate.getTime() / 1000);
-    if (now >= time) {
-      await setExpire(info.uuid);
-      count += 1;
-    }
-  });
-
-  await Promise.all(promise);
-
-  logger.info(`우산 ${count}개가 연체되었습니다.`);
-  logger.info('우산 연체 여부를 확인 완료했습니다.');
-});
+(async () => initApiCache())();
