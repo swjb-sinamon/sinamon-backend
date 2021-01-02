@@ -1,16 +1,10 @@
 import { Op } from 'sequelize';
-import { getTimetableInstance } from '../../utils/timetable-lib';
 import { ComciganTimetable } from '../../types';
 import TimeTables from '../../databases/models/time-tables';
 import ServiceException from '../../exceptions';
 import ErrorMessage from '../../error/error-message';
 import { pagination, search } from '../../utils/router-util';
-import { logger } from '../../index';
 import { getTimetableCache } from '../../cache/api-cache';
-
-type TimetableType = Record<string, // Grade
-  Record<string, // fullClass
-    ComciganTimetable[][]>>; // thisWeek
 
 interface CreateTimetableProps {
   readonly subject: string;

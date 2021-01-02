@@ -7,7 +7,6 @@ import passport from 'passport';
 import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import helmet from 'helmet';
-import { schedule } from 'node-cron';
 import redis from 'redis';
 import { promisify } from 'util';
 import config from './config';
@@ -15,9 +14,7 @@ import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
 import Router from './routers';
-import Rentals from './databases/models/rentals';
 import { initializeServerConfig, initializeUniformData } from './databases/Initialize';
-import { setExpire } from './services/rental-service';
 import { initApiCache } from './cache/init-cache';
 import cron from './cron';
 
