@@ -1,4 +1,4 @@
-import Comcigan from 'comcigan-parser-fixed';
+import Comcigan from 'comcigan-parser';
 
 export const getTimetableInstance = async (): Promise<Comcigan> => {
   const timetable = new Comcigan();
