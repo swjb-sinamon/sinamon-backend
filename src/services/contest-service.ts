@@ -5,6 +5,7 @@ import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import { PaginationResult } from '../types/pagination-result';
 import { pagination, search } from '../utils/router-util';
+import { logger } from '../index';
 
 export const addContestMember = async (uuid: string, role: ContestRole): Promise<Contests> => {
   const user = await getUser(uuid);
@@ -36,10 +37,10 @@ export const getContestMembers = async (
   const paginationOption = pagination(offset, limit);
 
   let roleOption = {};
-  if (role) {
+  if (role !== undefined) {
     roleOption = {
       where: {
-        role: role.valueOf()
+        role
       }
     };
   }
