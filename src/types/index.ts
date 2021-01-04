@@ -30,8 +30,11 @@ export interface DustPayload {
   readonly pm10: number;
 }
 
-export const ContestRole: Record<'IDEA' | 'DEVELOP' | 'DESIGN', number> = {
+type ContestRoleKind = 'IDEA' | 'DEVELOP' | 'DESIGN';
+const ContestRoleObject: Record<ContestRoleKind, number> = {
   IDEA: 0,
   DEVELOP: 1,
   DESIGN: 2
-};
+} as const;
+
+export type ContestRole = typeof ContestRoleObject[keyof typeof ContestRoleObject];
