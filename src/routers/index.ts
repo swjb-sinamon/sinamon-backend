@@ -9,6 +9,7 @@ import NoticeRouter from './notice-router';
 import CodeRouter from './activation-code-router';
 import UniformRouter from './uniform-router';
 import TimetableRouter from './timetable-router';
+import ContestRouter from './content-router';
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use('/notice', NoticeRouter);
 router.use('/code', CodeRouter);
 router.use('/uniform', UniformRouter);
 router.use('/timetable', TimetableRouter);
+router.use('/contest', ContestRouter);
 
 export default router;
