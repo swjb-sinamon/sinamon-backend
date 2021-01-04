@@ -29,3 +29,9 @@ export interface DustPayload {
   readonly pm25: number;
   readonly pm10: number;
 }
+
+export const ContestRole: Record<'IDEA' | 'DEVELOP' | 'DESIGN', number> = {
+  IDEA: 0,
+  DEVELOP: 1,
+  DESIGN: 2
+};
