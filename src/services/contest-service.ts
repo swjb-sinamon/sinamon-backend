@@ -35,19 +35,24 @@ export const getContestMembers = async (
   const searchOption = search<Contests>(query, 'name');
   const paginationOption = pagination(offset, limit);
 
+  let roleOption = {};
+  if (role) {
+    roleOption = {
+      where: {
+        role: role.valueOf()
+      }
+    };
+  }
+
   const count = await Contests.count({
     ...searchOption,
-    where: {
-      role
-    }
+    ...roleOption
   });
 
   const result = await Contests.findAll({
     ...searchOption,
     ...paginationOption,
-    where: {
-      role
-    }
+    ...roleOption
   });
 
   return {

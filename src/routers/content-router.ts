@@ -37,13 +37,13 @@ router.get('/',
     try {
       const { offset, limit, search, role } = req.query as Record<string, any>;
 
-      if (!(Object.keys(ContestRole).includes(role))) {
+      if (role && !(Object.keys(ContestRole).includes(role))) {
         res.status(400).json(makeError(ErrorMessage.CONTEST_ROLE_NOT_FOUND));
         logger.warn('존재하지 않은 역할을 입력했습니다.');
         return;
       }
 
-      const { data, count } = await getContestMembers(limit, offset, search, role);
+      const { data, count } = await getContestMembers(limit, offset, search, ContestRole[role as keyof typeof ContestRole]);
 
       res.status(200).json({
         success: true,
@@ -59,10 +59,10 @@ router.get('/',
 
 const addContestMemberValidator = [
   body('name').isString(),
-  body('department').isString(),
-  body('grade').isString(),
-  body('class').isString(),
-  body('number').isString(),
+  body('department').isNumeric(),
+  body('grade').isNumeric(),
+  body('class').isNumeric(),
+  body('number').isNumeric(),
   body('role').isIn(Object.keys(ContestRole))
 ];
 /**
@@ -101,7 +101,7 @@ router.post('/',
         number
       );
 
-      const data = await addContestMember(user.uuid, role);
+      const data = await addContestMember(user.uuid, ContestRole[role as keyof typeof ContestRole]);
 
       res.status(201).json({
         success: true,
