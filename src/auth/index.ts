@@ -8,6 +8,8 @@ const authPassport = (): void => {
   });
 
   passport.deserializeUser((user, done) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     done(null, user);
   });
 
