@@ -169,9 +169,16 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated, req
   if (!req.user) return;
   const { user }: any = req;
 
-  const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
-  let plain = passDecipher.update(data, 'base64', 'utf8');
-  plain += passDecipher.final('utf8');
+  let plain = '';
+
+  try {
+    const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
+    plain = passDecipher.update(data, 'base64', 'utf8');
+    plain += passDecipher.final('utf8');
+  } catch (e) {
+    res.status(404).json(makeError(ErrorMessage.QRCODE_ERROR));
+    return;
+  }
 
   const decodeData: {
     uuid: string;
@@ -309,9 +316,15 @@ router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticat
   if (!req.user) return;
   const { user }: any = req;
 
-  const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
-  let plain = passDecipher.update(data, 'base64', 'utf8');
-  plain += passDecipher.final('utf8');
+  let plain = '';
+  try {
+    const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
+    plain = passDecipher.update(data, 'base64', 'utf8');
+    plain += passDecipher.final('utf8');
+  } catch (e) {
+    res.status(404).json(makeError(ErrorMessage.QRCODE_ERROR));
+    return;
+  }
 
   const decodeData: {
     uuid: string;

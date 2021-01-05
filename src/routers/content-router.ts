@@ -38,12 +38,20 @@ router.get('/',
       const { offset, limit, search, role } = req.query as Record<string, any>;
 
       if (role && !(Object.keys(ContestRole).includes(role))) {
-        res.status(400).json(makeError(ErrorMessage.CONTEST_ROLE_NOT_FOUND));
+        res.status(404).json(makeError(ErrorMessage.CONTEST_ROLE_NOT_FOUND));
         logger.warn('존재하지 않은 역할을 입력했습니다.');
         return;
       }
 
-      const { data, count } = await getContestMembers(limit, offset, search, ContestRole[role as keyof typeof ContestRole]);
+      const {
+        data,
+        count
+      } = await getContestMembers(
+        limit,
+        offset,
+        search,
+        ContestRole[role as keyof typeof ContestRole]
+      );
 
       res.status(200).json({
         success: true,
@@ -88,7 +96,7 @@ router.post('/',
       const { name, department, grade, class: clazz, number, role } = req.body;
 
       if (!(Object.keys(ContestRole).includes(role))) {
-        res.status(400).json(makeError(ErrorMessage.CONTEST_ROLE_NOT_FOUND));
+        res.status(404).json(makeError(ErrorMessage.CONTEST_ROLE_NOT_FOUND));
         logger.warn('존재하지 않은 역할을 입력했습니다.');
         return;
       }
