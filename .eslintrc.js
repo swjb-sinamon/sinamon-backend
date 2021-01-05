@@ -7,6 +7,7 @@ module.exports = {
     'object-curly-newline': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
-    'linebreak-style': 'off'
+    'linebreak-style': 'off',
+    'import/prefer-default-export': 'off'
   }
 };

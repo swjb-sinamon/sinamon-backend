@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import school from '../../utils/school-lib';
+import { getMealCache } from '../../cache/api-cache';
 
 const deleteUnusedString = (original: string): string => {
   const result = original
@@ -16,7 +16,7 @@ const deleteUnusedString = (original: string): string => {
 };
 
 export const getTodayMeal = async (): Promise<string> => {
-  const meal = await school.getMeal({ default: '오늘 급식이 없습니다.' });
+  const meal = await getMealCache();
   return deleteUnusedString(meal.today);
 };
 
@@ -24,6 +24,6 @@ export const getTomorrowMeal = async (): Promise<string> => {
   const tomorrowDay = dayjs()
     .add(1, 'date')
     .format('D');
-  const meal: any = await school.getMeal({ default: '내일 급식이 없습니다.' });
+  const meal = await getMealCache();
   return deleteUnusedString(meal[tomorrowDay]);
 };

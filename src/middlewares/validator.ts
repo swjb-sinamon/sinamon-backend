@@ -7,7 +7,7 @@ export const checkValidation = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
-) => {
+): void => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json(makeValidationError(errors.array()));

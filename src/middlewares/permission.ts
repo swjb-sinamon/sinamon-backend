@@ -8,7 +8,7 @@ export const requireAuthenticated = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
-) => {
+): void => {
   if (!req.isAuthenticated()) {
     res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
     return;
@@ -21,7 +21,7 @@ export const requirePermission = (type: PermissionType[]) => (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
-) => {
+): void => {
   const { user }: any = req;
 
   if (!user) {

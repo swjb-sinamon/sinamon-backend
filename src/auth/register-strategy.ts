@@ -6,7 +6,7 @@ import Users from '../databases/models/users';
 import ErrorMessage from '../error/error-message';
 import config from '../config';
 
-export default () => {
+export default (): void => {
   passport.use('register', new LocalStrategy({
     usernameField: 'id',
     passwordField: 'password'

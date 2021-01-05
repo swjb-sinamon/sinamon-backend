@@ -231,13 +231,12 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
  */
 router.get('/user', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   const { offset, limit, search } = req.query;
-  const isPagination = offset !== undefined && limit !== undefined;
 
-  const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-  const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+  const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+  const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
   const searchValue = search ? search.toString() : undefined;
 
-  const { data, count } = await getUsers(isPagination, offsetValue, limitValue, searchValue);
+  const { data, count } = await getUsers(offsetValue, limitValue, searchValue);
 
   res.status(200).json({
     success: true,

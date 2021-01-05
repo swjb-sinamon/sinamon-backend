@@ -5,7 +5,7 @@ import Users from '../databases/models/users';
 import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
 
-export default () => {
+export default (): void => {
   passport.use('login', new LocalStrategy({
     usernameField: 'id',
     passwordField: 'password'

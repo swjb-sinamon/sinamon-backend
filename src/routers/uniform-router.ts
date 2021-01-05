@@ -207,16 +207,13 @@ router.get('/personal',
       limit
     } = req.query;
 
-    const isPagination = offset !== undefined && limit !== undefined;
-
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
     const date = new Date(oDate ? oDate.toString() : '');
 
     try {
       const { count, data } = await getUniformPersonals(
         date,
-        isPagination,
         offsetValue,
         limitValue
       );
@@ -265,14 +262,11 @@ router.get('/prank',
       limit
     } = req.query;
 
-    const isPagination = offset !== undefined && limit !== undefined;
-
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
 
     try {
       const { count, data } = await getUniformPersonalRank(
-        isPagination,
         offsetValue,
         limitValue
       );
