@@ -29,3 +29,9 @@ export interface DustPayload {
   readonly pm25: number;
   readonly pm10: number;
 }
+
+export enum ContestRole {
+  IDEA,
+  DEVELOP,
+  DESIGN
+}
