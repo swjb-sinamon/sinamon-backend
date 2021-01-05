@@ -77,7 +77,10 @@ export const getActivationCodes = async (
   const option = pagination(page, limit);
 
   const { count, rows } = await ActivationCode.findAndCountAll({
-    ...option
+    ...option,
+    order: [
+      ['isUse', 'ASC']
+    ]
   });
 
   return {
