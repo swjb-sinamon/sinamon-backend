@@ -79,7 +79,8 @@ export const getActivationCodes = async (
   const { count, rows } = await ActivationCode.findAndCountAll({
     ...option,
     order: [
-      ['isUse', 'ASC']
+      ['isUse', 'ASC'],
+      ['id', 'ASC']
     ]
   });
 
