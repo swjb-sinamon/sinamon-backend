@@ -25,12 +25,11 @@ const router = express.Router();
 router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit } = req.query;
-    const isPagination = offset !== undefined && limit !== undefined;
 
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : 0;
-    const limitValue = limit ? parseInt(limit.toString(), 10) : 0;
+    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
 
-    const { count, data } = await getActivationCodes(isPagination, offsetValue, limitValue);
+    const { count, data } = await getActivationCodes(offsetValue, limitValue);
 
     res.status(200).json({
       success: true,

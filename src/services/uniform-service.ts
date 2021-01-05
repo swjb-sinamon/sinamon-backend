@@ -116,11 +116,10 @@ const initUniformPersonalData = async (
 
 export const getUniformPersonals = async (
   date: Date,
-  usePagination = false,
-  page = 0,
-  limit = 10,
+  page?: number,
+  limit?: number
 ): Promise<{ count: number, data: UniformPersonal[] }> => {
-  const option = pagination(usePagination, page, limit);
+  const option = pagination(page, limit);
 
   const count = await UniformPersonal.count({
     where: {
@@ -152,11 +151,10 @@ export const getUniformPersonals = async (
 };
 
 export const getUniformPersonalRank = async (
-  usePagination = false,
-  page = 0,
-  limit = 10,
+  page?: number,
+  limit?: number
 ): Promise<{ count: number, data: UniformPersonal[] }> => {
-  const option = pagination(usePagination, page, limit);
+  const option = pagination(page, limit);
 
   const count = await UniformPersonal.count({
     attributes: [

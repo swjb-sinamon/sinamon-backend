@@ -9,12 +9,11 @@ import { pagination, search } from '../utils/router-util';
 type UmbrellaReturn = { data: Umbrellas[], count: number };
 
 export const getUmbrellaAllData = async (
-  usePagination = false,
-  page = 0,
-  limit = 10,
+  page?: number,
+  limit?: number,
   searchQuery?: string
 ): Promise<UmbrellaReturn> => {
-  const option = pagination(usePagination, page, limit);
+  const option = pagination(page, limit);
   const searchOption = search<Umbrellas>(searchQuery, 'name');
 
   const count = await Umbrellas.count({
@@ -39,10 +38,8 @@ export const getUmbrellaAllData = async (
 };
 
 export const getUmbrellas = async (
-  // eslint-disable-next-line no-unused-vars
-  usePagination = false,
-  page = 0,
-  limit = 10,
+  page?: number,
+  limit?: number,
   searchQuery?: string
 ): Promise<UmbrellaReturn> => {
   const searchOption = search<Umbrellas>(searchQuery, 'name');
@@ -60,23 +57,25 @@ export const getUmbrellas = async (
     .map((item: any) => item.dataValues)
     .map(({ rental, ...current }: any) => current);
 
-  const indexOfLastPost = page * limit;
-  const indexOfFirstPost = indexOfLastPost - limit;
-  const currentPageData = data.slice(indexOfFirstPost, indexOfLastPost);
+  let currentPageData: Umbrellas[] | undefined;
+  if (page && limit) {
+    const indexOfLastPost = page * limit;
+    const indexOfFirstPost = indexOfLastPost - limit;
+    currentPageData = data.slice(indexOfFirstPost, indexOfLastPost);
+  }
 
   return {
     count: data.length,
-    data: usePagination ? currentPageData : data
+    data: currentPageData || data
   };
 };
 
 export const getBorrowedUmbrellas = async (
-  usePagination = false,
-  page = 0,
-  limit = 10,
+  page?: number,
+  limit?: number,
   searchQuery?: string
 ): Promise<UmbrellaReturn> => {
-  const option = pagination(usePagination, page, limit);
+  const option = pagination(page, limit);
   const searchOption = search<Umbrellas>(searchQuery, 'name');
 
   const count = await Umbrellas.count({
@@ -113,12 +112,11 @@ export const getBorrowedUmbrellas = async (
 };
 
 export const getExpiryUmbrellas = async (
-  usePagination = false,
-  page = 0,
-  limit = 10,
+  page?: number,
+  limit?: number,
   searchQuery?: string
 ): Promise<UmbrellaReturn> => {
-  const option = pagination(usePagination, page, limit);
+  const option = pagination(page, limit);
   const searchOption = search<Umbrellas>(searchQuery, 'name');
 
   const count = await Umbrellas.count({

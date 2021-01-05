@@ -121,13 +121,12 @@ export const getUserWithInfo = async (
 };
 
 export const getUsers = async (
-  usePagination = false,
-  page = 0,
-  limit = 10,
+  page?: number,
+  limit?: number,
   searchQuery?: string
 ): Promise<{ count: number, data: Users[] }> => {
   const searchOption = search<Users>(searchQuery, 'name');
-  const option = pagination(usePagination, page, limit);
+  const option = pagination(page, limit);
 
   const count = await Users.count({
     ...searchOption

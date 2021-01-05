@@ -20,6 +20,7 @@
   "dependencies": {
     "axios": "^0.20.0",
     "bcrypt": "^5.0.0",
+    "comcigan-parser": "^0.2.0",
     "connect-redis": "^5.0.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
