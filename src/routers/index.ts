@@ -9,7 +9,7 @@ import NoticeRouter from './notice-router';
 import CodeRouter from './activation-code-router';
 import UniformRouter from './uniform-router';
 import TimetableRouter from './timetable-router';
-import ContestRouter from './content-router';
+import ContestRouter from './contest-router';
 
 const router = express.Router();
 
