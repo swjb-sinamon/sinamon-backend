@@ -38,7 +38,7 @@ router.put('/', requireAuthenticated, requirePermission(['admin', 'teacher']), n
     res.status(404).json({ success: false });
     return;
   }
-  notice.update({
+  await notice.update({
     configValue: noticeValue
   });
 
