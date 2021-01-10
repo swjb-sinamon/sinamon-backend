@@ -4,6 +4,8 @@ import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
 import { PermissionType } from '../types';
 import { pagination, search } from '../utils/router-util';
+import { logger } from '../index';
+import { PaginationResult } from '../types/pagination-result';
 
 interface UserInfoParams {
   readonly id: string;
@@ -120,20 +122,51 @@ export const getUserWithInfo = async (
   return user;
 };
 
+export interface GetUsersFilters {
+  readonly department?: number;
+  readonly studentGrade?: number;
+  readonly studentClass?: number;
+}
+
 export const getUsers = async (
   page?: number,
   limit?: number,
-  searchQuery?: string
-): Promise<{ count: number, data: Users[] }> => {
+  searchQuery?: string,
+  filters?: GetUsersFilters
+): Promise<PaginationResult<Users[]>> => {
   const searchOption = search<Users>(searchQuery, 'name');
   const option = pagination(page, limit);
 
+  let filterOption = {};
+  if (filters) {
+    const { department, studentGrade, studentClass } = filters;
+
+    if (department) {
+      filterOption = { department, ...filterOption };
+    }
+    if (studentGrade) {
+      filterOption = { studentGrade, ...filterOption };
+    }
+    if (studentClass) {
+      filterOption = { studentClass, ...filterOption };
+    }
+  }
+
+  const searchAndFilter = Object.assign(
+    searchOption.where ?? {},
+    filterOption ?? {}
+  ) as Record<string, any>;
+
   const count = await Users.count({
-    ...searchOption
+    where: {
+      ...searchAndFilter
+    }
   });
 
   const data = await Users.findAll({
-    ...searchOption,
+    where: {
+      ...searchAndFilter
+    },
     ...option,
     attributes: {
       exclude: ['password']
