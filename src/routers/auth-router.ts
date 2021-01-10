@@ -4,7 +4,14 @@ import { body, query } from 'express-validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import { getMyPermission, getUser, getUsers, initUserPermission, registerUser } from '../services/auth-service';
+import {
+  getMyPermission,
+  getUser,
+  getUsers,
+  GetUsersFilters,
+  initUserPermission,
+  registerUser
+} from '../services/auth-service';
 import { requireAuthenticated, requirePermission } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
 import { useActivationCode } from '../services/activation-code-service';
@@ -215,13 +222,14 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
 });
 
 /**
- * @api {get} /auth/user?limit=:limit&offset=:offset&search=:search 모든 유저 가져오기
+ * @api {get} /auth/user 모든 유저 가져오기
  * @apiName GetUsers
  * @apiGroup Auth
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
- * @apiParam {String} search 검색어
+ * @apiParam {String} search 학생 이름 검색
+ * @apiParam {String} filters[] 학과, 학년, 반 필터
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
@@ -230,13 +238,29 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
 router.get('/user', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
-  const { offset, limit, search } = req.query;
+  const { offset, limit, search, filters } = req.query as Record<string, any>;
 
-  const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
-  const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
-  const searchValue = search ? search.toString() : undefined;
+  let filterOption: GetUsersFilters = {};
+  if (filters) {
+    const { department, grade, class: clazz } = filters as {
+      department?: number;
+      grade?: number;
+      class?: number;
+    };
 
-  const { data, count } = await getUsers(offsetValue, limitValue, searchValue);
+    filterOption = {
+      department,
+      studentGrade: grade,
+      studentClass: clazz
+    };
+  }
+
+  const { data, count } = await getUsers(
+    parseInt(offset, 10),
+    parseInt(limit, 10),
+    search,
+    filterOption
+  );
 
   res.status(200).json({
     success: true,
