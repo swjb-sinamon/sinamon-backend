@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { parseStringPromise } from 'xml2js';
 import { redisUtil } from '../index';
 import config from '../config';
 import { ComciganTimetable, DustPayload, WeatherPayload } from '../types';
@@ -34,14 +33,21 @@ export const getWeatherCache = async (): Promise<WeatherPayload> => {
 };
 
 export const fetchDustCache = async (): Promise<void> => {
-  const apiUrl = `http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureSidoLIst?numOfRows=13&pageNo=1&sidoName=%EA%B2%BD%EA%B8%B0&searchCondition=HOUR&ServiceKey=${config.dustApiKey}`;
-  const result = await axios.get(apiUrl);
-  const xml = await parseStringPromise(result.data);
+  let url = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty';
+  url += `?serviceKey=${config.dustApiKey}`;
+  url += '&returnType=json';
+  url += '&numOfRows=1';
+  url += '&pageNo=1';
+  url += `&stationName=${encodeURI('인계동')}`;
+  url += '&dataTerm=DAILY';
+  url += '&ver=1.0';
 
-  const xmlData = xml.response.body[0].items[0].item[12];
+  const result = await axios.get(url);
+  const response = result.data.response.body.items[0];
+
   const data = {
-    pm25: parseInt(xmlData.pm25Value[0], 10),
-    pm10: parseInt(xmlData.pm10Value[0], 10)
+    pm25: parseInt(response.pm25Value, 10),
+    pm10: parseInt(response.pm10Value, 10)
   };
 
   await redisUtil.setAsync(DUST_KEY, JSON.stringify(data));
