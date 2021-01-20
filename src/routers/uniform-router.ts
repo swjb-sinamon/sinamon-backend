@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, param, query } from 'express-validator';
 import { checkValidation } from '../middlewares/validator';
-import { requireAuthenticated, requirePermission } from '../middlewares/permission';
+import { requireAuthenticated } from '../middlewares/permission';
 import ServiceException from '../exceptions';
 import { makeError } from '../error/error-system';
 import { logger } from '../index';
@@ -37,8 +37,7 @@ const getUniformsValidator = [
 router.get('/:grade/:fullClass',
   getUniformsValidator,
   checkValidation,
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { grade, fullClass } = req.params;
 
@@ -89,8 +88,7 @@ const scoreValidator = [
 router.put('/up/:grade/:fullClass',
   scoreValidator,
   checkValidation,
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { grade, fullClass } = req.params;
 
@@ -142,8 +140,7 @@ router.put('/up/:grade/:fullClass',
 router.put('/down/:grade/:fullClass',
   scoreValidator,
   checkValidation,
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { grade, fullClass } = req.params;
 
@@ -198,8 +195,7 @@ const getUniformPersonalsValidator = [
 router.get('/personal',
   getUniformPersonalsValidator,
   checkValidation,
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const {
       date: oDate,
@@ -254,8 +250,7 @@ router.get('/personal',
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.get('/prank',
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const {
       offset,
@@ -313,8 +308,7 @@ const personalScoreValidator = [
 router.put('/personal/up',
   personalScoreValidator,
   checkValidation,
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { name, department, grade, class: clazz, number, date } = req.body;
 
@@ -361,8 +355,7 @@ router.put('/personal/up',
 router.put('/personal/down',
   personalScoreValidator,
   checkValidation,
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { name, department, grade, class: clazz, number, date } = req.body;
 

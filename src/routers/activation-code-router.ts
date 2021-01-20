@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAuthenticated, requirePermission } from '../middlewares/permission';
+import { requireAuthenticated } from '../middlewares/permission';
 import { logger } from '../index';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
@@ -22,7 +22,7 @@ const router = express.Router();
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
+router.get('/', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit } = req.query;
 
@@ -45,7 +45,7 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher']), a
   }
 });
 
-router.post('/', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
+router.post('/', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   try {
     const code = await addActivationCode();
 

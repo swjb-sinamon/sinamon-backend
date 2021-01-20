@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { requireAuthenticated, requirePermission } from '../middlewares/permission';
+import { requireAuthenticated } from '../middlewares/permission';
 import { addContestMember, getContestMembers } from '../services/contest-service';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
@@ -31,8 +31,7 @@ const router = express.Router();
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.get('/',
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher', 'schoolunion']),
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req, res) => {
     try {
       const { offset, limit, search, role } = req.query as Record<string, any>;
@@ -88,7 +87,7 @@ const addContestMemberValidator = [
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.post('/',
-  requireAuthenticated,
+  requireAuthenticated(),
   addContestMemberValidator,
   checkValidation,
   async (req: express.Request, res: express.Response) => {

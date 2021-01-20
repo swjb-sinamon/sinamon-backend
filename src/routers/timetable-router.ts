@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { requireAuthenticated, requirePermission } from '../middlewares/permission';
+import { requireAuthenticated } from '../middlewares/permission';
 import {
   createTimetable,
   getThisWeekTimetables,
@@ -33,7 +33,7 @@ const router = express.Router();
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req, res) => {
+router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
   try {
     const { limit, offset, key, query } = req.query;
 
@@ -79,7 +79,7 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher']), a
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/:grade/:fullClass', requireAuthenticated, async (req, res) => {
+router.get('/:grade/:fullClass', requireAuthenticated(), async (req, res) => {
   try {
     const { grade, fullClass } = req.params;
 
@@ -117,8 +117,7 @@ const createTimetableValidator = [
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.post('/',
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher']),
+  requireAuthenticated(['admin', 'teacher']),
   createTimetableValidator,
   checkValidation,
   async (req: express.Request, res: express.Response) => {
@@ -164,8 +163,7 @@ router.post('/',
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.put('/:id',
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher']),
+  requireAuthenticated(['admin', 'teacher']),
   createTimetableValidator,
   checkValidation,
   async (req: express.Request, res: express.Response) => {
@@ -215,8 +213,7 @@ router.put('/:id',
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.delete('/:id',
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher']),
+  requireAuthenticated(['admin', 'teacher']),
   async (req, res) => {
     try {
       const { id } = req.params;

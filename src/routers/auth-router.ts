@@ -12,7 +12,7 @@ import {
   initUserPermission,
   registerUser
 } from '../services/auth-service';
-import { requireAuthenticated, requirePermission } from '../middlewares/permission';
+import { requireAuthenticated } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
 import { useActivationCode } from '../services/activation-code-service';
 import ServiceException from '../exceptions';
@@ -180,7 +180,7 @@ router.post('/register', registerValidator, checkValidation, async (req: express
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
-router.get('/me', requireAuthenticated, async (req: express.Request, res: express.Response) => {
+router.get('/me', requireAuthenticated(), async (req: express.Request, res: express.Response) => {
   const result: any = req.user;
   if (!result) return;
 
@@ -206,7 +206,7 @@ router.get('/me', requireAuthenticated, async (req: express.Request, res: expres
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
-router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { uuid } = req.params;
 
   const data = await getUser(uuid);
@@ -237,7 +237,7 @@ router.get('/user/:uuid', requireAuthenticated, requirePermission(['admin', 'tea
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
-router.get('/user', requireAuthenticated, requirePermission(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
+router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   const { offset, limit, search, filters } = req.query as Record<string, any>;
 
   let filterOption: GetUsersFilters = {};
@@ -281,7 +281,7 @@ router.get('/user', requireAuthenticated, requirePermission(['admin', 'teacher']
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
-router.delete('/logout', requireAuthenticated, (req: express.Request, res: express.Response) => {
+router.delete('/logout', requireAuthenticated(), (req: express.Request, res: express.Response) => {
   const result: any = req.user;
 
   result.password = '';

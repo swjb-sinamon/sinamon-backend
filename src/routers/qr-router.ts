@@ -17,7 +17,7 @@ const router = express.Router();
  *
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
-router.get('/', requireAuthenticated, (req, res) => {
+router.get('/', requireAuthenticated(), (req, res) => {
   const { uuid, id }: any = req.user;
   if (!uuid) return;
 

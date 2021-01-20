@@ -4,31 +4,22 @@ import ErrorMessage from '../error/error-message';
 import { PermissionType } from '../types';
 import { getMyPermission } from '../services/auth-service';
 
-export const requireAuthenticated = (
+export const requireAuthenticated = (type?: PermissionType[]) => (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ): void => {
-  if (!req.isAuthenticated()) {
+  if (!req.isAuthenticated() || !req.user) {
     res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
     return;
   }
 
-  next();
-};
+  if (!type) {
+    next();
+    return;
+  }
 
-export const requirePermission = (type: PermissionType[]) => (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-): void => {
   const { user }: any = req;
-
-  if (!user) {
-    res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
-    return;
-  }
-
   getMyPermission(user.uuid).then((my) => {
     if (my.length === 0) {
       res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
