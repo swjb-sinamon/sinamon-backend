@@ -2,11 +2,11 @@ import Users from '../databases/models/users';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
-import { PermissionType } from '../types';
+import { PermissionType, UserWithPermissions } from '../types';
 import { pagination, search } from '../utils/router-util';
 import { PaginationResult } from '../types/pagination-result';
 
-export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<Users & { permission: Permissions }> => {
+export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<UserWithPermissions> => {
   const key = type ?? 'uuid';
   const passwordOption = showPassword ? {} : {
     attributes: {
@@ -30,7 +30,7 @@ export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?
 
   if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
 
-  return result as Users & { permission: Permissions };
+  return result as UserWithPermissions;
 };
 
 export const getUserWithInfo = async (
@@ -40,7 +40,7 @@ export const getUserWithInfo = async (
   clazz: number,
   number: number,
   showPassword?: boolean
-): Promise<Users & { permission: Permissions }> => {
+): Promise<UserWithPermissions> => {
   const passwordOption = showPassword ? {} : {
     attributes: {
       exclude: ['password']
@@ -67,7 +67,7 @@ export const getUserWithInfo = async (
 
   if (!user) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
 
-  return user as Users & { permission: Permissions };
+  return user as UserWithPermissions;
 };
 
 interface UserInfoParams {
@@ -78,6 +78,7 @@ interface UserInfoParams {
   readonly studentClass: number;
   readonly studentNumber: number;
 }
+
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
   const { id, name, department, studentGrade, studentClass, studentNumber } = userInfo;
 
@@ -155,7 +156,7 @@ export const getUsers = async (
   limit?: number,
   searchQuery?: string,
   filters?: GetUsersFilters
-): Promise<PaginationResult<Users[]>> => {
+): Promise<PaginationResult<UserWithPermissions[]>> => {
   const searchOption = search<Users>(searchQuery, 'name');
   const option = pagination(page, limit);
 
@@ -204,6 +205,6 @@ export const getUsers = async (
 
   return {
     count,
-    data
+    data: data as UserWithPermissions[]
   };
 };
