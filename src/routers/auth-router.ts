@@ -184,8 +184,6 @@ router.get('/me', requireAuthenticated(), async (req: express.Request, res: expr
   const result: any = req.user;
   if (!result) return;
 
-  result.password = '';
-
   res.status(200).json({
     success: true,
     data: result
@@ -210,8 +208,6 @@ router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion
   const { uuid } = req.params;
 
   const data = await getUser(uuid);
-
-  data.password = '';
 
   res.status(200).json({
     success: true,
@@ -283,8 +279,6 @@ router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: expr
  */
 router.delete('/logout', requireAuthenticated(), (req: express.Request, res: express.Response) => {
   const result: any = req.user;
-
-  result.password = '';
 
   logger.info(`${result.uuid} ${result.id} 님이 로그아웃을 하였습니다.`);
   req.logout();
