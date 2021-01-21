@@ -15,10 +15,65 @@ interface UserInfoParams {
   readonly studentNumber: number;
 }
 
+export const getUserById = async (id: string): Promise<Users> => {
+  const result = await Users.findOne({
+    where: {
+      id
+    },
+    attributes: {
+      exclude: ['password']
+    },
+    include: [
+      {
+        model: Permissions,
+        attributes: ['isAdmin', 'isTeacher', 'isSchoolUnion'],
+        as: 'permission'
+      }
+    ] as never
+  });
+
+  if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+
+  return result;
+};
+
+export const getUser = async (uuid: string): Promise<Users> => {
+  const result = await Users.findOne({
+    where: {
+      uuid
+    },
+    attributes: {
+      exclude: ['password']
+    },
+    include: [
+      {
+        model: Permissions,
+        attributes: ['isAdmin', 'isTeacher', 'isSchoolUnion'],
+        as: 'permission'
+      }
+    ] as never
+  });
+
+  if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+
+  return result;
+};
+
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
   const { id, name, department, studentGrade, studentClass, studentNumber } = userInfo;
 
-  await Users.update({
+  const user = await Users.findOne({
+    where: {
+      id
+    },
+    attributes: {
+      exclude: ['password']
+    }
+  });
+
+  if (!user) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+
+  await user.update({
     name,
     department,
     studentGrade,
@@ -30,17 +85,7 @@ export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => 
     }
   });
 
-  const sendedUser = await Users.findOne({
-    where: {
-      id
-    }
-  });
-
-  if (!sendedUser) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
-
-  sendedUser.password = '';
-
-  return sendedUser;
+  return user;
 };
 
 export const initUserPermission = async (uuid: string): Promise<Permissions> => {
@@ -78,25 +123,6 @@ export const getMyPermission = async (uuid: string): Promise<PermissionType[]> =
   }
 
   return myPermission;
-};
-
-export const getUser = async (uuid: string): Promise<Users> => {
-  const result = await Users.findOne({
-    where: {
-      uuid
-    },
-    include: [
-      {
-        model: Permissions,
-        attributes: ['isAdmin', 'isTeacher', 'isSchoolUnion'],
-        as: 'permission'
-      }
-    ] as never
-  });
-
-  if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
-
-  return result;
 };
 
 export const getUserWithInfo = async (
