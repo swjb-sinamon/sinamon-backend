@@ -15,36 +15,19 @@ interface UserInfoParams {
   readonly studentNumber: number;
 }
 
-export const getUserById = async (id: string): Promise<Users> => {
-  const result = await Users.findOne({
-    where: {
-      id
-    },
+export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<Users> => {
+  const key = type ?? 'uuid';
+  const passwordOption = showPassword ? {} : {
     attributes: {
       exclude: ['password']
-    },
-    include: [
-      {
-        model: Permissions,
-        attributes: ['isAdmin', 'isTeacher', 'isSchoolUnion'],
-        as: 'permission'
-      }
-    ] as never
-  });
+    }
+  };
 
-  if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
-
-  return result;
-};
-
-export const getUser = async (uuid: string): Promise<Users> => {
   const result = await Users.findOne({
     where: {
-      uuid
+      [key]: value
     },
-    attributes: {
-      exclude: ['password']
-    },
+    ...passwordOption,
     include: [
       {
         model: Permissions,
