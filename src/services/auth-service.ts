@@ -6,16 +6,7 @@ import { PermissionType } from '../types';
 import { pagination, search } from '../utils/router-util';
 import { PaginationResult } from '../types/pagination-result';
 
-interface UserInfoParams {
-  readonly id: string;
-  readonly name: string;
-  readonly department: number;
-  readonly studentGrade: number;
-  readonly studentClass: number;
-  readonly studentNumber: number;
-}
-
-export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<Users> => {
+export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<Users & { permission: Permissions }> => {
   const key = type ?? 'uuid';
   const passwordOption = showPassword ? {} : {
     attributes: {
@@ -39,9 +30,54 @@ export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?
 
   if (!result) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
 
-  return result;
+  return result as Users & { permission: Permissions };
 };
 
+export const getUserWithInfo = async (
+  name: string,
+  department: number,
+  grade: number,
+  clazz: number,
+  number: number,
+  showPassword?: boolean
+): Promise<Users & { permission: Permissions }> => {
+  const passwordOption = showPassword ? {} : {
+    attributes: {
+      exclude: ['password']
+    }
+  };
+
+  const user = await Users.findOne({
+    where: {
+      name,
+      department,
+      studentGrade: grade,
+      studentClass: clazz,
+      studentNumber: number
+    },
+    ...passwordOption,
+    include: [
+      {
+        model: Permissions,
+        attributes: ['isAdmin', 'isTeacher', 'isSchoolUnion'],
+        as: 'permission'
+      }
+    ] as never
+  });
+
+  if (!user) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+
+  return user as Users & { permission: Permissions };
+};
+
+interface UserInfoParams {
+  readonly id: string;
+  readonly name: string;
+  readonly department: number;
+  readonly studentGrade: number;
+  readonly studentClass: number;
+  readonly studentNumber: number;
+}
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
   const { id, name, department, studentGrade, studentClass, studentNumber } = userInfo;
 
@@ -106,28 +142,6 @@ export const getMyPermission = async (uuid: string): Promise<PermissionType[]> =
   }
 
   return myPermission;
-};
-
-export const getUserWithInfo = async (
-  name: string,
-  department: number,
-  grade: number,
-  clazz: number,
-  number: number
-): Promise<Users> => {
-  const user = await Users.findOne({
-    where: {
-      name,
-      department,
-      studentGrade: grade,
-      studentClass: clazz,
-      studentNumber: number
-    }
-  });
-
-  if (!user) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
-
-  return user;
 };
 
 export interface GetUsersFilters {
