@@ -4,7 +4,6 @@ import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
 import { PermissionType } from '../types';
 import { pagination, search } from '../utils/router-util';
-import { logger } from '../index';
 import { PaginationResult } from '../types/pagination-result';
 
 interface UserInfoParams {
