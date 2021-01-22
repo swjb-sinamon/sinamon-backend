@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import Users from '../databases/models/users';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
@@ -5,6 +6,7 @@ import Permissions from '../databases/models/permissions';
 import { PermissionType, UserWithPermissions } from '../types';
 import { pagination, search } from '../utils/router-util';
 import { PaginationResult } from '../types/pagination-result';
+import config from '../config';
 
 export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<UserWithPermissions> => {
   const key = type ?? 'uuid';
@@ -78,7 +80,6 @@ interface UserInfoParams {
   readonly studentClass: number;
   readonly studentNumber: number;
 }
-
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
   const { id, name, department, studentGrade, studentClass, studentNumber } = userInfo;
 
@@ -207,4 +208,33 @@ export const getUsers = async (
     count,
     data: data as UserWithPermissions[]
   };
+};
+
+interface EditUserParams {
+  readonly studentGrade: number;
+  readonly studentClass: number;
+  readonly studentNumber: number;
+  readonly currentPassword: string;
+  readonly newPassword: string;
+}
+export const editUser = async (
+  uuid: string,
+  params: EditUserParams
+): Promise<UserWithPermissions> => {
+  const { studentGrade, studentClass, studentNumber, currentPassword, newPassword } = params;
+  const user = await getUser(uuid, 'uuid', true);
+
+  const compared = bcrypt.compareSync(currentPassword, user.password);
+  if (!compared) throw new ServiceException(ErrorMessage.USER_PASSWORD_NOT_MATCH, 401);
+
+  const hashed = await bcrypt.hash(newPassword, config.saltRound);
+
+  await user.update({
+    studentGrade,
+    studentClass,
+    studentNumber,
+    password: hashed
+  });
+
+  return user as UserWithPermissions;
 };
