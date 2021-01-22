@@ -5,6 +5,7 @@ import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
 import {
+  editUser,
   getMyPermission,
   getUser,
   getUsers,
@@ -17,6 +18,7 @@ import { checkValidation } from '../middlewares/validator';
 import { useActivationCode } from '../services/activation-code-service';
 import ServiceException from '../exceptions';
 import Users from '../databases/models/users';
+import { UserWithPermissions } from '../types';
 
 const router = express.Router();
 
@@ -184,8 +186,6 @@ router.get('/me', requireAuthenticated(), async (req: express.Request, res: expr
   const result: any = req.user;
   if (!result) return;
 
-  result.password = '';
-
   res.status(200).json({
     success: true,
     data: result
@@ -210,8 +210,6 @@ router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion
   const { uuid } = req.params;
 
   const data = await getUser(uuid);
-
-  data.password = '';
 
   res.status(200).json({
     success: true,
@@ -284,8 +282,6 @@ router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: expr
 router.delete('/logout', requireAuthenticated(), (req: express.Request, res: express.Response) => {
   const result: any = req.user;
 
-  result.password = '';
-
   logger.info(`${result.uuid} ${result.id} 님이 로그아웃을 하였습니다.`);
   req.logout();
 
@@ -294,5 +290,61 @@ router.delete('/logout', requireAuthenticated(), (req: express.Request, res: exp
     data: result
   });
 });
+
+const editUserValidator = [
+  body('studentGrade').isNumeric(),
+  body('studentClass').isNumeric(),
+  body('studentNumber').isNumeric(),
+  body('currentPassword').isString(),
+  body('newPassword').isString()
+];
+/**
+ * @api {put} /auth/me 유저 정보 수정
+ * @apiName EditUser
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 유저 데이터
+ *
+ * @apiError (Error 401) USER_PASSWORD_NOT_MATCH 현재 비밀번호가 일치하지 않습니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
+router.put('/me',
+  requireAuthenticated(),
+  editUserValidator,
+  checkValidation,
+  async (req: express.Request, res: express.Response) => {
+    const { studentGrade, studentClass, studentNumber, currentPassword, newPassword } = req.body;
+    const loginedUser = req.user as UserWithPermissions;
+
+    try {
+      const data = await editUser(loginedUser.uuid, {
+        studentGrade,
+        studentClass,
+        studentNumber,
+        currentPassword,
+        newPassword
+      });
+
+      res.status(200).json({
+        success: true,
+        data
+      });
+
+      logger.info(`${loginedUser.uuid} 사용자 정보를 수정했습니다.`);
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        if (e.message === ErrorMessage.USER_PASSWORD_NOT_MATCH) {
+          logger.warn(`${loginedUser.uuid} 사용자 정보 수정을 위한 비밀번호가 틀렸습니다.`);
+        }
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      logger.error('사용자 정보를 수정하는 중 오류가 발생하였습니다.');
+      logger.error(e);
+    }
+  });
 
 export default router;
