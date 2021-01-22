@@ -23,8 +23,8 @@ const router = express.Router();
  *
  * @apiParam {Number} limit 한 페이지당 데이터 수
  * @apiParam {Number} offset 페이지
- * @apiParam {String} key 검색 키(subject, teacher)
- * @apiParam {String} query 검색
+ * @apiParam {String} key 검색 조건(subject, teacher)
+ * @apiParam {String} search 검색
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
@@ -35,14 +35,14 @@ const router = express.Router();
  */
 router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
   try {
-    const { limit, offset, key, query } = req.query;
+    const { limit, offset, key, search } = req.query;
 
     const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
     const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
 
-    const searchOption = (key && query) ? {
+    const searchOption = (key && search) ? {
       key: key.toString() as any,
-      query: query.toString()
+      query: search.toString()
     } : undefined;
 
     const result = await getTimetables(
