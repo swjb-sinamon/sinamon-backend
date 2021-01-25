@@ -215,7 +215,7 @@ interface EditUserParams {
   readonly studentClass: number;
   readonly studentNumber: number;
   readonly currentPassword: string;
-  readonly newPassword: string;
+  readonly newPassword?: string;
 }
 export const editUser = async (
   uuid: string,
@@ -227,13 +227,19 @@ export const editUser = async (
   const compared = bcrypt.compareSync(currentPassword, user.password);
   if (!compared) throw new ServiceException(ErrorMessage.USER_PASSWORD_NOT_MATCH, 401);
 
-  const hashed = await bcrypt.hash(newPassword, config.saltRound);
+  let changePasswordOption = {};
+  if (newPassword) {
+    const hashed = await bcrypt.hash(newPassword, config.saltRound);
+    changePasswordOption = {
+      password: hashed
+    };
+  }
 
   await user.update({
     studentGrade,
     studentClass,
     studentNumber,
-    password: hashed
+    ...changePasswordOption
   });
 
   return user as UserWithPermissions;

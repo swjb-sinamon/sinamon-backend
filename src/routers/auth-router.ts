@@ -296,7 +296,6 @@ const editUserValidator = [
   body('studentClass').isNumeric(),
   body('studentNumber').isNumeric(),
   body('currentPassword').isString(),
-  body('newPassword').isString()
 ];
 /**
  * @api {put} /auth/me 유저 정보 수정
