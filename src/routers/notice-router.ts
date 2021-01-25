@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { requireAuthenticated, requirePermission } from '../middlewares/permission';
+import { requireAuthenticated } from '../middlewares/permission';
 import ServerConfigs from '../databases/models/server-configs';
 import { checkValidation } from '../middlewares/validator';
 import { logger } from '../index';
@@ -18,7 +18,7 @@ const router = express.Router();
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/', requireAuthenticated, async (req, res) => {
+router.get('/', requireAuthenticated(), async (req, res) => {
   const notice = await ServerConfigs.findOne({
     where: {
       configKey: 'notice'
@@ -51,8 +51,7 @@ const noticeValidator = [
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
 router.put('/',
-  requireAuthenticated,
-  requirePermission(['admin', 'teacher']),
+  requireAuthenticated(['admin', 'teacher']),
   noticeValidator,
   checkValidation,
   async (req: express.Request, res: express.Response) => {

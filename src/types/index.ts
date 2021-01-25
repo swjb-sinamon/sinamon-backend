@@ -1,3 +1,6 @@
+import Users from '../databases/models/users';
+import Permissions from '../databases/models/permissions';
+
 export enum UmbrellaStatus {
   GOOD = 'good',
   WORSE = 'worse'
@@ -35,3 +38,5 @@ export enum ContestRole {
   DEVELOP,
   DESIGN
 }
+
+export type UserWithPermissions = Users & { permission: Permissions };

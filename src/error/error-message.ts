@@ -4,6 +4,7 @@ enum ErrorMessage {
 
   USER_NOT_FOUND = '존재하지 않는 사용자입니다.',
   USER_ALREADY_EXISTS = '이미 존재하는 아이디입니다.',
+  USER_PASSWORD_NOT_MATCH = '현재 비밀번호가 일치하지 않습니다.',
 
   UMBRELLA_NOT_FOUND = '존재하지 않는 우산입니다.',
   UMBRELLA_ALREADY_EXISTS = '이미 존재하는 우산입니다.',

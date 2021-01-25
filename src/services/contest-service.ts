@@ -5,7 +5,6 @@ import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import { PaginationResult } from '../types/pagination-result';
 import { pagination, search } from '../utils/router-util';
-import { logger } from '../index';
 
 export const addContestMember = async (uuid: string, role: ContestRole): Promise<Contests> => {
   const user = await getUser(uuid);

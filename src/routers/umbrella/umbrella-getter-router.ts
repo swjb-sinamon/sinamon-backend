@@ -1,6 +1,6 @@
 import express from 'express';
 import { param } from 'express-validator';
-import { requireAuthenticated, requirePermission } from '../../middlewares/permission';
+import { requireAuthenticated } from '../../middlewares/permission';
 import {
   getBorrowedUmbrellas,
   getExpiryUmbrellas,
@@ -30,7 +30,7 @@ const router = express.Router();
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+router.get('/', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
 
@@ -70,7 +70,7 @@ router.get('/', requireAuthenticated, requirePermission(['admin', 'teacher', 'sc
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+router.get('/rental', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
 
@@ -114,7 +114,7 @@ router.get('/rental', requireAuthenticated, requirePermission(['admin', 'teacher
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+router.get('/expiry', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
 
@@ -158,7 +158,7 @@ router.get('/expiry', requireAuthenticated, requirePermission(['admin', 'teacher
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/all', requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+router.get('/all', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { offset, limit, search } = req.query;
 
@@ -203,7 +203,7 @@ const getUmbrellaValidator = [
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
  */
-router.get('/:name', getUmbrellaValidator, checkValidation, requireAuthenticated, requirePermission(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
+router.get('/:name', getUmbrellaValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { name } = req.params;
     const data = await getUmbrella(name);
