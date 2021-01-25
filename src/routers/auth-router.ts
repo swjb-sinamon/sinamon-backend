@@ -116,6 +116,7 @@ const registerValidator = [
  */
 router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const { id, name, department, studentGrade, studentClass, studentNumber, code } = req.body;
+
   passport.authenticate('register', async (error, user, info) => {
     if (error) {
       logger.error('회원가입 완료 중 오류가 발생하였습니다.');
@@ -323,6 +324,11 @@ router.put('/me',
         studentNumber,
         currentPassword,
         newPassword
+      });
+
+      req.logout();
+      req.login(data, (err) => {
+        if (err) throw new ServiceException(ErrorMessage.SERVER_ERROR, 500);
       });
 
       res.status(200).json({
