@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
+import { Op } from 'sequelize';
 import Users from '../databases/models/users';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Permissions from '../databases/models/permissions';
 import { PermissionType, UserWithPermissions } from '../types';
-import { pagination, search } from '../utils/router-util';
+import { filter, FilterParam, pagination } from '../utils/router-util';
 import { PaginationResult } from '../types/pagination-result';
 import config from '../config';
 
@@ -156,42 +157,21 @@ export const getUsers = async (
   page?: number,
   limit?: number,
   searchQuery?: string,
-  filters?: GetUsersFilters
+  filterInput?: GetUsersFilters
 ): Promise<PaginationResult<UserWithPermissions[]>> => {
-  const searchOption = search<Users>(searchQuery, 'name');
-  const option = pagination(page, limit);
+  const pageOption = page && limit ? pagination(page, limit) : {};
 
-  let filterOption = {};
-  if (filters) {
-    const { department, studentGrade, studentClass } = filters;
+  const filtering: FilterParam<Users> = [];
+  if (searchQuery) filtering.push([Op.like, 'name', `%${searchQuery}%`]);
+  if (filterInput && filterInput.department) filtering.push([Op.eq, 'department', filterInput.department]);
+  if (filterInput && filterInput.studentGrade) filtering.push([Op.eq, 'studentGrade', filterInput.studentGrade]);
+  if (filterInput && filterInput.studentClass) filtering.push([Op.eq, 'studentClass', filterInput.studentClass]);
 
-    if (department) {
-      filterOption = { department, ...filterOption };
-    }
-    if (studentGrade) {
-      filterOption = { studentGrade, ...filterOption };
-    }
-    if (studentClass) {
-      filterOption = { studentClass, ...filterOption };
-    }
-  }
-
-  const searchAndFilter = Object.assign(
-    searchOption.where ?? {},
-    filterOption ?? {}
-  ) as Record<string, any>;
-
-  const count = await Users.count({
+  const { count, rows } = await Users.findAndCountAll({
+    ...pageOption,
     where: {
-      ...searchAndFilter
-    }
-  });
-
-  const data = await Users.findAll({
-    where: {
-      ...searchAndFilter
+      ...filter(filtering)
     },
-    ...option,
     attributes: {
       exclude: ['password']
     },
@@ -206,7 +186,7 @@ export const getUsers = async (
 
   return {
     count,
-    data: data as UserWithPermissions[]
+    data: rows as UserWithPermissions[]
   };
 };
 

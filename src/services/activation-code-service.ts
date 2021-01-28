@@ -1,7 +1,7 @@
 import ActivationCode from '../databases/models/activation-code';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
-import { pagination } from '../utils/router-util';
+import { order, pagination } from '../utils/router-util';
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const numbers = '0123456789';
@@ -74,14 +74,11 @@ export const getActivationCodes = async (
   page?: number,
   limit?: number
 ): Promise<{ count: number, data: ActivationCode[] }> => {
-  const option = pagination(page, limit);
+  const pageOption = page && limit ? pagination(page, limit) : {};
 
   const { count, rows } = await ActivationCode.findAndCountAll({
-    ...option,
-    order: [
-      ['isUse', 'ASC'],
-      ['id', 'ASC']
-    ]
+    ...pageOption,
+    ...order<ActivationCode>([['isUse', 'ASC'], ['id', 'ASC']])
   });
 
   return {
