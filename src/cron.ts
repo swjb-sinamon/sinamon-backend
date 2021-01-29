@@ -9,6 +9,7 @@ import {
   fetchTimetableCache,
   fetchWeatherCache
 } from './cache/api-cache';
+import Users from './databases/models/users';
 
 export default (): void => {
   // 4시간 주기
@@ -54,5 +55,19 @@ export default (): void => {
     await fetchDustCache();
 
     logger.info('날씨, 미세먼지 정보를 새롭게 불러옵니다.');
+  });
+  // 3월 2일 주기
+  schedule('0 0 2 3 *', async () => {
+    try {
+      await Users.destroy({
+        where: {
+          studentGrade: 3
+        }
+      });
+      logger.info('탈퇴성공');
+    } catch (e) {
+      logger.error('탈퇴 실패');
+      logger.error(e);
+    }
   });
 };
