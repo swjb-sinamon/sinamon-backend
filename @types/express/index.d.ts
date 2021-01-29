@@ -13,7 +13,6 @@ declare global {
       readonly password?: string;
       readonly createdAt: Date;
       readonly updatedAt: Date;
-      readonly deletedAt?: Date;
       readonly permission: {
         readonly isAdmin: boolean;
         readonly isTeacher: boolean;

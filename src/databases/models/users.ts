@@ -72,7 +72,7 @@ Users.init(
       allowNull: false
     }
   },
-  { sequelize, modelName: 'users', timestamps: true, paranoid: true }
+  { sequelize, modelName: 'users', timestamps: true }
 );
 
 export default Users;
