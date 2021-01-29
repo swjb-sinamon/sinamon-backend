@@ -56,19 +56,18 @@ export default (): void => {
 
     logger.info('날씨, 미세먼지 정보를 새롭게 불러옵니다.');
   });
-};
   // 3월 2일 주기
- schedule('0 0 2 3 *' , async () => {
-   try {
-     const users = await Users.findAll({
-      where: {
+  schedule('0 0 2 3 *', async () => {
+    try {
+      await Users.destroy({
+        where: {
           studentGrade: 3
-       }
+        }
+      });
+      logger.info('탈퇴성공');
+    } catch (e) {
+      logger.error('탈퇴 실패');
+      logger.error(e);
+    }
   });
-     await Users.destroy();
-    logger.info("탈퇴성공");
-  } catch (e) {
-    logger.error("탈퇴 실패");
-    logger.error(e)
-  }
-});
+};
