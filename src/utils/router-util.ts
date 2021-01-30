@@ -1,6 +1,14 @@
-import { Op } from 'sequelize';
+import { Model } from 'sequelize';
 
-export const pagination = (page?: number, limit?: number): Record<string, number> => {
+interface PaginationResult {
+  readonly offset: number;
+  readonly limit: number;
+}
+
+export const pagination = (
+  page: number,
+  limit: number
+): PaginationResult | Record<string, unknown> => {
   let option = {};
 
   if (page && limit) {
@@ -19,18 +27,30 @@ export const pagination = (page?: number, limit?: number): Record<string, number
   return option;
 };
 
-export const search = <T>(searchQuery?: string, key?: keyof T): Record<string, number> => {
+export type FilterParam<T> = [symbol, keyof T, unknown][];
+export const filter = <T extends Model>(
+  properties: FilterParam<T>
+): Record<keyof T, Record<symbol, unknown>> | Record<string, unknown> => {
   let option = {};
 
-  if (searchQuery && key) {
+  properties.forEach((property) => {
+    const [expression, key, value] = property;
     option = {
-      where: {
-        [key]: {
-          [Op.like]: `%${searchQuery}%`
-        }
-      }
+      [key]: {
+        [expression]: value
+      },
+      ...option
     };
-  }
+  });
 
   return option;
+};
+
+interface OrderResult<T extends Model> {
+  readonly order: [keyof T, 'ASC' | 'DESC'][];
+}
+export const order = <T extends Model>(properties: [keyof T, 'ASC' | 'DESC'][]): OrderResult<T> => {
+  return {
+    order: properties
+  };
 };

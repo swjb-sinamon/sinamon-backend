@@ -119,19 +119,10 @@ export const getUniformPersonals = async (
   page?: number,
   limit?: number
 ): Promise<{ count: number, data: UniformPersonal[] }> => {
-  const option = pagination(page, limit);
+  const pageOption = page && limit ? pagination(page, limit) : {};
 
-  const count = await UniformPersonal.count({
-    where: {
-      date,
-      score: {
-        [Op.gt]: 0
-      }
-    }
-  });
-
-  const data = await UniformPersonal.findAll({
-    ...option,
+  const { count, rows } = await UniformPersonal.findAndCountAll({
+    ...pageOption,
     where: {
       date,
       score: {
@@ -146,7 +137,7 @@ export const getUniformPersonals = async (
 
   return {
     count,
-    data
+    data: rows
   };
 };
 
@@ -154,23 +145,10 @@ export const getUniformPersonalRank = async (
   page?: number,
   limit?: number
 ): Promise<{ count: number, data: UniformPersonal[] }> => {
-  const option = pagination(page, limit);
+  const pageOption = page && limit ? pagination(page, limit) : {};
 
-  const count = await UniformPersonal.count({
-    attributes: [
-      'uuid',
-      [Sequelize.fn('sum', Sequelize.col('score')), 'totalScore']
-    ],
-    where: {
-      score: {
-        [Op.gt]: 0
-      }
-    },
-    group: ['uuid']
-  });
-
-  const data = await UniformPersonal.findAll({
-    ...option,
+  const { count, rows } = await UniformPersonal.findAndCountAll({
+    ...pageOption,
     attributes: [
       'uuid',
       [Sequelize.fn('sum', Sequelize.col('score')), 'totalScore']
@@ -191,8 +169,8 @@ export const getUniformPersonalRank = async (
   });
 
   return {
-    count: count.length,
-    data
+    count,
+    data: rows
   };
 };
 

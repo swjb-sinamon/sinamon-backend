@@ -18,7 +18,6 @@ import { checkValidation } from '../middlewares/validator';
 import { useActivationCode } from '../services/activation-code-service';
 import ServiceException from '../exceptions';
 import Users from '../databases/models/users';
-import { UserWithPermissions } from '../types';
 
 const router = express.Router();
 
@@ -281,7 +280,9 @@ router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: expr
  * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
  */
 router.delete('/logout', requireAuthenticated(), (req: express.Request, res: express.Response) => {
-  const result: any = req.user;
+  const result = req.user;
+
+  if (!result) return;
 
   logger.info(`${result.uuid} ${result.id} 님이 로그아웃을 하였습니다.`);
   req.logout();
@@ -315,10 +316,10 @@ router.put('/me',
   checkValidation,
   async (req: express.Request, res: express.Response) => {
     const { studentGrade, studentClass, studentNumber, currentPassword, newPassword } = req.body;
-    const loginedUser = req.user as UserWithPermissions;
+    if (!req.user) return;
 
     try {
-      const data = await editUser(loginedUser.uuid, {
+      const data = await editUser(req.user.uuid, {
         studentGrade,
         studentClass,
         studentNumber,
@@ -336,11 +337,11 @@ router.put('/me',
         data
       });
 
-      logger.info(`${loginedUser.uuid} 사용자 정보를 수정했습니다.`);
+      logger.info(`${req.user.uuid} 사용자 정보를 수정했습니다.`);
     } catch (e) {
       if (e instanceof ServiceException) {
         if (e.message === ErrorMessage.USER_PASSWORD_NOT_MATCH) {
-          logger.warn(`${loginedUser.uuid} 사용자 정보 수정을 위한 비밀번호가 틀렸습니다.`);
+          logger.warn(`${req.user.uuid} 사용자 정보 수정을 위한 비밀번호가 틀렸습니다.`);
         }
         res.status(e.httpStatus).json(makeError(e.message));
         return;

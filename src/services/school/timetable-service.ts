@@ -3,8 +3,9 @@ import { ComciganTimetable } from '../../types';
 import TimeTables from '../../databases/models/time-tables';
 import ServiceException from '../../exceptions';
 import ErrorMessage from '../../error/error-message';
-import { pagination, search } from '../../utils/router-util';
+import { filter, pagination } from '../../utils/router-util';
 import { getTimetableCache } from '../../cache/api-cache';
+import { PaginationResult } from '../../types/pagination-result';
 
 interface CreateTimetableProps {
   readonly subject: string;
@@ -21,22 +22,22 @@ export const getTimetables = async (
   page = 0,
   limit = 10,
   searchQuery?: SearchOption
-): Promise<{ data: TimeTables[], count: number }> => {
+): Promise<PaginationResult<TimeTables[]>> => {
   const paginationOption = pagination(page, limit);
-  const searchOption = search<TimeTables>(searchQuery?.query, searchQuery?.key);
+  const searchOption = searchQuery
+    ? filter<TimeTables>([[Op.like, searchQuery?.key, `%${searchQuery?.query}%`]])
+    : {};
 
-  const count = await TimeTables.count({
-    ...searchOption
-  });
-
-  const data = await TimeTables.findAll({
+  const { rows, count } = await TimeTables.findAndCountAll({
     ...paginationOption,
-    ...searchOption
+    where: {
+      ...searchOption
+    }
   });
 
   return {
     count,
-    data
+    data: rows
   };
 };
 
