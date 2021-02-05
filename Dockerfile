@@ -5,7 +5,7 @@ EXPOSE 8080
 COPY / /workspace
 WORKDIR /workspace
 
-RUN apt update -y && apt upgrade -y && apt install vim -y
+RUN apt-get update -y && apt-get upgrade -y && apt-get install vim -y
 
 RUN yarn
 RUN yarn build
