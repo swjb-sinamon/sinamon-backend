@@ -10,6 +10,7 @@ import {
   fetchWeatherCache
 } from './cache/api-cache';
 import Users from './databases/models/users';
+import { getUsers } from './services/auth-service';
 
 export default (): void => {
   // 4시간 주기
@@ -56,15 +57,25 @@ export default (): void => {
 
     logger.info('날씨, 미세먼지 정보를 새롭게 불러옵니다.');
   });
+
   // 3월 2일 주기
   schedule('0 0 2 3 *', async () => {
     try {
-      await Users.destroy({
-        where: {
-          studentGrade: 3
-        }
+      const { data: totalUsers } = await getUsers(undefined, undefined, '', {
+        studentGrade: 3
       });
-      logger.info('탈퇴성공');
+
+      let count = 0;
+      const deletePromise = totalUsers.map(async (user) => {
+        if (user.permission === undefined) return;
+        if (user.permission.isAdmin || user.permission.isTeacher) return;
+        await user.destroy();
+        count += 1;
+      });
+
+      await Promise.all(deletePromise);
+
+      logger.info(`${count}명 탈퇴 성공`);
     } catch (e) {
       logger.error('탈퇴 실패');
       logger.error(e);
