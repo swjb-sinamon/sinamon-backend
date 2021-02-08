@@ -9,7 +9,6 @@ import {
   fetchTimetableCache,
   fetchWeatherCache
 } from './cache/api-cache';
-import Users from './databases/models/users';
 import { getUsers } from './services/auth-service';
 
 export default (): void => {
@@ -36,7 +35,6 @@ export default (): void => {
     await Promise.all(promise);
 
     logger.info(`우산 ${count}개가 연체되었습니다.`);
-    logger.info('우산 연체 여부를 확인 완료했습니다.');
 
     await fetchTimetableCache();
     logger.info('시간표를 새롭게 불러옵니다.');
