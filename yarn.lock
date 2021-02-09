@@ -325,13 +325,6 @@
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.1.2.tgz#03b989935c71a4c0b2582dbb20a1697dcc9eb319"
   integrity sha512-ZLZRZ+l2Ny+XIO3dR9i5ET9AzSele8uFye/fxk1JiIOY3NLAyFGIaIpv8LRbV1L4ISazU/SeOJSdPlKxoHM9Mw==
 
-"@types/xml2js@^0.4.5":
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/@types/xml2js/-/xml2js-0.4.7.tgz#cd5b6c67bbec741ac625718a76e6cb99bc34365e"
-  integrity sha512-f5VOKSMEE0O+/L54FHwA/a7vcx9mHeSDM71844yHCOhh8Cin2xQa0UFw0b7Vc5hoZ3Ih6ZHaDobjfLih4tWPNw==
-  dependencies:
-    "@types/node" "*"
-
 "@typescript-eslint/eslint-plugin@4.15.0":
   version "4.15.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-4.15.0.tgz#13a5a07cf30d0d5781e43480aa2a8d38d308b084"
