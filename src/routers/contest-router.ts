@@ -9,6 +9,7 @@ import { ContestRole } from '../types';
 import { checkValidation } from '../middlewares/validator';
 import { getUserWithInfo } from '../services/auth-service';
 import ServiceException from '../exceptions';
+import Contests from '../databases/models/contests';
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ const router = express.Router();
  * @apiParam {Number} offset 페이지
  * @apiParam {String} search 검색
  * @apiParam {String} role 필터링할 역할 (IDEA, DEVELOP, DESIGN)
+ * @apiParam {String} filters[] 데이터 필터
  *
  * @apiSuccess {Boolean} success 성공 여부
  * @apiSuccess {Number} count 전체 데이터 개수
@@ -34,9 +36,9 @@ router.get('/',
   requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req, res) => {
     try {
-      const { offset, limit, search, role } = req.query as Record<string, any>;
+      const { offset, limit, search, role, filters } = req.query as Record<string, unknown>;
 
-      if (role && !(Object.keys(ContestRole).includes(role))) {
+      if (role && !(Object.keys(ContestRole).includes(role as string))) {
         res.status(404).json(makeError(ErrorMessage.CONTEST_ROLE_NOT_FOUND));
         logger.warn('존재하지 않은 역할을 입력했습니다.');
         return;
@@ -46,10 +48,11 @@ router.get('/',
         data,
         count
       } = await getContestMembers(
-        limit,
-        offset,
-        search,
-        ContestRole[role as keyof typeof ContestRole]
+        limit as number | undefined,
+        offset as number | undefined,
+        search as string,
+        ContestRole[role as keyof typeof ContestRole],
+        filters as Record<keyof Contests, unknown>
       );
 
       res.status(200).json({
