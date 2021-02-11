@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import Contests from '../databases/models/Contests';
+import Contests from '../databases/models/contests';
 import { ContestRole } from '../types';
 import { getUser } from './auth-service';
 import ServiceException from '../exceptions';
