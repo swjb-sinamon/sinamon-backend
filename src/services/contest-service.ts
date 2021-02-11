@@ -58,3 +58,19 @@ export const getContestMembers = async (
     data: rows
   };
 };
+
+export const setContestJoinStatus = async (uuid: string, status: boolean): Promise<Contests> => {
+  const contestData = await Contests.findOne({
+    where: {
+      uuid
+    }
+  });
+
+  if (!contestData) throw new ServiceException(ErrorMessage.CONTEST_JOIN_NOT_FOUND, 404);
+
+  await contestData.update({
+    isJoin: status
+  });
+
+  return contestData;
+};

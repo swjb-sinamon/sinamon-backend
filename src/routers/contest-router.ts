@@ -1,7 +1,7 @@
 import express from 'express';
 import { body } from 'express-validator';
 import { requireAuthenticated } from '../middlewares/permission';
-import { addContestMember, getContestMembers } from '../services/contest-service';
+import { addContestMember, getContestMembers, setContestJoinStatus } from '../services/contest-service';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
@@ -124,6 +124,46 @@ router.post('/',
       }
 
       logger.error('공모전 참가 신청 중 오류가 발생하였습니다.');
+      logger.error(e);
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    }
+  });
+
+const setContestJoinValidator = [
+  body('uuid').isString(),
+];
+/**
+ * @api {patch} /contest 공모전 참가한 상태로 변경하기
+ * @apiName SetContestJoin
+ * @apiGroup Contest
+ *
+ * @apiSuccess {Boolean} success 성공 여부
+ * @apiSuccess {Object} data 데이터
+ *
+ * @apiError (Error 404) CONTEST_JOIN_NOT_FOUND 참여하지 않은 사용자입니다.
+ * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ */
+router.patch('/',
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
+  setContestJoinValidator,
+  checkValidation,
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { uuid } = req.body;
+
+      const data = await setContestJoinStatus(uuid, true);
+
+      res.status(200).json({
+        success: true,
+        data
+      });
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
+      logger.error('공모전 참가 상태 변경 중 오류가 발생하였습니다.');
       logger.error(e);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
     }
