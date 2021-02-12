@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import Contests from '../databases/models/Contests';
+import Contests from '../databases/models/contests';
 import { ContestRole } from '../types';
 import { getUser } from './auth-service';
 import ServiceException from '../exceptions';
@@ -21,7 +21,8 @@ export const addContestMember = async (uuid: string, role: ContestRole): Promise
   const result = await Contests.create({
     uuid,
     name: user.name,
-    role
+    role,
+    isJoin: false
   });
 
   return result;
@@ -31,13 +32,19 @@ export const getContestMembers = async (
   limit?: number,
   offset?: number,
   query?: string,
-  role?: ContestRole
+  role?: ContestRole,
+  filterOption?: Record<keyof Contests, unknown>
 ): Promise<PaginationResult<Contests[]>> => {
   const paginationOption = offset && limit ? pagination(offset, limit) : {};
 
   const filtering: FilterParam<Contests> = [];
   if (query) filtering.push([Op.like, 'name', `%${query}%`]);
-  if (role || role === ContestRole.IDEA) filtering.push([Op.eq, 'role', role]);
+  if (role !== undefined) filtering.push([Op.eq, 'role', role]);
+  if (filterOption !== undefined) {
+    Object.entries(filterOption).forEach(([key, value]) => {
+      filtering.push([Op.eq, key as keyof Contests, value]);
+    });
+  }
 
   const { count, rows } = await Contests.findAndCountAll({
     ...paginationOption,
@@ -50,4 +57,20 @@ export const getContestMembers = async (
     count,
     data: rows
   };
+};
+
+export const setContestJoinStatus = async (uuid: string, status: boolean): Promise<Contests> => {
+  const contestData = await Contests.findOne({
+    where: {
+      uuid
+    }
+  });
+
+  if (!contestData) throw new ServiceException(ErrorMessage.CONTEST_JOIN_NOT_FOUND, 404);
+
+  await contestData.update({
+    isJoin: status
+  });
+
+  return contestData;
 };

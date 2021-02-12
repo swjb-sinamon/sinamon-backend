@@ -5,6 +5,7 @@ interface ContestsAttributes {
   uuid: string;
   name: string;
   role: number;
+  isJoin: boolean;
 }
 
 class Contests extends Model<ContestsAttributes> {
@@ -13,6 +14,8 @@ class Contests extends Model<ContestsAttributes> {
   public name!: string;
 
   public role!: number;
+
+  public isJoin!: boolean;
 
   public readonly createdAt!: Date;
 
@@ -34,6 +37,11 @@ Contests.init(
     role: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    isJoin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   },
   { sequelize, modelName: 'contests', timestamps: true }

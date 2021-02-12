@@ -3,7 +3,7 @@ import Rentals from './models/rentals';
 import Umbrellas from './models/umbrellas';
 import Permissions from './models/permissions';
 import UniformPersonal from './models/uniform-personal';
-import Contests from './models/Contests';
+import Contests from './models/contests';
 
 const databaseAssociation = (): void => {
   // Users, Rentals 1:1
