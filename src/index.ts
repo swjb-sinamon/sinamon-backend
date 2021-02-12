@@ -81,7 +81,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: Date.now() + (MAXAGE_DATE * 86400 * 1000)
   }
 }));

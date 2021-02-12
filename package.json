@@ -2,9 +2,9 @@
   "name": "sinamon-backend",
   "version": "0.1.0",
   "scripts": {
-    "start": "nodemon",
+    "start": "cross-env NODE_ENV=development nodemon",
     "build": "tsc",
-    "start:production": "node ./dist/server.js",
+    "start:production": "cross-env NODE_ENV=production node ./dist/server.js",
     "lint": "eslint src/**/*.ts",
     "apidoc": "apidoc -i ./src/ -o ./apidoc/",
     "makecode": "ts-node bin/makeActivationCode.ts"
@@ -61,6 +61,7 @@
     "@typescript-eslint/parser": "4.15.0",
     "apidoc": "0.26.0",
     "chalk": "^4.1.0",
+    "cross-env": "^7.0.3",
     "eslint": "7.19.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
