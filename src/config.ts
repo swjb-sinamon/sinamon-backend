@@ -19,12 +19,25 @@ const config = {
   dustApiKey: process.env.DUST_API_KEY!,
   redis: {
     host: process.env.REDIS_HOST! || '127.0.0.1',
-    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    port: parseInt(process.env.REDIS_PORT || '6379', 10)
   },
   uniform: {
     start: 14,
     end: 18
   }
+};
+
+export const swaggerConfig = {
+  swaggerDefinition: {
+    info: {
+      title: 'Sinamon Backend API',
+      version: '1.0.0'
+    },
+    basePath: '/v1'
+  },
+  apis: [
+    './routers/*.ts'
+  ]
 };
 
 export default config;
