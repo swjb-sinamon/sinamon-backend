@@ -29,11 +29,21 @@ const config = {
 
 export const swaggerConfig = {
   swaggerDefinition: {
+    openapi: '3.0.0',
     info: {
       title: 'Sinamon Backend API',
       version: '1.0.0'
     },
-    basePath: '/v1'
+    servers: [
+      {
+        url: 'http://localhost:8080/v1',
+        description: 'Development API Server'
+      },
+      {
+        url: 'https://api.sinamon.info/v1',
+        description: 'Production API Server'
+      }
+    ]
   },
   apis: [
     'src/routers/**/*.ts'

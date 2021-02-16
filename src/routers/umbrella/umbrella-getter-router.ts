@@ -20,51 +20,52 @@ const router = express.Router();
  * @swagger
  * tags:
  *  name: UmbrellaGetter
- *  description: 우산대여제 Getter API
- * definitions:
- *  Umbrella:
- *    type: object
- *    properties:
- *      name:
- *        type: string
- *        description: 우산 이름
- *      status:
- *        type: string
- *        description: 우산 상태 (good OR worse)
- *      createdAt:
- *        type: date
- *        description: 데이터 생성일
- *      updatedAt:
- *        type: date
- *        description: 데이터 수정일
- *  UmbrellaWithRental:
- *    type: object
- *    properties:
- *      name:
- *        type: string
- *        description: 우산 이름
- *      status:
- *        type: string
- *        description: 우산 상태 (good OR worse)
- *      createdAt:
- *        type: date
- *        description: 데이터 생성일
- *      updatedAt:
- *        type: date
- *        description: 데이터 수정일
- *      rental:
- *        type: object
- *        nullable: true
- *        properties:
- *          lender:
- *            type: string
- *            description: 대여자 UUID
- *          expiryDate:
- *            type: date
- *            description: 연체 날자
- *          isExpiry:
- *            type: boolean
- *            description: 연체 여부
+ *  description: 우산대여제 Getter
+ * components:
+ *  schemas:
+ *    Umbrella:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: 우산 이름
+ *        status:
+ *          type: string
+ *          description: 우산 상태 (good OR worse)
+ *        createdAt:
+ *          type: string
+ *          description: 데이터 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: 데이터 수정일
+ *    UmbrellaWithRental:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: 우산 이름
+ *        status:
+ *          type: string
+ *          description: 우산 상태 (good OR worse)
+ *        createdAt:
+ *          type: string
+ *          description: 데이터 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: 데이터 수정일
+ *        rental:
+ *          type: object
+ *          nullable: true
+ *          properties:
+ *            lender:
+ *              type: string
+ *              description: 대여자 UUID
+ *            expiryDate:
+ *              type: string
+ *              description: 연체 날자
+ *            isExpiry:
+ *              type: boolean
+ *              description: 연체 여부
  */
 
 /**
@@ -95,7 +96,7 @@ const router = express.Router();
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/definitions/Umbrella'
+ *              $ref: '#/components/schemas/Umbrella'
  */
 router.get('/', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -149,7 +150,7 @@ router.get('/', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/definitions/Umbrella'
+ *              $ref: '#/components/schemas/Umbrella'
  */
 router.get('/rental', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -207,7 +208,7 @@ router.get('/rental', requireAuthenticated(['admin', 'teacher', 'schoolunion']),
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/definitions/Umbrella'
+ *              $ref: '#/components/schemas/Umbrella'
  */
 router.get('/expiry', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -265,7 +266,7 @@ router.get('/expiry', requireAuthenticated(['admin', 'teacher', 'schoolunion']),
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/definitions/UmbrellaWithRental'
+ *              $ref: '#/components/schemas/UmbrellaWithRental'
  */
 router.get('/all', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -314,7 +315,7 @@ router.get('/all', requireAuthenticated(['admin', 'teacher', 'schoolunion']), as
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/definitions/Umbrella'
+ *              $ref: '#/components/schemas/Umbrella'
  */
 const getUmbrellaValidator = [
   param('name').isString()
