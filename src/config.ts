@@ -36,7 +36,7 @@ export const swaggerConfig = {
     basePath: '/v1'
   },
   apis: [
-    './routers/*.ts'
+    'src/routers/**/*.ts'
   ]
 };
 
