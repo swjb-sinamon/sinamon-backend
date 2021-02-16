@@ -102,7 +102,9 @@ app.use('/v1/*', (req, res, next) => {
 });
 
 app.use('/v1', Router);
-app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerJSDoc(swaggerConfig), { explorer: true }));
+
+const specs = swaggerJSDoc(swaggerConfig);
+app.use('/', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 cron();
 
