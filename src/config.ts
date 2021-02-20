@@ -38,10 +38,6 @@ export const swaggerConfig = {
       {
         url: 'http://localhost:8080/v1',
         description: 'Development API Server'
-      },
-      {
-        url: 'https://api.sinamon.info/v1',
-        description: 'Production API Server'
       }
     ]
   },
