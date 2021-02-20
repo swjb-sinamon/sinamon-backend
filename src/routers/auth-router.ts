@@ -21,24 +21,132 @@ import Users from '../databases/models/users';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *  name: Auth
+ *  description: 계정
+ * components:
+ *  schemas:
+ *    User:
+ *      type: object
+ *      properties:
+ *        uuid:
+ *          type: string
+ *          description: 유저 UUID
+ *        id:
+ *          type: string
+ *          description: 유저 아이디
+ *        name:
+ *          type: string
+ *          description: 유저 이름 (실명)
+ *        department:
+ *          type: integer
+ *          description: 학과 (1~5)
+ *        studentGrade:
+ *          type: integer
+ *          description: 학년 (1~3)
+ *        studentClass:
+ *          type: integer
+ *          description: 반 (1~2)
+ *        studentNumber:
+ *          type: integer
+ *          description: 번호
+ *        password:
+ *          type: string
+ *          description: 유저 비밀번호 (공백)
+ *          nullable: true
+ *        permissions:
+ *          type: object
+ *          properties:
+ *            isAdmin:
+ *              type: boolean
+ *              description: 관리자 권한 여부
+ *            isTeacher:
+ *              type: boolean
+ *              description: 선생님 권한 여부
+ *            isSchoolUnion:
+ *              type: boolean
+ *              description: 학생회 권한 여부
+ *        createdAt:
+ *          type: string
+ *          description: 계정 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: 계정 수정일
+ *    UserWithoutPermission:
+ *      type: object
+ *      properties:
+ *        uuid:
+ *          type: string
+ *          description: 유저 UUID
+ *        id:
+ *          type: string
+ *          description: 유저 아이디
+ *        name:
+ *          type: string
+ *          description: 유저 이름 (실명)
+ *        department:
+ *          type: integer
+ *          description: 학과 (1~5)
+ *        studentGrade:
+ *          type: integer
+ *          description: 학년 (1~3)
+ *        studentClass:
+ *          type: integer
+ *          description: 반 (1~2)
+ *        studentNumber:
+ *          type: integer
+ *          description: 번호
+ *        password:
+ *          type: string
+ *          description: 유저 비밀번호 (공백)
+ *          nullable: true
+ *        createdAt:
+ *          type: string
+ *          description: 계정 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: 계정 수정일
+ */
+
+/**
+ * @swagger
+ * /auth/login:
+ *  post:
+ *    summary: 로그인 하기
+ *    tags: [Auth]
+ *    parameters:
+ *      - in: query
+ *        name: admin
+ *        schema:
+ *          type: boolean
+ *        description: 관리자 페이지 로그인 (권한이 없으면 로그인 무시)
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: string
+ *                description: 아이디
+ *              password:
+ *                type: string
+ *                description: 비밀번호
+ *    responses:
+ *      200:
+ *        description: 로그인 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
+ */
 const loginValidator = [
   query('admin').isBoolean(),
   body('id').isString(),
   body('password')
 ];
-/**
- * @api {post} /auth/login?admin=:admin User Login
- * @apiName UserLogin
- * @apiGroup Auth
- *
- * @apiParam {Boolean} admin 관리자 페이지 로그인 여부 (true 시 권한이 없으면 로그인을 무시합니다.)
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 로그인한 유저 데이터
- *
- * @apiError (Error 404) USER_NOT_FOUND 이메일이 존재하지 않거나 비밀번호가 올바르지 않습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const { admin } = req.query;
 
@@ -90,6 +198,50 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
   })(req, res, next);
 });
 
+/**
+ * @swagger
+ * /auth/register:
+ *  post:
+ *    summary: 회원가입 하기
+ *    tags: [Auth]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              id:
+ *                type: string
+ *                description: 아이디
+ *              password:
+ *                type: string
+ *                description: 비밀번호
+ *              name:
+ *                type: string
+ *                description: 이름
+ *              department:
+ *                type: integer
+ *                description: 학과
+ *              studentGrade:
+ *                type: integer
+ *                description: 학년
+ *              studentClass:
+ *                type: integer
+ *                description: 반
+ *              studentNumber:
+ *                type: integer
+ *                description: 번호
+ *              code:
+ *                type: string
+ *                description: 인증코드
+ *    responses:
+ *      200:
+ *        description: 회원가입 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/UserWithoutPermission'
+ */
 const registerValidator = [
   body('id').isString(),
   body('password').isString(),
@@ -100,19 +252,6 @@ const registerValidator = [
   body('studentNumber').isNumeric(),
   body('code').isString()
 ];
-/**
- * @api {post} /auth/register User Register
- * @apiName UserRegister
- * @apiGroup Auth
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 회원가입한 유저 데이터
- *
- * @apiError (Error 409) USER_ALREADY_EXISTS 이미 존재하는 이메일입니다.
- * @apiError (Error 404) ACTIVATION_CODE_NOT_FOUND 존재하지 않는 인증코드입니다.
- * @apiError (Error 409) ACTIVATION_CODE_USED 이미 사용된 인증코드입니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const { id, name, department, studentGrade, studentClass, studentNumber, code } = req.body;
 
@@ -173,14 +312,18 @@ router.post('/register', registerValidator, checkValidation, async (req: express
 });
 
 /**
- * @api {get} /auth/me Get User Profile
- * @apiName GetUserProfile
- * @apiGroup Auth
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 현재 로그인한 유저 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @swagger
+ * /auth/me:
+ *  get:
+ *    summary: 로그인한 유저 정보 가져오기
+ *    tags: [Auth]
+ *    responses:
+ *      200:
+ *        description: 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
  */
 router.get('/me', requireAuthenticated(), async (req: express.Request, res: express.Response) => {
   const result: any = req.user;
@@ -195,16 +338,24 @@ router.get('/me', requireAuthenticated(), async (req: express.Request, res: expr
 });
 
 /**
- * @api {get} /auth/user/:uuid Get User Profile By UUID
- * @apiName GetUserProfileByUUID
- * @apiGroup Auth
- *
- * @apiParam {String} uuid UUID
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 현재 로그인한 유저 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @swagger
+ * /auth/user/{uuid}:
+ *  get:
+ *    summary: UUID로 유저 정보 가져오기
+ *    tags: [Auth]
+ *    parameters:
+ *      - in: path
+ *        name: uuid
+ *        schema:
+ *          type: string
+ *        description: 유저 UUID
+ *    responses:
+ *      200:
+ *        description: 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
  */
 router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { uuid } = req.params;
@@ -220,20 +371,41 @@ router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion
 });
 
 /**
- * @api {get} /auth/user 모든 유저 가져오기
- * @apiName GetUsers
- * @apiGroup Auth
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- * @apiParam {String} search 학생 이름 검색
- * @apiParam {String} filters[] 학과, 학년, 반 필터
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Number} count 전체 데이터 개수
- * @apiSuccess {Object} data 현재 로그인한 유저 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @swagger
+ * /auth/user:
+ *  get:
+ *    summary: 유저 정보 가져오기
+ *    tags: [Auth]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *      - in: query
+ *        name: search
+ *        schema:
+ *          type: string
+ *        description: 학생 이름 검색
+ *      - in: query
+ *        name: filters
+ *        type: array
+ *        collectionFormat: multi
+ *        description: 학과(department), 학년(grade), 반(class) 필터링
+ *    responses:
+ *      200:
+ *        description: 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/User'
  */
 router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   const { offset, limit, search, filters } = req.query as Record<string, any>;
@@ -270,14 +442,18 @@ router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: expr
 });
 
 /**
- * @api {delete} /auth/logout User Logout
- * @apiName UserLogout
- * @apiGroup Auth
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 로그아웃한 유저 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
+ * @swagger
+ * /auth/logout:
+ *  delete:
+ *    summary: 로그아웃
+ *    tags: [Auth]
+ *    responses:
+ *      200:
+ *        description: 로그아웃한 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
  */
 router.delete('/logout', requireAuthenticated(), (req: express.Request, res: express.Response) => {
   const result = req.user;
@@ -293,23 +469,48 @@ router.delete('/logout', requireAuthenticated(), (req: express.Request, res: exp
   });
 });
 
+/**
+ * @swagger
+ * /auth/me:
+ *  put:
+ *    summary: 유저 정보 수정
+ *    tags: [Auth]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              studentGrade:
+ *                type: integer
+ *                description: 학년
+ *              studentClass:
+ *                type: integer
+ *                description: 반
+ *              studentNumber:
+ *                type: integer
+ *                description: 번호
+ *              currentPassword:
+ *                type: string
+ *                description: 현재 비밀번호
+ *              newPassword:
+ *                type: string
+ *                description: 새로 바꿀 비밀번호
+ *                nullable: true
+ *    responses:
+ *      200:
+ *        description: 수정된 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
+ */
 const editUserValidator = [
   body('studentGrade').isNumeric(),
   body('studentClass').isNumeric(),
   body('studentNumber').isNumeric(),
   body('currentPassword').isString(),
 ];
-/**
- * @api {put} /auth/me 유저 정보 수정
- * @apiName EditUser
- * @apiGroup Auth
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 유저 데이터
- *
- * @apiError (Error 401) USER_PASSWORD_NOT_MATCH 현재 비밀번호가 일치하지 않습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.put('/me',
   requireAuthenticated(),
   editUserValidator,
