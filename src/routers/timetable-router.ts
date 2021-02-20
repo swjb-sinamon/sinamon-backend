@@ -17,21 +17,66 @@ import { checkValidation } from '../middlewares/validator';
 const router = express.Router();
 
 /**
- * @api {get} /timetable 모든 시간표 데이터 가져오기
- * @apiName GetTimetables
- * @apiGroup Timetable
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- * @apiParam {String} key 검색 조건(subject, teacher)
- * @apiParam {String} search 검색
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Number} count 전체 데이터 개수
- * @apiSuccess {Object} data 시간표 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * tags:
+ *  name: Timetable
+ *  description: 시간표
+ * components:
+ *  schemas:
+ *    Timetable:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: integer
+ *          description: ID
+ *        subject:
+ *          type: string
+ *          description: 과목명
+ *        teacher:
+ *          type: string
+ *          description: 담당 선생님
+ *        url:
+ *          type: string
+ *          description: Zoom 등의 학습 링크
+ */
+
+/**
+ * @swagger
+ * /timetable:
+ *  get:
+ *    summary: 모든 시간표 가져오기
+ *    tags: [Timetable]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *      - in: query
+ *        name: key
+ *        schema:
+ *          type: string
+ *          enum: [subject, teacher]
+ *        description: 검색 조건 (과목명, 선생님)
+ *      - in: query
+ *        name: search
+ *        schema:
+ *          type: string
+ *        description: 검색어
+ *    responses:
+ *      200:
+ *        description: 시간표 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Timetable'
  */
 router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
   try {
@@ -66,18 +111,29 @@ router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => 
 });
 
 /**
- * @api {get} /timetable/:grade/:fullClass 이번주 시간표 가져오기
- * @apiName GetThisWeekTimetables
- * @apiGroup Timetable
- *
- * @apiParam {Number} grade 학년
- * @apiParam {Number} fullClass 반(1~9)
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 시간표 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * /timetable/{grade}/{fullClass}:
+ *  get:
+ *    summary: 학급의 이번주 시간표 가져오기
+ *    tags: [Timetable]
+ *    parameters:
+ *      - in: path
+ *        name: grade
+ *        schema:
+ *          type: integer
+ *        description: 학년 (1~3)
+ *      - in: path
+ *        name: fullClass
+ *        schema:
+ *          type: integer
+ *        description: 반 (1~9)
+ *    responses:
+ *      200:
+ *        description: 학급의 이번주 시간표 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
  */
 router.get('/:grade/:fullClass', requireAuthenticated(), async (req, res) => {
   try {
@@ -99,23 +155,40 @@ router.get('/:grade/:fullClass', requireAuthenticated(), async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /timetable:
+ *  post:
+ *    summary: 시간표 만들기
+ *    tags: [Timetable]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              subject:
+ *                type: string
+ *                description: 과목명
+ *              teacher:
+ *                type: string
+ *                description: 담당 선생님
+ *              url:
+ *                type: string
+ *                description: 학습 링크
+ *    responses:
+ *      201:
+ *        description: 시간표 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Timetable'
+ */
 const createTimetableValidator = [
   body('subject').isString(),
   body('teacher').isString(),
   body('url').isString()
 ];
-/**
- * @api {post} /timetable 시간표 데이터 만들기
- * @apiName CreateTimetable
- * @apiGroup Timetable
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 시간표 데이터
- *
- * @apiError (Error 409) TIMETABLE_ALREADY_EXISTS 이미 존재하는 시간표입니다. 과목명, 선생님을 확인해주세요.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/',
   requireAuthenticated(['admin', 'teacher']),
   createTimetableValidator,
@@ -149,18 +222,39 @@ router.post('/',
   });
 
 /**
- * @api {put} /timetable/:id 시간표 데이터 수정하기
- * @apiName UpdateTimetable
- * @apiGroup Timetable
- *
- * @apiParam {Number} id 시간표 ID
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 시간표 데이터
- *
- * @apiError (Error 404) TIMETABLE_NOT_FOUND 존재하지 않는 시간표입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * /timetable/{id}:
+ *  put:
+ *    summary: 시간표 수정하기
+ *    tags: [Timetable]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: integer
+ *        description: 수정할 시간표 ID
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              subject:
+ *                type: string
+ *                description: 과목명
+ *              teacher:
+ *                type: string
+ *                description: 담당 선생님
+ *              url:
+ *                type: string
+ *                description: 학습 링크
+ *    responses:
+ *      200:
+ *        description: 시간표 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Timetable'
  */
 router.put('/:id',
   requireAuthenticated(['admin', 'teacher']),
@@ -199,18 +293,24 @@ router.put('/:id',
   });
 
 /**
- * @api {delete} /timetable/:id 시간표 데이터 삭제하기
- * @apiName UpdateTimetable
- * @apiGroup Timetable
- *
- * @apiParam {Number} id 시간표 ID
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 시간표 데이터
- *
- * @apiError (Error 404) TIMETABLE_NOT_FOUND 존재하지 않는 시간표입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * /timetable/{id}:
+ *  delete:
+ *    summary: 시간표 삭제하기
+ *    tags: [Timetable]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: integer
+ *        description: 삭제할 시간표 ID
+ *    responses:
+ *      200:
+ *        description: 시간표 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Timetable'
  */
 router.delete('/:id',
   requireAuthenticated(['admin', 'teacher']),

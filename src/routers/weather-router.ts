@@ -4,12 +4,25 @@ import { getDustData, getWeatherStatus } from '../services/weather-service';
 const router = express.Router();
 
 /**
- * @api {get} /weather Get Weather
- * @apiName GetWeather
- * @apiGroup Weather
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {String} data 오늘 날씨 상태
+ * @swagger
+ * tags:
+ *  name: Weather
+ *  description: 날씨, 미세먼지
+ */
+
+/**
+ * @swagger
+ * /weather:
+ *  get:
+ *    summary: 날씨 정보 가져오기
+ *    tags: [Weather]
+ *    responses:
+ *      200:
+ *        description: 오늘 날씨 정보
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: string
  */
 router.get('/', async (req: express.Request, res: express.Response) => {
   const data = await getWeatherStatus();
@@ -20,12 +33,18 @@ router.get('/', async (req: express.Request, res: express.Response) => {
 });
 
 /**
- * @api {get} /weather/dust Get Dust
- * @apiName GetDust
- * @apiGroup Weather
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 오늘 미세먼지, 초미세먼지 상태
+ * @swagger
+ * /weather/dust:
+ *  get:
+ *    summary: 미세먼지 정보 가져오기
+ *    tags: [Weather]
+ *    responses:
+ *      200:
+ *        description: 오늘 미세먼지 정보
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: string
  */
 router.get('/dust', async (req: express.Request, res: express.Response) => {
   const data = await getDustData();

@@ -9,7 +9,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import redis from 'redis';
 import { promisify } from 'util';
-import config from './config';
+import swaggerUI from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
+import config, { swaggerConfig } from './config';
 import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
@@ -81,7 +83,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: Date.now() + (MAXAGE_DATE * 86400 * 1000)
   }
 }));
@@ -94,12 +96,15 @@ app.use(rateLimit({
   windowMs: RATE_MINUTES * 60 * 1000,
   max: 500
 }));
-app.use('*', (req, res, next) => {
+app.use('/v1/*', (req, res, next) => {
   logger.info(`${req.ip} ${req.method} ${req.originalUrl} ${req.get('User-Agent')}`);
   next();
 });
 
 app.use('/v1', Router);
+
+const specs = swaggerJSDoc(swaggerConfig);
+app.use('/', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 cron();
 
