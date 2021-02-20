@@ -8,19 +8,61 @@ import { addActivationCode, getActivationCodes } from '../services/activation-co
 const router = express.Router();
 
 /**
- * @api {get} /code?limit=:limit&offset=:offset 모든 인증코드 가져오기
- * @apiName GetActivationCodes
- * @apiGroup ActivationCode
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Number} count 전체 데이터 개수
- * @apiSuccess {Object} data 모든 인증코드 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * tags:
+ *  name: ActivationCode
+ *  description: 인증코드
+ * components:
+ *  schemas:
+ *    ActivationCode:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: integer
+ *          description: 인증코드 ID
+ *        code:
+ *          type: string
+ *          description: 인증코드
+ *        isUse:
+ *          type: boolean
+ *          description: 사용 여부
+ *        useAt:
+ *          type: string
+ *          description: 사용 날짜
+ *        createdAt:
+ *          type: string
+ *          description: 인증코드 발급일
+ *        updatedAt:
+ *          type: string
+ *          description: 인증코드 수정일
+ */
+
+/**
+ * @swagger
+ * /code:
+ *  get:
+ *    summary: 모든 인증코드 가져오기
+ *    tags: [ActivationCode]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *    responses:
+ *      200:
+ *        description: 인증코드 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/ActivationCode'
  */
 router.get('/', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   try {
@@ -45,6 +87,24 @@ router.get('/', requireAuthenticated(['admin', 'teacher']), async (req: express.
   }
 });
 
+/**
+ * @swagger
+ * /code:
+ *  post:
+ *    summary: 인증코드 만들기
+ *    tags: [ActivationCode]
+ *    responses:
+ *      200:
+ *        description: 인증코드 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                data:
+ *                  type: string
+ *                  description: 인증코드
+ */
 router.post('/', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
   try {
     const code = await addActivationCode();

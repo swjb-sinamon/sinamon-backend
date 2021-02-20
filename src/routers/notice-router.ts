@@ -8,15 +8,25 @@ import { logger } from '../index';
 const router = express.Router();
 
 /**
- * @api {get} /notice 공지사항 가져오기
- * @apiName GetNotice
- * @apiGroup Notice
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * tags:
+ *  name: Notice
+ *  description: 공지사항
+ */
+
+/**
+ * @swagger
+ * /notice:
+ *  get:
+ *    summary: 공지사항 가져오기
+ *    tags: [Notice]
+ *    responses:
+ *      200:
+ *        description: 공지사항
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: string
  */
 router.get('/', requireAuthenticated(), async (req, res) => {
   const notice = await ServerConfigs.findOne({
@@ -36,20 +46,30 @@ router.get('/', requireAuthenticated(), async (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /notice:
+ *  put:
+ *    summary: 공지사항 수정하기
+ *    tags: [Notice]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            notion:
+ *              type: string
+ *              description: 공지시항
+ *    responses:
+ *      200:
+ *        description: 수정된 공지사항
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: string
+ */
 const noticeValidator = [
   body('notice').isString()
 ];
-/**
- * @api {put} /notice 공지사항 수정
- * @apiName UpdateNotice
- * @apiGroup Notice
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.put('/',
   requireAuthenticated(['admin', 'teacher']),
   noticeValidator,

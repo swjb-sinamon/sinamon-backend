@@ -6,7 +6,6 @@
     "build": "tsc",
     "start:production": "cross-env NODE_ENV=production node ./dist/server.js",
     "lint": "eslint src/**/*.ts",
-    "apidoc": "apidoc -i ./src/ -o ./apidoc/",
     "makecode": "ts-node bin/makeActivationCode.ts"
   },
   "repository": {
@@ -39,6 +38,8 @@
     "redis": "^3.0.2",
     "school-kr": "3.1.2",
     "sequelize": "6.5.0",
+    "swagger-jsdoc": "^6.0.2",
+    "swagger-ui-express": "^4.1.6",
     "uuid": "^8.3.0"
   },
   "devDependencies": {
@@ -56,10 +57,11 @@
     "@types/passport-local": "^1.0.33",
     "@types/redis": "^2.8.28",
     "@types/sequelize": "^4.28.9",
+    "@types/swagger-jsdoc": "^6.0.0",
+    "@types/swagger-ui-express": "^4.1.2",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "4.15.0",
     "@typescript-eslint/parser": "4.15.0",
-    "apidoc": "0.26.0",
     "chalk": "^4.1.0",
     "cross-env": "^7.0.3",
     "eslint": "7.19.0",

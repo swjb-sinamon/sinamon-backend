@@ -4,7 +4,9 @@ import { requireAuthenticated } from '../../middlewares/permission';
 import {
   getBorrowedUmbrellas,
   getExpiryUmbrellas,
-  getUmbrella, getUmbrellaAllData, getUmbrellas
+  getUmbrella,
+  getUmbrellaAllData,
+  getUmbrellas
 } from '../../services/umbrella-service';
 import { logger } from '../../index';
 import { makeError } from '../../error/error-system';
@@ -15,20 +17,88 @@ import ServiceException from '../../exceptions';
 const router = express.Router();
 
 /**
- * @api {get} /umbrella 빌릴 수 있는 우산 가져오기
- * @apiName GetUmbrellas
- * @apiGroup Umbrella
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- * @apiParam {String} search 검색
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Number} count 전체 데이터 개수
- * @apiSuccess {Object} data 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * tags:
+ *  name: UmbrellaGetter
+ *  description: 우산대여제 Getter
+ * components:
+ *  schemas:
+ *    Umbrella:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: 우산 이름
+ *        status:
+ *          type: string
+ *          description: 우산 상태 (good OR worse)
+ *        createdAt:
+ *          type: string
+ *          description: 데이터 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: 데이터 수정일
+ *    UmbrellaWithRental:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: 우산 이름
+ *        status:
+ *          type: string
+ *          description: 우산 상태 (good OR worse)
+ *        createdAt:
+ *          type: string
+ *          description: 데이터 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: 데이터 수정일
+ *        rental:
+ *          type: object
+ *          nullable: true
+ *          properties:
+ *            lender:
+ *              type: string
+ *              description: 대여자 UUID
+ *            expiryDate:
+ *              type: string
+ *              description: 연체 날자
+ *            isExpiry:
+ *              type: boolean
+ *              description: 연체 여부
+ */
+
+/**
+ * @swagger
+ * /umbrella:
+ *  get:
+ *    summary: 빌릴 수 있는 우산 가져오기
+ *    tags: [UmbrellaGetter]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *      - in: query
+ *        name: search
+ *        schema:
+ *          type: string
+ *        description: 검색어
+ *    responses:
+ *      200:
+ *        description: 빌릴 수 있는 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
  */
 router.get('/', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -55,20 +125,36 @@ router.get('/', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async
 });
 
 /**
- * @api {get} /umbrella/rental 빌린 우산 가져오기
- * @apiName GetUmbrellasWithRental
- * @apiGroup Umbrella
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- * @apiParam {String} search 검색
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Number} count 전체 데이터 개수
- * @apiSuccess {Object} data 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * /umbrella/rental:
+ *  get:
+ *    summary: 빌린 우산 가져오기
+ *    tags: [UmbrellaGetter]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *      - in: query
+ *        name: search
+ *        schema:
+ *          type: string
+ *        description: 검색어
+ *    responses:
+ *      200:
+ *        description: 빌린 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
  */
 router.get('/rental', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -99,20 +185,36 @@ router.get('/rental', requireAuthenticated(['admin', 'teacher', 'schoolunion']),
 });
 
 /**
- * @api {get} /umbrella/expiry 연체된 우산 가져오기
- * @apiName GetUmbrellasWithExpiry
- * @apiGroup Umbrella
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- * @apiParam {String} search 검색
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Number} count 전체 데이터 개수
- * @apiSuccess {Object} data 연체된 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * /umbrella/expiry:
+ *  get:
+ *    summary: 연체된 우산 가져오기
+ *    tags: [UmbrellaGetter]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *      - in: query
+ *        name: search
+ *        schema:
+ *          type: string
+ *        description: 검색어
+ *    responses:
+ *      200:
+ *        description: 연체된 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
  */
 router.get('/expiry', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -143,20 +245,36 @@ router.get('/expiry', requireAuthenticated(['admin', 'teacher', 'schoolunion']),
 });
 
 /**
- * @api {get} /umbrella/all?limit=:limit&offset=:offset&search=:search 대여 정보를 포함한 모든 우산 가져오기
- * @apiName GetUmbrellasWithRentalData
- * @apiGroup Umbrella
- *
- * @apiParam {Number} limit 한 페이지당 데이터 수
- * @apiParam {Number} offset 페이지
- * @apiParam {String} search 검색
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Number} count 전체 데이터 개수
- * @apiSuccess {Object} data 모든 대여 정보를 포함한 모든 우산 데이터
- *
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
+ * @swagger
+ * /umbrella/all:
+ *  get:
+ *    summary: 대여 정보를 포함한 모든 우산 가져오기
+ *    tags: [UmbrellaGetter]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *      - in: query
+ *        name: search
+ *        schema:
+ *          type: string
+ *        description: 검색어
+ *    responses:
+ *      200:
+ *        description: 대여 정보를 포함한 모든 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/UmbrellaWithRental'
  */
 router.get('/all', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -186,23 +304,32 @@ router.get('/all', requireAuthenticated(['admin', 'teacher', 'schoolunion']), as
   }
 });
 
+/**
+ * @swagger
+ * /umbrella/{name}:
+ *  get:
+ *    summary: 우산 이름으로 가져오기
+ *    tags: [UmbrellaGetter]
+ *    parameters:
+ *      - in: path
+ *        name: name
+ *        required: true
+ *        schema:
+ *          type: string
+ *        description: 우산 이름
+ *    responses:
+ *      200:
+ *        description: 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
+ */
 const getUmbrellaValidator = [
   param('name').isString()
 ];
-/**
- * @api {get} /umbrella/:name Get Umbrella
- * @apiName GetUmbrella
- * @apiGroup Umbrella
- *
- * @apiParam {String} name 우산 이름
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 우산 데이터
- *
- * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.get('/:name', getUmbrellaValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
     const { name } = req.params;

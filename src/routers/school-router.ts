@@ -6,19 +6,37 @@ import { getThisWeekCalendar } from '../services/school/calendar-service';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *  name: School
+ *  description: 급식, 학사일정
+ */
+
+/**
+ * @swagger
+ * /meal:
+ *  get:
+ *    summary: 급식 가져오기
+ *    tags: [School]
+ *    parameters:
+ *      - in: query
+ *        name: type
+ *        schema:
+ *          type: string
+ *          enum: [today, tomorrow]
+ *        description: 오늘 또는 내일 급식
+ *    responses:
+ *      200:
+ *        description: 급식 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: string
+ */
 const mealValidator = [
   query('type').isString()
 ];
-/**
- * @api {get} /meal?type=:type Get Meal
- * @apiName GetMeal
- * @apiGroup School
- *
- * @apiParam {String} type today 또는 tomorrow
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {String} data 오늘 또는 내일 급식 데이터
- */
 router.get('/meal', mealValidator, checkValidation, async (req: express.Request, res: express.Response) => {
   const { type } = req.query;
 
@@ -38,12 +56,18 @@ router.get('/meal', mealValidator, checkValidation, async (req: express.Request,
 });
 
 /**
- * @api {get} /calendar Get Calendar
- * @apiName GetCalendar
- * @apiGroup School
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Array} data 이번주 학사일정
+ * @swagger
+ * /calendar:
+ *  get:
+ *    summary: 학사일정 가져오기
+ *    tags: [School]
+ *    responses:
+ *      200:
+ *        description: 이번주 학사일정
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: string
  */
 router.get('/calendar', async (req, res) => {
   const data = await getThisWeekCalendar();

@@ -20,22 +20,62 @@ import {
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *  name: Umbrella
+ *  description: 우산대여제
+ * components:
+ *  schemas:
+ *    Umbrella:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: 우산 이름
+ *        status:
+ *          type: string
+ *          description: 우산 상태 (good OR worse)
+ *        createdAt:
+ *          type: string
+ *          description: 데이터 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: 데이터 수정일
+ */
+
+/**
+ * @swagger
+ * /umbrella:
+ *  post:
+ *    summary: 우산 만들기
+ *    tags: [Umbrella]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: 우산 이름
+ *                example: 우산
+ *              status:
+ *                type: string
+ *                enum: [good, worse]
+ *                description: 우산 상태
+ *    responses:
+ *      201:
+ *        description: 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Umbrella'
+ */
 const createUmbrellaValidator = [
   body('name').isString(),
   body('status').isIn(Object.values(UmbrellaStatus))
 ];
-/**
- * @api {post} /umbrella Create Umbrella
- * @apiName CreateUmbrella
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 추가된 우산 데이터
- *
- * @apiError (Error 409) UMBRELLA_ALREADY_EXISTS 이미 존재하는 우산입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/', createUmbrellaValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { name, status } = req.body;
 
@@ -60,24 +100,45 @@ router.post('/', createUmbrellaValidator, checkValidation, requireAuthenticated(
   }
 });
 
+/**
+ * @swagger
+ * /umbrella/{name}:
+ *  put:
+ *    summary: 우산 수정하기
+ *    tags: [Umbrella]
+ *    parameters:
+ *      - in: path
+ *        name: name
+ *        required: true
+ *        schema:
+ *          type: string
+ *        description: 우산 이름
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: 우산 이름
+ *                example: 우산
+ *              status:
+ *                type: string
+ *                enum: [good, worse]
+ *                description: 우산 상태
+ *    responses:
+ *      200:
+ *        description: 수정된 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Umbrella'
+ */
 const updateUmbrellaValidator = [
   param('name').isString(),
   body('status').isIn(Object.values(UmbrellaStatus))
 ];
-/**
- * @api {put} /umbrella/:name Update Umbrella
- * @apiName UpdateUmbrella
- * @apiGroup Umbrella
- *
- * @apiParam {String} name 우산 이름
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 수정된 우산 데이터
- *
- * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.put('/:name', updateUmbrellaValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { name } = req.params;
@@ -103,23 +164,30 @@ router.put('/:name', updateUmbrellaValidator, checkValidation, requireAuthentica
     }
   });
 
+/**
+ * @swagger
+ * /umbrella/{name}:
+ *  delete:
+ *    summary: 우산 삭제하기
+ *    tags: [Umbrella]
+ *    parameters:
+ *      - in: path
+ *        name: name
+ *        required: true
+ *        schema:
+ *          type: string
+ *        description: 우산 이름
+ *    responses:
+ *      200:
+ *        description: 삭제된 우산 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Umbrella'
+ */
 const removeUmbrellaValidator = [
   param('name').isString()
 ];
-/**
- * @api {delete} /umbrella/:name Delete Umbrella
- * @apiName DeleteUmbrella
- * @apiGroup Umbrella
- *
- * @apiParam {String} name 우산 이름
- *
- * @apiSuccess {Boolean} success 성공 여부
- * @apiSuccess {Object} data 삭제된 우산 데이터
- *
- * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.delete('/:name', removeUmbrellaValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']),
   async (req: express.Request, res: express.Response) => {
     const { name } = req.params;
@@ -144,25 +212,32 @@ router.delete('/:name', removeUmbrellaValidator, checkValidation, requireAuthent
     }
   });
 
+/**
+ * @swagger
+ * /umbrella/qr:
+ *  post:
+ *    summary: QR코드로 우산 빌리기
+ *    tags: [Umbrella]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              data:
+ *                type: string
+ *                description: QR코드 데이터
+ *              umbrellaName:
+ *                type: string
+ *                description: 대여할 우산
+ *    responses:
+ *      200:
+ *        description: 우산 대여 성공
+ */
 const qrRentalValidator = [
   body('data').isString(),
   body('umbrellaName').isString()
 ];
-/**
- * @api {post} /umbrella/qr Borrow Umbrella with QRCode
- * @apiName BorrowUmbrellawithQRCode
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- *
- * @apiError (Error 401) QRCODE_EXPIRE QR코드 유효기간이 지났습니다.
- * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
- * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
- * @apiError (Error 409) RENTAL_USER_ALREADY_EXISTS 이미 우산을 대여한 학생입니다.
- * @apiError (Error 409) RENTAL_UMBRELLA_ALREADY_EXISTS 누군가 대여한 우산입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { data, umbrellaName } = req.body;
 
@@ -226,6 +301,40 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated(['ad
   }
 });
 
+/**
+ * @swagger
+ * /umbrella/info:
+ *  post:
+ *    summary: 학번으로 우산 빌리기
+ *    tags: [Umbrella]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: 이름
+ *              department:
+ *                type: integer
+ *                description: 학과 (1~5)
+ *              grade:
+ *                type: integer
+ *                description: 학년 (1~3)
+ *              class:
+ *                type: integer
+ *                description: 반 (1~2)
+ *              number:
+ *                type: integer
+ *                description: 번호
+ *              umbrellaName:
+ *                type: string
+ *                description: 대여할 우산
+ *    responses:
+ *      200:
+ *        description: 우산 대여 성공
+ */
 const infoRentalValidator = [
   body('name').isString(),
   body('department').isNumeric(),
@@ -234,21 +343,6 @@ const infoRentalValidator = [
   body('number').isNumeric(),
   body('umbrellaName').isString()
 ];
-/**
- * @api {post} /umbrella/info Borrow Umbrella with Manual
- * @apiName BorrowUmbrellawithManual
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- *
- * @apiError (Error 404) USER_NOT_FOUND 존재하지 않는 사용자입니다.
- * @apiError (Error 404) UMBRELLA_NOT_FOUND 존재하지 않는 우산입니다.
- * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
- * @apiError (Error 409) RENTAL_USER_ALREADY_EXISTS 이미 우산을 대여한 학생입니다.
- * @apiError (Error 409) RENTAL_UMBRELLA_ALREADY_EXISTS 누군가 대여한 우산입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { name, department, grade, class: clazz, number, umbrellaName } = req.body;
 
@@ -293,23 +387,28 @@ router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated(
   }
 });
 
+/**
+ * @swagger
+ * /umbrella/return/qr:
+ *  post:
+ *    summary: QR코드로 우산 반납하기
+ *    tags: [Umbrella]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              data:
+ *                type: string
+ *                description: QR코드 데이터
+ *    responses:
+ *      200:
+ *        description: 우산 반납 성공
+ */
 const qrReturnValidator = [
   body('data').isString()
 ];
-/**
- * @api {post} /umbrella/return/qr Return Umbrella with QRCode
- * @apiName ReturnUmbrellawithQRCode
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- *
- * @apiError (Error 401) QRCODE_EXPIRE QR코드 유효기간이 지났습니다.
- * @apiError (Error 404) USER_NOT_FOUND 존재하지 않는 사용자입니다.
- * @apiError (Error 404) RENTAL_NOT_FOUND 존재하지 않는 대여 정보입니다.
- * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { data } = req.body;
 
@@ -365,6 +464,37 @@ router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticat
   }
 });
 
+/**
+ * @swagger
+ * /umbrella/return/info:
+ *  post:
+ *    summary: 학번으로 우산 반납하기
+ *    tags: [Umbrella]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: 이름
+ *              department:
+ *                type: integer
+ *                description: 학과 (1~5)
+ *              grade:
+ *                type: integer
+ *                description: 학년 (1~3)
+ *              class:
+ *                type: integer
+ *                description: 반 (1~2)
+ *              number:
+ *                type: integer
+ *                description: 번호
+ *    responses:
+ *      200:
+ *        description: 우산 반납 성공
+ */
 const infoReturnValidator = [
   body('name').isString(),
   body('department').isNumeric(),
@@ -372,19 +502,6 @@ const infoReturnValidator = [
   body('class').isNumeric(),
   body('number').isNumeric()
 ];
-/**
- * @api {post} /umbrella/return/info Return Umbrella with Manual
- * @apiName ReturnUmbrellawithManual
- * @apiGroup Umbrella
- *
- * @apiSuccess {Boolean} success 성공 여부
- *
- * @apiError (Error 404) USER_NOT_FOUND 존재하지 않는 사용자입니다.
- * @apiError (Error 404) RENTAL_NOT_FOUND 존재하지 않는 대여 정보입니다.
- * @apiError (Error 403) RENTAL_EXPIRE 우산 대여가 연체된 학생입니다.
- * @apiError (Error 401) NO_PERMISSION 권한이 없습니다.
- * @apiError (Error 500) SERVER_ERROR 오류가 발생하였습니다. 잠시후 다시 시도해주세요.
- */
 router.post('/return/info', infoReturnValidator, checkValidation, requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   const { name, department, grade, class: clazz, number } = req.body;
 
