@@ -96,7 +96,9 @@ const router = express.Router();
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/Umbrella'
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
  */
 router.get('/', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -150,7 +152,9 @@ router.get('/', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/Umbrella'
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
  */
 router.get('/rental', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -208,7 +212,9 @@ router.get('/rental', requireAuthenticated(['admin', 'teacher', 'schoolunion']),
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/Umbrella'
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
  */
 router.get('/expiry', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -266,7 +272,9 @@ router.get('/expiry', requireAuthenticated(['admin', 'teacher', 'schoolunion']),
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UmbrellaWithRental'
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/UmbrellaWithRental'
  */
 router.get('/all', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
   try {
@@ -315,7 +323,9 @@ router.get('/all', requireAuthenticated(['admin', 'teacher', 'schoolunion']), as
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/Umbrella'
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Umbrella'
  */
 const getUmbrellaValidator = [
   param('name').isString()
