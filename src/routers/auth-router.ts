@@ -326,7 +326,7 @@ router.post('/register', registerValidator, checkValidation, async (req: express
  *              $ref: '#/components/schemas/User'
  */
 router.get('/me', requireAuthenticated(), async (req: express.Request, res: express.Response) => {
-  const result: any = req.user;
+  const result = req.user;
   if (!result) return;
 
   res.status(200).json({
@@ -418,7 +418,7 @@ router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion
  *                $ref: '#/components/schemas/User'
  */
 router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
-  const { offset, limit, search, filters } = req.query as Record<string, any>;
+  const { offset, limit, search, filters } = req.query as Record<string, unknown>;
 
   let filterOption: GetUsersFilters = {};
   if (filters) {
@@ -436,9 +436,9 @@ router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: expr
   }
 
   const { data, count } = await getUsers(
-    parseInt(offset, 10),
-    parseInt(limit, 10),
-    search,
+    parseInt(offset as string, 10),
+    parseInt(limit as string, 10),
+    search as string,
     filterOption
   );
 

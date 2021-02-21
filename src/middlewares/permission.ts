@@ -19,8 +19,7 @@ export const requireAuthenticated = (type?: PermissionType[]) => (
     return;
   }
 
-  const { user }: any = req;
-  getMyPermission(user.uuid).then((my) => {
+  getMyPermission(req.user.uuid).then((my) => {
     if (my.length === 0) {
       res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
       return;

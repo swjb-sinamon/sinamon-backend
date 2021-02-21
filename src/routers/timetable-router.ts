@@ -85,8 +85,13 @@ router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => 
     const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
     const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
 
+    if (key && (key !== 'subject' && key !== 'teacher')) {
+      res.status(400).json({ success: false });
+      return;
+    }
+
     const searchOption = (key && search) ? {
-      key: key.toString() as any,
+      key: key.toString() as 'subject' | 'teacher',
       query: search.toString()
     } : undefined;
 

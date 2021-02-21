@@ -29,8 +29,8 @@ const router = express.Router();
  *              type: string
  */
 router.get('/', requireAuthenticated(), (req, res) => {
-  const { uuid, id }: any = req.user;
-  if (!uuid) return;
+  if (!req.user) return;
+  const { uuid, id } = req.user;
 
   const expire = dayjs().add(QRCODE_EXPIRE_MINUTE, 'minute').unix();
   const data = {
