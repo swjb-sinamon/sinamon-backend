@@ -358,16 +358,26 @@ router.get('/me', requireAuthenticated(), async (req: express.Request, res: expr
  *              $ref: '#/components/schemas/User'
  */
 router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  const { uuid } = req.params;
+  try {
+    const { uuid } = req.params;
 
-  const data = await getUser(uuid);
+    const data = await getUser(uuid);
 
-  res.status(200).json({
-    success: true,
-    data
-  });
+    res.status(200).json({
+      success: true,
+      data
+    });
 
-  logger.info(`${uuid} 님의 정보를 요청했습니다.`);
+    logger.info(`${uuid} 님의 정보를 요청했습니다.`);
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(500).json(makeError(e.message));
+      return;
+    }
+
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    logger.error('유저 정보를 요청하는 중 오류가 발생하였습니다.', e);
+  }
 });
 
 /**
