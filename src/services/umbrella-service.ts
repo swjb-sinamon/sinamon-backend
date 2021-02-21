@@ -5,14 +5,16 @@ import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import Rentals from '../databases/models/rentals';
 import { filter, pagination } from '../utils/router-util';
+import { PaginationResult } from '../types/pagination-result';
 
-type UmbrellaReturn = { data: Umbrellas[], count: number };
+type SomeRentals = Pick<Rentals, 'lender' | 'expiryDate' | 'isExpire'>;
+type UmbrellaWithRental = Umbrellas & { rental: SomeRentals };
 
 export const getUmbrellaAllData = async (
   page?: number,
   limit?: number,
   searchQuery?: string
-): Promise<UmbrellaReturn> => {
+): Promise<PaginationResult<Array<UmbrellaWithRental>>> => {
   const pageOption = page && limit ? pagination(page, limit) : {};
   const searchOption = searchQuery ? filter<Umbrellas>([[Op.like, 'name', `%${searchQuery}%`]]) : {};
 
@@ -31,7 +33,7 @@ export const getUmbrellaAllData = async (
 
   return {
     count,
-    data: rows
+    data: rows as Array<UmbrellaWithRental>
   };
 };
 
@@ -39,7 +41,7 @@ export const getUmbrellas = async (
   page?: number,
   limit?: number,
   searchQuery?: string
-): Promise<UmbrellaReturn> => {
+): Promise<PaginationResult<Umbrellas[]>> => {
   const searchOption = searchQuery ? filter<Umbrellas>([[Op.like, 'name', `%${searchQuery}%`]]) : {};
 
   const umbrellas = await Umbrellas.findAll({
@@ -50,12 +52,13 @@ export const getUmbrellas = async (
       model: Rentals,
       attributes: ['uuid']
     } as never
-  });
+  }) as Array<Umbrellas & { rental: Rentals }>;
 
-  const data = umbrellas
-    .filter((umbrella: any) => !umbrella.rental)
-    .map((item: any) => item.dataValues)
-    .map(({ rental, ...current }: any) => current);
+  const data: Umbrellas[] = umbrellas
+    .filter((umbrella) => !umbrella.rental)
+    .map((item) => item.toJSON() as Umbrellas & { rental: Rentals })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .map(({ rental, ...current }) => current as Umbrellas);
 
   let currentPageData: Umbrellas[] | undefined;
   if (page && limit) {
@@ -74,7 +77,7 @@ export const getBorrowedUmbrellas = async (
   page?: number,
   limit?: number,
   searchQuery?: string
-): Promise<UmbrellaReturn> => {
+): Promise<PaginationResult<Umbrellas[]>> => {
   const pageOption = page && limit ? pagination(page, limit) : {};
   const searchOption = searchQuery ? filter<Umbrellas>([[Op.like, 'name', `%${searchQuery}%`]]) : {};
 
@@ -104,7 +107,7 @@ export const getExpiryUmbrellas = async (
   page?: number,
   limit?: number,
   searchQuery?: string
-): Promise<UmbrellaReturn> => {
+): Promise<PaginationResult<Umbrellas[]>> => {
   const pageOption = page && limit ? pagination(page, limit) : {};
   const searchOption = searchQuery ? filter<Umbrellas>([[Op.like, 'name', `%${searchQuery}%`]]) : {};
 
