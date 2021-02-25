@@ -56,8 +56,8 @@ export default (): void => {
     logger.info('날씨, 미세먼지 정보를 새롭게 불러옵니다.');
   });
 
-  // 2월 28일 주기
-  schedule('0 0 28 2 *', async () => {
+  // 2월 20일 주기
+  schedule('0 0 20 2 *', async () => {
     try {
       const { data: totalUsers } = await getUsers(undefined, undefined, '', {
         studentGrade: 3
