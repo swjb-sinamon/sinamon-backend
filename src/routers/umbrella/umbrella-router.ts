@@ -242,10 +242,8 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated(['ad
   const { data, umbrellaName } = req.body;
 
   if (!req.user) return;
-  const { user }: any = req;
 
   let plain = '';
-
   try {
     const passDecipher = crypto.createDecipher('aes-256-cbc', qrKey);
     plain = passDecipher.update(data, 'base64', 'utf8');
@@ -265,7 +263,7 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated(['ad
   const now = dayjs().unix();
 
   if (now > decodeData.expiresIn) {
-    logger.warn(`${user.uuid} ${user.id} 사용자가 만료된 QR코드를 사용했습니다.`);
+    logger.warn(`${req.user.uuid} ${req.user.id} 사용자가 만료된 QR코드를 사용했습니다.`);
     res.status(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
     return;
   }
@@ -280,7 +278,7 @@ router.post('/qr', qrRentalValidator, checkValidation, requireAuthenticated(['ad
       expiryDate: tomorrow
     });
 
-    logger.info(`${user.uuid} 사용자가 ${decodeData.uuid} 사용자의 우산을 QR코드로 대여 처리하였습니다.`);
+    logger.info(`${req.user.uuid} 사용자가 ${decodeData.uuid} 사용자의 우산을 QR코드로 대여 처리하였습니다.`);
 
     res.status(200).json({
       success: true
@@ -347,7 +345,6 @@ router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated(
   const { name, department, grade, class: clazz, number, umbrellaName } = req.body;
 
   if (!req.user) return;
-  const { user }: any = req;
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -366,7 +363,7 @@ router.post('/info', infoRentalValidator, checkValidation, requireAuthenticated(
       }
     );
 
-    logger.info(`${user.uuid} 사용자가 ${name} 사용자의 우산을 학번으로 대여 처리하였습니다.`);
+    logger.info(`${req.user.uuid} 사용자가 ${name} 사용자의 우산을 학번으로 대여 처리하였습니다.`);
 
     res.status(200).json({
       success: true
@@ -413,7 +410,6 @@ router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticat
   const { data } = req.body;
 
   if (!req.user) return;
-  const { user }: any = req;
 
   let plain = '';
   try {
@@ -435,7 +431,7 @@ router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticat
   const now = dayjs().unix();
 
   if (now > decodeData.expiresIn) {
-    logger.warn(`${user.uuid} ${user.id} 사용자가 만료된 QR코드를 사용했습니다.`);
+    logger.warn(`${req.user.uuid} ${req.user.id} 사용자가 만료된 QR코드를 사용했습니다.`);
     res.status(401).json(makeError(ErrorMessage.QRCODE_EXPIRE));
     return;
   }
@@ -443,7 +439,7 @@ router.post('/return/qr', qrReturnValidator, checkValidation, requireAuthenticat
   try {
     await returnRental(decodeData.uuid);
 
-    logger.info(`${user.uuid} 사용자가 ${decodeData.uuid} 사용자의 우산을 QR코드로 반납 처리하였습니다.`);
+    logger.info(`${req.user.uuid} 사용자가 ${decodeData.uuid} 사용자의 우산을 QR코드로 반납 처리하였습니다.`);
 
     res.status(200).json({
       success: true
@@ -506,7 +502,6 @@ router.post('/return/info', infoReturnValidator, checkValidation, requireAuthent
   const { name, department, grade, class: clazz, number } = req.body;
 
   if (!req.user) return;
-  const { user }: any = req;
 
   try {
     await returnRentalBySchoolInfo(
@@ -517,7 +512,7 @@ router.post('/return/info', infoReturnValidator, checkValidation, requireAuthent
       parseInt(number, 10)
     );
 
-    logger.info(`${user.uuid} 사용자가 ${name} 사용자의 우산을 학번으로 반납 처리하였습니다.`);
+    logger.info(`${req.user.uuid} 사용자가 ${name} 사용자의 우산을 학번으로 반납 처리하였습니다.`);
 
     res.status(200).json({
       success: true
