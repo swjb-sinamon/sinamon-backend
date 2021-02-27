@@ -41,13 +41,19 @@ export const getTimetables = async (
   };
 };
 
+const SUBJECT_REGEX = /[^(ㄱ-ㅎ가-힣a-zA-Z0-9)]/g;
 export const getThisWeekTimetables = async (grade: number, fullClass: number): Promise<unknown> => {
   const timetableData = await getTimetableCache();
 
   const thisWeekTimetable = timetableData[grade][fullClass];
   const result = thisWeekTimetable.map((today: ComciganTimetable[]) => {
     const timeTableWithURL = today.map(async (value: ComciganTimetable) => {
-      const subject = value.subject.trim().replace('d', '').replace('Ⅰ', '');
+      const subject = value.subject
+        .replace('d', '')
+        .replace(SUBJECT_REGEX, '')
+        .replace('(기)', '');
+      const teacher = value.teacher
+        .replace('*', '');
 
       const timeTable = await TimeTables.findOne({
         where: {
@@ -55,7 +61,7 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
             [Op.like]: `%${subject}%`
           },
           teacher: {
-            [Op.like]: `%${value.teacher.replace('*', '')}%`
+            [Op.like]: `%${teacher}%`
           }
         }
       });
