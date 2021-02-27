@@ -80,10 +80,10 @@ const router = express.Router();
  */
 router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
   try {
-    const { limit, offset, key, search } = req.query;
+    const { limit, page, key, search } = req.query;
 
     const limitValue = limit ? parseInt(limit.toString(), 10) : undefined;
-    const offsetValue = offset ? parseInt(offset.toString(), 10) : undefined;
+    const offsetValue = page ? parseInt(page.toString(), 10) : undefined;
 
     if (key && (key !== 'subject' && key !== 'teacher')) {
       res.status(400).json({ success: false });
