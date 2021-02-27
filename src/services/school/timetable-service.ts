@@ -50,7 +50,8 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
     const timeTableWithURL = today.map(async (value: ComciganTimetable) => {
       const subject = value.subject
         .replace('d', '')
-        .replace(SUBJECT_REGEX, '');
+        .replace(SUBJECT_REGEX, '')
+        .replace('(기)', '');
       const teacher = value.teacher
         .replace('*', '');
 
