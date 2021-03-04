@@ -84,15 +84,7 @@ interface UserInfoParams {
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
   const { id, name, department, studentGrade, studentClass, studentNumber } = userInfo;
 
-  const user = await Users.findOne({
-    where: {
-      id
-    },
-    attributes: {
-      exclude: ['password']
-    }
-  });
-
+  const user = await getUser(id, 'id');
   if (!user) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
 
   await user.update({
