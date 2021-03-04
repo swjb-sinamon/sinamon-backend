@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import ErrorMessage from '../error/error-message';
 import ServiceException from '../exceptions';
 import { getUser } from '../services/auth-service';
+import { logger } from '../index';
 
 export default (): void => {
   passport.use('login', new LocalStrategy({
@@ -14,7 +15,10 @@ export default (): void => {
       const user = await getUser(id, 'id', true);
 
       const compared = bcrypt.compareSync(password, user.password);
-      if (!compared) return done(null, false, { message: ErrorMessage.USER_NOT_FOUND });
+      if (!compared) {
+        logger.warn(`${user.uuid} ${user.id} 사용자 비밀번호가 틀렸습니다.`);
+        return done(null, false, { message: ErrorMessage.USER_NOT_FOUND });
+      }
 
       return done(null, user);
     } catch (e) {
