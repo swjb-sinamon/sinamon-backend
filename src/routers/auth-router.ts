@@ -164,7 +164,6 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
     if (info) {
       if (info.message === ErrorMessage.USER_NOT_FOUND) {
         res.status(404).json(makeError(ErrorMessage.USER_NOT_FOUND));
-        return;
       }
       return;
     }
@@ -179,8 +178,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
 
     req.login(user, (err) => {
       if (err) {
-        logger.error('로그인 완료 중 오류가 발생하였습니다.');
-        logger.error(err);
+        logger.error('로그인 완료 중 오류가 발생하였습니다.', err);
         res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
         return;
       }
@@ -188,7 +186,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
       logger.info(`${user.uuid} ${user.id} 님이 로그인하였습니다.`);
 
       const result = user;
-      result.password = '';
+      result.password = null;
 
       res.status(200).json({
         success: true,
@@ -252,64 +250,62 @@ const registerValidator = [
   body('studentNumber').isNumeric(),
   body('code').isString()
 ];
-router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const { id, name, department, studentGrade, studentClass, studentNumber, code } = req.body;
+router.post('/register',
+  registerValidator,
+  checkValidation,
+  async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const { id, name, department, studentGrade, studentClass, studentNumber, code } = req.body;
 
-  passport.authenticate('register', async (error, user, info) => {
-    if (error) {
-      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-      return;
-    }
-
-    if (info) {
-      if (info.message === ErrorMessage.USER_ALREADY_EXISTS) {
-        res.status(409).json(makeError(ErrorMessage.USER_ALREADY_EXISTS));
-      }
-      return;
-    }
-
-    try {
-      await useActivationCode(code);
-
-      const result = await registerUser({
-        id,
-        name,
-        department,
-        studentGrade,
-        studentClass,
-        studentNumber
-      });
-
-      await initUserPermission(result.uuid);
-
-      res.status(200).json({
-        success: true,
-        data: result
-      });
-
-      logger.info(`${user.uuid} ${user.id} 님이 ${code} 인증코드를 사용하였습니다.`);
-      logger.info(`${result.uuid} ${result.id} 님이 회원가입하였습니다.`);
-      logger.info(`${result.uuid} ${result.id} 님의 권한을 설정했습니다.`);
-    } catch (e) {
-      if (e instanceof ServiceException) {
-        await Users.destroy({
-          where: {
-            id
-          },
-          force: true
-        });
-        res.status(e.httpStatus).json(makeError(e.message));
+    passport.authenticate('register', async (error, user, info) => {
+      if (error) {
+        logger.error('회원가입 완료 중 오류가 발생하였습니다.', error);
+        res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
         return;
       }
 
-      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-    }
-  })(req, res, next);
-});
+      if (info && info.message === ErrorMessage.USER_ALREADY_EXISTS) {
+        res.status(409).json(makeError(ErrorMessage.USER_ALREADY_EXISTS));
+        return;
+      }
+
+      try {
+        await useActivationCode(code);
+
+        const result = await registerUser({
+          id,
+          name,
+          department,
+          studentGrade,
+          studentClass,
+          studentNumber
+        });
+
+        await initUserPermission(result.uuid);
+
+        res.status(200).json({
+          success: true,
+          data: result
+        });
+
+        logger.info(`${result.uuid} ${result.id} 님이 ${code} 인증코드를 사용하였습니다.`);
+        logger.info(`${result.uuid} ${result.id} 님이 회원가입하였습니다.`);
+        logger.info(`${result.uuid} ${result.id} 님의 권한을 설정했습니다.`);
+      } catch (e) {
+        if (e instanceof ServiceException) {
+          await Users.destroy({
+            where: {
+              id
+            }
+          });
+          res.status(e.httpStatus).json(makeError(e.message));
+          return;
+        }
+
+        logger.error('회원가입 완료 중 오류가 발생하였습니다.', error);
+        res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      }
+    })(req, res, next);
+  });
 
 /**
  * @swagger
