@@ -12,13 +12,13 @@ export default (): void => {
     passwordField: 'password'
   }, async (id, password, done) => {
     try {
-      const prevUser = await Users.findOne({
+      const currentUser = await Users.findOne({
         where: {
           id
         }
       });
 
-      if (prevUser) {
+      if (currentUser) {
         return done(null, false, { message: ErrorMessage.USER_ALREADY_EXISTS });
       }
 
