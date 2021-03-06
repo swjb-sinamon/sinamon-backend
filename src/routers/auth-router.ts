@@ -148,31 +148,16 @@ const loginValidator = [
   body('password')
 ];
 router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const { admin } = req.query;
-
-  const adminQuery = admin || 'false';
-  const isAdminLogin = adminQuery.toString().toLowerCase() === 'true';
-
   passport.authenticate('login', async (error, user, info) => {
     if (error) {
-      logger.error('로그인 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
+      logger.error('로그인 완료 중 오류가 발생하였습니다.', error);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
       return;
     }
 
     if (info) {
-      if (info.message === ErrorMessage.USER_NOT_FOUND) {
-        res.status(404).json(makeError(ErrorMessage.USER_NOT_FOUND));
-      }
-      return;
-    }
-
-    const myPermission = await getMyPermission(user.uuid);
-    const isHavePermission = myPermission.some((v) => ['admin', 'teacher', 'schoolunion'].includes(v));
-    if (isAdminLogin && !isHavePermission) {
-      logger.warn(`${user.uuid} ${user.id} 사용자가 관리자 페이지 로그인을 시도하였습니다.`);
-      res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
+      const errorMessage = JSON.parse(info.message);
+      res.status(errorMessage.status).json(makeError(errorMessage.message));
       return;
     }
 
