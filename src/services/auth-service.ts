@@ -97,7 +97,12 @@ export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => 
     code
   } = userInfo;
 
-  const currentUser = await getUser(id, 'id');
+  const currentUser = await Users.findOne({
+    where: {
+      id
+    }
+  });
+
   if (currentUser) throw new ServiceException(ErrorMessage.USER_ALREADY_EXISTS, 409);
 
   await useActivationCode(code);
