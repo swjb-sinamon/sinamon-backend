@@ -10,6 +10,54 @@ import { createOrUpdateFCMToken } from '../services/fcm-service';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *  name: FCM
+ *  description: 푸시알림
+ * components:
+ *  schemas:
+ *    FCM:
+ *      type: object
+ *      properties:
+ *        uuid:
+ *          type: string
+ *          description: 유저 UUID
+ *        token:
+ *          type: string
+ *          description: FCM registration token
+ *        createdAt:
+ *          type: string
+ *          description: Token 생성일
+ *        updatedAt:
+ *          type: string
+ *          description: Token 수정일
+ */
+
+/**
+ * @swagger
+ * /fcm:
+ *  post:
+ *    summary: 자기 자신의 토큰을 등록하거나 업데이트하기
+ *    tags: [FCM]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              token:
+ *                type: string
+ *                description: FCM registration token
+ *    responses:
+ *      200:
+ *        description: FCM 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/FCM'
+ */
+
 const fcmValidator = [
   body('token').isString()
 ];
