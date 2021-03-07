@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
+import { v4 as uuidv4 } from 'uuid';
 import Users from '../databases/models/users';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
@@ -8,6 +9,7 @@ import { PermissionType, UserWithPermissions } from '../types';
 import { filter, FilterParam, pagination } from '../utils/router-util';
 import { PaginationResult } from '../types/pagination-result';
 import config from '../config';
+import { useActivationCode } from './activation-code-service';
 
 export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<UserWithPermissions> => {
   const key = type ?? 'uuid';
@@ -75,39 +77,49 @@ export const getUserWithInfo = async (
 
 interface UserInfoParams {
   readonly id: string;
+  readonly password: string;
   readonly name: string;
   readonly department: number;
   readonly studentGrade: number;
   readonly studentClass: number;
   readonly studentNumber: number;
+  readonly code: string;
 }
 export const registerUser = async (userInfo: UserInfoParams): Promise<Users> => {
-  const { id, name, department, studentGrade, studentClass, studentNumber } = userInfo;
+  const {
+    id,
+    password,
+    name,
+    department,
+    studentGrade,
+    studentClass,
+    studentNumber,
+    code
+  } = userInfo;
 
-  const user = await Users.findOne({
+  const currentUser = await Users.findOne({
     where: {
       id
-    },
-    attributes: {
-      exclude: ['password']
     }
   });
 
-  if (!user) throw new ServiceException(ErrorMessage.USER_NOT_FOUND, 404);
+  if (currentUser) throw new ServiceException(ErrorMessage.USER_ALREADY_EXISTS, 409);
 
-  await user.update({
+  await useActivationCode(code);
+
+  const hashed = await bcrypt.hash(password, config.saltRound);
+  const result = await Users.create({
+    uuid: uuidv4(),
+    id,
+    password: hashed,
     name,
     department,
     studentGrade,
     studentClass,
     studentNumber
-  }, {
-    where: {
-      id
-    }
   });
 
-  return user;
+  return result;
 };
 
 export const initUserPermission = async (uuid: string): Promise<Permissions> => {

@@ -1,36 +1,48 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
-import Users from '../databases/models/users';
-import ErrorMessage from '../error/error-message';
-import config from '../config';
+import { getUser, initUserPermission, registerUser } from '../services/auth-service';
+import ServiceException from '../exceptions';
 
 export default (): void => {
   passport.use('register', new LocalStrategy({
     usernameField: 'id',
-    passwordField: 'password'
-  }, async (id, password, done) => {
+    passwordField: 'password',
+    passReqToCallback: true
+  }, async (req, id, password, done) => {
     try {
-      const prevUser = await Users.findOne({
-        where: {
-          id
-        }
-      });
+      const {
+        name,
+        department,
+        studentGrade,
+        studentClass,
+        studentNumber,
+        code
+      } = req.body;
 
-      if (prevUser) {
-        return done(null, false, { message: ErrorMessage.USER_ALREADY_EXISTS });
-      }
-
-      const hashed = await bcrypt.hash(password, config.saltRound);
-      const user = await Users.create({
-        uuid: uuidv4(),
+      const result = await registerUser({
         id,
-        password: hashed
+        password,
+        name,
+        department,
+        studentGrade,
+        studentClass,
+        studentNumber,
+        code
       });
 
-      return done(null, user);
+      await initUserPermission(result.uuid);
+
+      const userDataWithPermission = await getUser(result.uuid);
+
+      return done(null, userDataWithPermission);
     } catch (e) {
+      if (e instanceof ServiceException) {
+        const errorMessage = JSON.stringify({
+          message: e.message,
+          status: e.httpStatus
+        });
+        return done(null, false, { message: errorMessage });
+      }
       return done(e);
     }
   }));

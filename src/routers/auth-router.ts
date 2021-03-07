@@ -148,39 +148,22 @@ const loginValidator = [
   body('password')
 ];
 router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const { admin } = req.query;
-
-  const adminQuery = admin || 'false';
-  const isAdminLogin = adminQuery.toString().toLowerCase() === 'true';
-
   passport.authenticate('login', async (error, user, info) => {
     if (error) {
-      logger.error('로그인 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
+      logger.error('로그인 완료 중 오류가 발생하였습니다.', error);
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
       return;
     }
 
     if (info) {
-      if (info.message === ErrorMessage.USER_NOT_FOUND) {
-        res.status(404).json(makeError(ErrorMessage.USER_NOT_FOUND));
-        return;
-      }
-      return;
-    }
-
-    const myPermission = await getMyPermission(user.uuid);
-    const isHavePermission = myPermission.some((v) => ['admin', 'teacher', 'schoolunion'].includes(v));
-    if (isAdminLogin && !isHavePermission) {
-      logger.warn(`${user.uuid} ${user.id} 사용자가 관리자 페이지 로그인을 시도하였습니다.`);
-      res.status(401).json(makeError(ErrorMessage.NO_PERMISSION));
+      const errorMessage = JSON.parse(info.message);
+      res.status(errorMessage.status).json(makeError(errorMessage.message));
       return;
     }
 
     req.login(user, (err) => {
       if (err) {
-        logger.error('로그인 완료 중 오류가 발생하였습니다.');
-        logger.error(err);
+        logger.error('로그인 완료 중 오류가 발생하였습니다.', err);
         res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
         return;
       }
@@ -188,7 +171,7 @@ router.post('/login', loginValidator, checkValidation, (req: express.Request, re
       logger.info(`${user.uuid} ${user.id} 님이 로그인하였습니다.`);
 
       const result = user;
-      result.password = '';
+      result.password = null;
 
       res.status(200).json({
         success: true,
@@ -252,64 +235,32 @@ const registerValidator = [
   body('studentNumber').isNumeric(),
   body('code').isString()
 ];
-router.post('/register', registerValidator, checkValidation, async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const { id, name, department, studentGrade, studentClass, studentNumber, code } = req.body;
-
-  passport.authenticate('register', async (error, user, info) => {
-    if (error) {
-      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-      return;
-    }
-
-    if (info) {
-      if (info.message === ErrorMessage.USER_ALREADY_EXISTS) {
-        res.status(409).json(makeError(ErrorMessage.USER_ALREADY_EXISTS));
-      }
-      return;
-    }
-
-    try {
-      await useActivationCode(code);
-
-      const result = await registerUser({
-        id,
-        name,
-        department,
-        studentGrade,
-        studentClass,
-        studentNumber
-      });
-
-      await initUserPermission(result.uuid);
-
-      res.status(200).json({
-        success: true,
-        data: result
-      });
-
-      logger.info(`${user.uuid} ${user.id} 님이 ${code} 인증코드를 사용하였습니다.`);
-      logger.info(`${result.uuid} ${result.id} 님이 회원가입하였습니다.`);
-      logger.info(`${result.uuid} ${result.id} 님의 권한을 설정했습니다.`);
-    } catch (e) {
-      if (e instanceof ServiceException) {
-        await Users.destroy({
-          where: {
-            id
-          },
-          force: true
-        });
-        res.status(e.httpStatus).json(makeError(e.message));
+router.post('/register',
+  registerValidator,
+  checkValidation,
+  async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    passport.authenticate('register', async (error, user, info) => {
+      if (error) {
+        logger.error('회원가입 완료 중 오류가 발생하였습니다.', error);
+        res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
         return;
       }
 
-      logger.error('회원가입 완료 중 오류가 발생하였습니다.');
-      logger.error(error);
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-    }
-  })(req, res, next);
-});
+      if (info) {
+        const errorMessage = JSON.parse(info.message);
+        res.status(errorMessage.status).json(makeError(errorMessage.message));
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        data: user
+      });
+
+      logger.info(`${user.uuid} ${user.id} 님이 회원가입하였습니다.`);
+      logger.info(`${user.uuid} ${user.id} 님의 권한을 설정했습니다.`);
+    })(req, res, next);
+  });
 
 /**
  * @swagger
