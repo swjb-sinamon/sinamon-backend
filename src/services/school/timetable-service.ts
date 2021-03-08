@@ -6,6 +6,7 @@ import ErrorMessage from '../../error/error-message';
 import { filter, pagination } from '../../utils/router-util';
 import { getTimetableCache } from '../../cache/api-cache';
 import { PaginationResult } from '../../types/pagination-result';
+import { logger } from '../../index';
 
 interface CreateTimetableProps {
   readonly subject: string;
@@ -52,8 +53,7 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
         .replace('d', '')
         .replace(SUBJECT_REGEX, '')
         .replace('(기)', '');
-      const teacher = value.teacher
-        .replace('*', '');
+      const teacher = (value.teacher ?? '').replace('*', '');
 
       const timeTable = await TimeTables.findOne({
         where: {
@@ -70,6 +70,7 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
         return {
           ...value,
           subject,
+          teacher: teacher ?? '',
           url: null
         };
       }
@@ -77,6 +78,7 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
       return {
         ...value,
         subject,
+        teacher: teacher ?? '',
         url: timeTable.url
       };
     });
