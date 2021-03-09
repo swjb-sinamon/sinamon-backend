@@ -10,6 +10,7 @@ import CodeRouter from './activation-code-router';
 import UniformRouter from './uniform-router';
 import TimetableRouter from './timetable-router';
 import ContestRouter from './contest-router';
+import FCMRouter from './fcm-router';
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use('/code', CodeRouter);
 router.use('/uniform', UniformRouter);
 router.use('/timetable', TimetableRouter);
 router.use('/contest', ContestRouter);
+router.use('/fcm', FCMRouter);
 
 export default router;

@@ -24,7 +24,8 @@ const config = {
   uniform: {
     start: 14,
     end: 18
-  }
+  },
+  fcmServerKey: process.env.FCM_SERVER_KEY || ''
 };
 
 export const swaggerConfig = {

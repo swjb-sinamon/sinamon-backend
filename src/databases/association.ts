@@ -4,6 +4,7 @@ import Umbrellas from './models/umbrellas';
 import Permissions from './models/permissions';
 import UniformPersonal from './models/uniform-personal';
 import Contests from './models/contests';
+import FCM from './models/fcm';
 
 const databaseAssociation = (): void => {
   // Users, Rentals 1:1
@@ -25,6 +26,10 @@ const databaseAssociation = (): void => {
   // Users, Contests 1:1
   Users.hasOne(Contests, { foreignKey: 'uuid' });
   Contests.belongsTo(Users, { foreignKey: 'uuid' });
+
+  // Users, FCM 1:1
+  Users.hasOne(FCM, { foreignKey: 'uuid' });
+  FCM.belongsTo(Users, { foreignKey: 'uuid' });
 };
 
 export default databaseAssociation;

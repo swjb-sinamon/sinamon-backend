@@ -29,7 +29,9 @@ enum ErrorMessage {
 
   CONTEST_ALREADY_EXISTS = '이미 참가 신청 되었습니다.',
   CONTEST_ROLE_NOT_FOUND = '존재하지 않는 역할입니다.',
-  CONTEST_JOIN_NOT_FOUND = '참여하지 않은 사용자입니다.'
+  CONTEST_JOIN_NOT_FOUND = '참여하지 않은 사용자입니다.',
+
+  FCM_TOKEN_NOT_FOUND = '푸시 알림 등록에 실패하였습니다.'
 }
 
 export default ErrorMessage;
