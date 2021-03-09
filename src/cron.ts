@@ -10,6 +10,7 @@ import {
   fetchWeatherCache
 } from './cache/api-cache';
 import { getUsers } from './services/auth-service';
+import { sendPushWithTopic } from './services/fcm-service';
 
 export default (): void => {
   // 4시간 주기
@@ -78,5 +79,15 @@ export default (): void => {
       logger.error('탈퇴 실패');
       logger.error(e);
     }
+  });
+
+  // 평일 오전 8시
+  schedule('0 8 * * 1-5', async () => {
+    await sendPushWithTopic('all', {
+      title: '건강상태 자가진단',
+      body: '오늘의 건강상태 자가진단을 참여해주세요.'
+    });
+
+    logger.info('건강상태 자가진단 푸시 알림을 보냈습니다.');
   });
 };
