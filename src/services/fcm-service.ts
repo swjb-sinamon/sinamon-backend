@@ -1,10 +1,13 @@
 import { Op } from 'sequelize';
+import axios from 'axios';
 import FCM from '../databases/models/fcm';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import { filter, FilterParam, pagination } from '../utils/router-util';
 import Users from '../databases/models/users';
 import { PaginationResult } from '../types/pagination-result';
+import config from '../config';
+import { PushTopic } from '../types';
 
 export const getFCMTokens = async (
   offset?: number,
@@ -71,4 +74,36 @@ export const createOrUpdateFCMToken = async (uuid: string, token: string): Promi
 
     throw e;
   }
+};
+
+export const subscribeAllTopic = async (uuid: string): Promise<void> => {
+  const token = await getFCMToken(uuid);
+  await axios.post(`https://iid.googleapis.com/iid/v1/${token.token}/rel/topics/all`, {}, {
+    headers: {
+      Authorization: `key=${config.fcmServerKey}`
+    }
+  });
+};
+
+interface PushNotification {
+  readonly title: string;
+  readonly body: string;
+}
+export const sendPushWithTopic = async (
+  topic: PushTopic,
+  data: PushNotification
+): Promise<void> => {
+  const pushBody = {
+    notification: {
+      title: data.title,
+      body: data.body
+    },
+    to: `/topics/${topic}`
+  };
+
+  await axios.post('https://fcm.googleapis.com/fcm/send', pushBody, {
+    headers: {
+      Authorization: `key=${config.fcmServerKey}`
+    }
+  });
 };

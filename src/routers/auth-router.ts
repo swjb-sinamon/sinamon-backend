@@ -4,20 +4,11 @@ import { body, query } from 'express-validator';
 import { makeError } from '../error/error-system';
 import ErrorMessage from '../error/error-message';
 import { logger } from '../index';
-import {
-  editUser,
-  getMyPermission,
-  getUser,
-  getUsers,
-  GetUsersFilters,
-  initUserPermission,
-  registerUser
-} from '../services/auth-service';
+import { editUser, getUser, getUsers, GetUsersFilters } from '../services/auth-service';
 import { requireAuthenticated } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
-import { useActivationCode } from '../services/activation-code-service';
 import ServiceException from '../exceptions';
-import Users from '../databases/models/users';
+import { subscribeAllTopic } from '../services/fcm-service';
 
 const router = express.Router();
 
@@ -277,15 +268,28 @@ router.post('/register',
  *              $ref: '#/components/schemas/User'
  */
 router.get('/me', requireAuthenticated(), async (req: express.Request, res: express.Response) => {
-  const result = req.user;
-  if (!result) return;
+  try {
+    const result = req.user;
+    if (!result) return;
 
-  res.status(200).json({
-    success: true,
-    data: result
-  });
+    await subscribeAllTopic(result.uuid);
 
-  logger.info(`${result.uuid} ${result.id} 님의 정보를 요청했습니다.`);
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+
+    logger.info(`${result.uuid} ${result.id} 님의 정보를 요청했습니다.`);
+  } catch (e) {
+    logger.error('내 정보를 요청하는 중 오류가 발생하였습니다.', e);
+
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+  }
 });
 
 /**

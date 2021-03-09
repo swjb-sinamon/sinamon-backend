@@ -40,3 +40,5 @@ export enum ContestRole {
 }
 
 export type UserWithPermissions = Users & { permission: Permissions };
+
+export type PushTopic = 'all';
