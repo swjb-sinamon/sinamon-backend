@@ -96,7 +96,8 @@ export const sendPushWithTopic = async (
   const pushBody = {
     notification: {
       title: data.title,
-      body: data.body
+      body: data.body,
+      icon: '/logo192.png'
     },
     to: `/topics/${topic}`
   };

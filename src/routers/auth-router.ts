@@ -272,8 +272,6 @@ router.get('/me', requireAuthenticated(), async (req: express.Request, res: expr
     const result = req.user;
     if (!result) return;
 
-    await subscribeAllTopic(result.uuid);
-
     res.status(200).json({
       success: true,
       data: result
