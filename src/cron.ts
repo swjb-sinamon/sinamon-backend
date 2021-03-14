@@ -86,7 +86,7 @@ export default (): void => {
     await sendPushWithTopic('all', {
       title: '건강상태 자가진단',
       body: '오늘의 건강상태 자가진단을 참여해주세요.'
-    });
+    }, 'https://hcs.eduro.go.kr/');
 
     logger.info('건강상태 자가진단 푸시 알림을 보냈습니다.');
   });

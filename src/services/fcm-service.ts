@@ -91,13 +91,17 @@ interface PushNotification {
 }
 export const sendPushWithTopic = async (
   topic: PushTopic,
-  data: PushNotification
+  data: PushNotification,
+  clickAction?: string
 ): Promise<void> => {
   const pushBody = {
     notification: {
       title: data.title,
       body: data.body,
       icon: '/logo192.png'
+    },
+    data: {
+      click_action: clickAction
     },
     to: `/topics/${topic}`
   };
