@@ -108,4 +108,7 @@ app.use('/', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 cron();
 
-(async () => initApiCache())();
+(async () => {
+  await initApiCache();
+  logger.info('Fetch external API data successfully');
+})();
