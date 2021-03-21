@@ -25,7 +25,8 @@ const config = {
     start: 14,
     end: 18
   },
-  fcmServerKey: process.env.FCM_SERVER_KEY || ''
+  fcmServerKey: process.env.FCM_SERVER_KEY || '',
+  discordWebhook: process.env.DISCORD_WEBHOOK || ''
 };
 
 export const swaggerConfig = {

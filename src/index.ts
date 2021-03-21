@@ -19,6 +19,7 @@ import Router from './routers';
 import { initializeServerConfig, initializeUniformData } from './databases/Initialize';
 import { initApiCache } from './cache/init-cache';
 import cron from './cron';
+import { sendErrorToDiscord } from './managers/webhook';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const connectRedis = require('connect-redis');
@@ -96,11 +97,19 @@ app.use(rateLimit({
   windowMs: RATE_MINUTES * 60 * 1000,
   max: 500
 }));
+
+app.use((req, res, next) => {
+  res.on('finish', async () => {
+    if (res.statusCode === 500) {
+      await sendErrorToDiscord(req.method, req.originalUrl);
+    }
+  });
+  next();
+});
 app.use('/v1/*', (req, res, next) => {
   logger.info(`${req.ip} ${req.method} ${req.originalUrl} ${req.get('User-Agent')}`);
   next();
 });
-
 app.use('/v1', Router);
 
 const specs = swaggerJSDoc(swaggerConfig);
