@@ -142,12 +142,18 @@ router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => 
  */
 router.get('/:grade/:fullClass', requireAuthenticated(), async (req, res) => {
   try {
-    const { grade, fullClass } = req.params;
+    const { grade: gradeStr, fullClass: classStr } = req.params;
 
-    const data = await getThisWeekTimetables(
-      parseInt(grade, 10),
-      parseInt(fullClass, 10)
-    );
+    const grade = parseInt(gradeStr, 10);
+    const fullClass = parseInt(classStr, 10);
+
+    if (!(grade >= 1 && grade <= 3 && fullClass >= 1 && fullClass <= 9)) {
+      logger.error('잘못된 학년, 반으로 시간표 요청을 하였습니다.');
+      res.status(200).json({ success: false });
+      return;
+    }
+
+    const data = await getThisWeekTimetables(grade, fullClass);
 
     res.status(200).json({
       success: true,
