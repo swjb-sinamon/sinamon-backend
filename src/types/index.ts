@@ -33,12 +33,6 @@ export interface DustPayload {
   readonly pm10: number;
 }
 
-export enum ContestRole {
-  IDEA,
-  DEVELOP,
-  DESIGN
-}
-
 export type UserWithPermissions = Users & { permission: Permissions };
 
 export type PushTopic = 'all';

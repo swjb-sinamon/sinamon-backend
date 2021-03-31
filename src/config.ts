@@ -21,10 +21,6 @@ const config = {
     host: process.env.REDIS_HOST! || '127.0.0.1',
     port: parseInt(process.env.REDIS_PORT || '6379', 10)
   },
-  uniform: {
-    start: 14,
-    end: 18
-  },
   fcmServerKey: process.env.FCM_SERVER_KEY || '',
   discordWebhook: process.env.DISCORD_WEBHOOK || ''
 };

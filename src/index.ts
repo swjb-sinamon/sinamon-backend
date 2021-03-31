@@ -16,7 +16,7 @@ import AuthPassport from './auth';
 import DatabaseAssociation from './databases/association';
 import db from './databases';
 import Router from './routers';
-import { initializeServerConfig, initializeUniformData } from './databases/Initialize';
+import { initializeServerConfig } from './databases/Initialize';
 import { initApiCache } from './cache/init-cache';
 import cron from './cron';
 import { sendErrorToDiscord } from './managers/webhook';
@@ -64,7 +64,6 @@ db.sync().then(async () => {
   logger.info('Database connect completed successfully');
 
   await initializeServerConfig();
-  await initializeUniformData();
 });
 
 app.set('trust proxy', true);
