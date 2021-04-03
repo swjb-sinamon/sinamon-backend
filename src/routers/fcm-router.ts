@@ -36,9 +36,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * /fcm:
+ * /fcm/token:
  *  post:
- *    summary: 자기 자신의 토큰을 등록하거나 업데이트하기
+ *    summary: FCM 토큰 등록 또는 업데이트
  *    tags: [FCM]
  *    requestBody:
  *      content:
@@ -61,7 +61,7 @@ const router = express.Router();
 const fcmValidator = [
   body('token').isString()
 ];
-router.post('/',
+router.post('/token',
   fcmValidator,
   checkValidation,
   requireAuthenticated(),
