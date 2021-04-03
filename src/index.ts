@@ -99,7 +99,7 @@ app.use(rateLimit({
 
 app.use((req, res, next) => {
   res.on('finish', async () => {
-    if (res.statusCode === 500) {
+    if (res.statusCode === 500 && process.env.NODE_ENV === 'production') {
       await sendErrorToDiscord(req.method, req.originalUrl);
     }
   });
