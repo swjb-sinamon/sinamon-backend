@@ -6,7 +6,6 @@ import ErrorMessage from '../../error/error-message';
 import { filter, pagination } from '../../utils/router-util';
 import { getTimetableCache } from '../../cache/api-cache';
 import { PaginationResult } from '../../types/pagination-result';
-import { logger } from '../../index';
 
 interface CreateTimetableProps {
   readonly subject: string;
