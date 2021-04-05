@@ -55,7 +55,7 @@ class TimetableParser {
 
     await page.reload();
 
-    await this.timeout(100);
+    await this.timeout(500);
 
     const dataStr: string = await page.evaluate(
       `window.localStorage.getItem('${ORIGIN_DATA_LABEL}');`
@@ -81,6 +81,7 @@ class TimetableParser {
       (clazz: ClassTimetable<string>) => {
         return clazz.map((week: WeekTimetable<string>) => {
           week.splice(0, 1);
+          week.splice(5, 1);
           return week.map((day: DayTimetable<string>) => {
             day.splice(0, 1);
             return day.map((p: string) => {
