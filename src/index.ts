@@ -1,25 +1,25 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
-import passport from 'passport';
-import rateLimit from 'express-rate-limit';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import session from 'express-session';
 import helmet from 'helmet';
+import log4js from 'log4js';
+import passport from 'passport';
 import redis from 'redis';
-import { promisify } from 'util';
-import swaggerUI from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
-import config, { swaggerConfig } from './config';
+import swaggerUI from 'swagger-ui-express';
+import { promisify } from 'util';
 import AuthPassport from './auth';
-import DatabaseAssociation from './databases/association';
-import db from './databases';
-import Router from './routers';
-import { initializeServerConfig } from './databases/Initialize';
 import { initApiCache } from './cache/init-cache';
+import config, { swaggerConfig } from './config';
 import cron from './cron';
+import db from './databases';
+import DatabaseAssociation from './databases/association';
+import { initializeServerConfig } from './databases/Initialize';
 import { sendErrorToDiscord } from './managers/webhook';
+import Router from './routers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const connectRedis = require('connect-redis');

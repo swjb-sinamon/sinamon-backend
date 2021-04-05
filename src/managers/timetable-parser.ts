@@ -5,6 +5,14 @@ const ORIGIN_DATA_LABEL = 'hour';
 const SCHOOL_NAME = '수원정보과학고등학교';
 const SCHOOL_ID = '97812';
 
+const TIMETABLE_REGEX = /일일자료=자료\.자료\d{3}/g;
+const TEACHER_REGEX = /성명=자료\.자료\d{3}/g;
+const SUBJECT_REGEX = /"<td class='"\+속성\+"'>"\+자료\.자료\d{3}/g;
+
+let timetableIndex = '';
+let subjectIndex = '';
+let teacherIndex = '';
+
 interface TimetableData {
   readonly subject: string;
   readonly teacher: string;
@@ -54,12 +62,22 @@ class TimetableParser {
     );
     const parsingData = JSON.parse(dataStr);
 
+    const handle = await page.$('//html/head/script[2]');
+    const script = handle && (await handle.innerHTML());
+    const timetableSource = script && script.match(TIMETABLE_REGEX);
+    const subjectSource = script && script.match(SUBJECT_REGEX);
+    const teacherSource = script && script.match(TEACHER_REGEX);
+
+    timetableIndex = (timetableSource && timetableSource[0].slice(-3)) || '';
+    subjectIndex = (subjectSource && subjectSource[0].slice(-3)) || '';
+    teacherIndex = (teacherSource && teacherSource[0].slice(-3)) || '';
+
     await browser.close();
 
-    this.subjectData = parsingData.긴자료618;
-    this.teacherData = parsingData.자료384;
+    this.subjectData = parsingData[`긴자료${subjectIndex}`];
+    this.teacherData = parsingData[`자료${teacherIndex}`];
 
-    this.data = (parsingData.자료135 as GradeTimetable<string>).map(
+    this.data = (parsingData[`자료${timetableIndex}`] as GradeTimetable<string>).map(
       (clazz: ClassTimetable<string>) => {
         return clazz.map((week: WeekTimetable<string>) => {
           return week.map((day: DayTimetable<string>) => {
