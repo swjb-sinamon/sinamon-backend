@@ -9,6 +9,7 @@ interface TimetableData {
   readonly subject: string;
   readonly teacher: string;
 }
+
 type DayTimetable<T = TimetableData> = T[];
 type WeekTimetable<T = TimetableData> = DayTimetable<T>[];
 type ClassTimetable<T = TimetableData> = WeekTimetable<T>[];
@@ -51,47 +52,54 @@ class TimetableParser {
     const dataStr: string = await page.evaluate(
       `window.localStorage.getItem('${ORIGIN_DATA_LABEL}');`
     );
-    const data = JSON.parse(dataStr);
+    const parsingData = JSON.parse(dataStr);
 
     await browser.close();
 
-    this.subjectData = data.긴자료618;
-    this.teacherData = data.자료384;
+    this.subjectData = parsingData.긴자료618;
+    this.teacherData = parsingData.자료384;
 
-    this.data = (data.자료135 as GradeTimetable<string>).map((clazz: ClassTimetable<string>) => {
-      return clazz.map((week: WeekTimetable<string>) => {
-        return week.map((day: DayTimetable<string>) => {
-          return day.map((p: string) => {
-            const period = p.toString();
+    this.data = (parsingData.자료135 as GradeTimetable<string>).map(
+      (clazz: ClassTimetable<string>) => {
+        return clazz.map((week: WeekTimetable<string>) => {
+          return week.map((day: DayTimetable<string>) => {
+            return day.map((p: string) => {
+              const period = p.toString();
 
-            if (period === '0') {
+              if (period === '0') {
+                return {
+                  subject: '',
+                  teacher: ''
+                };
+              }
+
+              const subjectCode = parseInt(period.slice(-2), 10);
+              const teacherCode = parseInt(
+                period.length === 4 ? period.slice(0, 2) : period.slice(0, 1),
+                10
+              );
+
               return {
-                subject: '',
-                teacher: ''
+                subject: this.subjectData[subjectCode],
+                teacher: period.length === 7 ? '' : this.teacherData[teacherCode]
               };
-            }
-
-            const subjectCode = parseInt(period.slice(-2), 10);
-            const teacherCode = parseInt(
-              period.length === 4 ? period.slice(0, 2) : period.slice(0, 1),
-              10
-            );
-
-            return {
-              subject: this.subjectData[subjectCode],
-              teacher: period.length === 7 ? '' : this.teacherData[teacherCode]
-            };
+            });
           });
         });
-      });
-    });
+      }
+    );
 
     this.ready = true;
   }
 
   public getTimetable(grade: number, clazz: number, week: number): DayTimetable {
-    if (!this.ready) throw new Error('fetchTimetable()을 먼저 실행해주세요.');
+    if (!this.ready) throw new Error('Please execute fetchTimetable() function first.');
     return this.data[grade][clazz][week];
+  }
+
+  public getData(): GradeTimetable {
+    if (!this.ready) throw new Error('Please execute fetchTimetable() function first.');
+    return this.data;
   }
 }
 

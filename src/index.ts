@@ -74,28 +74,32 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 const RedisStore = connectRedis(session);
-app.use(session({
-  store: new RedisStore({
-    client: redisClient
-  }),
-  secret: config.sessionSecret,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: Date.now() + (MAXAGE_DATE * 86400 * 1000)
-  }
-}));
+app.use(
+  session({
+    store: new RedisStore({
+      client: redisClient
+    }),
+    secret: config.sessionSecret,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: Date.now() + MAXAGE_DATE * 86400 * 1000
+    }
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
 AuthPassport();
 
-app.use(rateLimit({
-  windowMs: RATE_MINUTES * 60 * 1000,
-  max: 500
-}));
+app.use(
+  rateLimit({
+    windowMs: RATE_MINUTES * 60 * 1000,
+    max: 500
+  })
+);
 
 app.use((req, res, next) => {
   res.on('finish', async () => {
