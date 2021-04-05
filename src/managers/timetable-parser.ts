@@ -1,5 +1,4 @@
 import { chromium } from 'playwright';
-import { logger } from '..';
 
 const HOST = 'http://112.186.146.81:4082/st';
 const ORIGIN_DATA_LABEL = 'hour';

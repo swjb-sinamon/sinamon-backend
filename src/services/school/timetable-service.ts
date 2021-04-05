@@ -1,4 +1,3 @@
-import { time } from 'console';
 import { Op } from 'sequelize';
 import TimeTables from '../../databases/models/time-tables';
 import ErrorMessage from '../../error/error-message';
