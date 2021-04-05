@@ -18,6 +18,7 @@ import cron from './cron';
 import db from './databases';
 import DatabaseAssociation from './databases/association';
 import { initializeServerConfig } from './databases/Initialize';
+import timetableParser from './managers/timetable-parser';
 import { sendErrorToDiscord } from './managers/webhook';
 import Router from './routers';
 
@@ -122,5 +123,6 @@ cron();
 
 (async () => {
   await initApiCache();
+  await timetableParser.fetchTimetable();
   logger.info('Fetch external API data successfully');
 })();

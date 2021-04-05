@@ -1,18 +1,18 @@
 import axios from 'axios';
-import { redisUtil } from '../index';
 import config from '../config';
-import { ComciganTimetable, DustPayload, WeatherPayload } from '../types';
+import { redisUtil } from '../index';
+import { DustPayload, WeatherPayload } from '../types';
 import school from '../utils/school-lib';
-import { getTimetableInstance } from '../utils/timetable-lib';
 
 const WEATHER_KEY = 'weather';
 const DUST_KEY = 'dust';
 const MEAL_KEY = 'meal';
 const CALENDAR_KEY = 'calendar';
-const TIMETALBE_KEY = 'timetable';
 
 export const fetchWeatherCache = async (): Promise<void> => {
-  const result = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=Suwon,KR&appid=${config.openWeatherApiKey}&units=metric`);
+  const result = await axios.get(
+    `https://api.openweathermap.org/data/2.5/weather?q=Suwon,KR&appid=${config.openWeatherApiKey}&units=metric`
+  );
   const data = {
     status: result.data.weather[0].main.toUpperCase(),
     temp: Math.floor(result.data.main.temp)
@@ -93,26 +93,5 @@ export const getCalendarCache = async (): Promise<any> => {
   }
 
   const result = await redisUtil.getAsync(CALENDAR_KEY);
-  return JSON.parse(result as string);
-};
-
-type TimetableType = Record<string, // Grade
-  Record<string, // fullClass
-    ComciganTimetable[][]>>; // thisWeek
-
-export const fetchTimetableCache = async (): Promise<void> => {
-  const timetable = await getTimetableInstance();
-  const data = await timetable.getTimetable();
-  await redisUtil.setAsync(TIMETALBE_KEY, JSON.stringify(data));
-};
-
-export const getTimetableCache = async (): Promise<TimetableType> => {
-  const current = await redisUtil.getAsync(TIMETALBE_KEY);
-
-  if (!current) {
-    await fetchTimetableCache();
-  }
-
-  const result = await redisUtil.getAsync(TIMETALBE_KEY);
   return JSON.parse(result as string);
 };
