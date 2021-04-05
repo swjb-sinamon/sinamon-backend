@@ -1,4 +1,5 @@
 import { chromium } from 'playwright';
+import { logger } from '..';
 
 const HOST = 'http://112.186.146.81:4082/st';
 const ORIGIN_DATA_LABEL = 'hour';
@@ -110,9 +111,9 @@ class TimetableParser {
     this.ready = true;
   }
 
-  public getTimetable(grade: number, clazz: number, week: number): DayTimetable {
+  public getTimetable(grade: number, clazz: number): WeekTimetable {
     if (!this.ready) throw new Error('Please execute fetchTimetable() function first.');
-    return this.data[grade][clazz][week];
+    return this.data[grade][clazz];
   }
 
   public getData(): GradeTimetable {
@@ -121,4 +122,4 @@ class TimetableParser {
   }
 }
 
-export default TimetableParser;
+export default new TimetableParser();
