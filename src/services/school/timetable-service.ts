@@ -1,3 +1,4 @@
+import { time } from 'console';
 import { Op } from 'sequelize';
 import TimeTables from '../../databases/models/time-tables';
 import ErrorMessage from '../../error/error-message';
@@ -43,8 +44,10 @@ export const getTimetables = async (
 const SUBJECT_REGEX = /[^(ㄱ-ㅎ가-힣a-zA-Z0-9)]/g;
 export const getThisWeekTimetables = async (grade: number, fullClass: number): Promise<unknown> => {
   const thisWeekTimetable = timetableParser.getTimetable(grade, fullClass);
-  const result = thisWeekTimetable.map((today) => {
+  const result = thisWeekTimetable.map(async (today) => {
     const timeTableWithURL = today.map(async (value) => {
+      if (value.subject === '' && value.teacher === '') return null;
+
       const subject = value.subject.replace('d', '').replace(SUBJECT_REGEX, '').replace('(기)', '');
       const teacher = (value.teacher ?? '').replace('*', '');
 
@@ -59,24 +62,16 @@ export const getThisWeekTimetables = async (grade: number, fullClass: number): P
         }
       });
 
-      if (!timeTable) {
-        return {
-          ...value,
-          subject,
-          teacher: teacher ?? '',
-          url: null
-        };
-      }
-
       return {
         ...value,
         subject,
         teacher: teacher ?? '',
-        url: timeTable.url
+        url: timeTable ? timeTable.url : null
       };
     });
 
-    return Promise.all(timeTableWithURL);
+    const items = await Promise.all(timeTableWithURL);
+    return items.filter((v) => v !== null);
   });
 
   return Promise.all(result);

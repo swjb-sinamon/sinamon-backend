@@ -81,7 +81,9 @@ class TimetableParser {
     this.data = (parsingData[`자료${timetableIndex}`] as GradeTimetable<string>).map(
       (clazz: ClassTimetable<string>) => {
         return clazz.map((week: WeekTimetable<string>) => {
+          week.splice(0, 1);
           return week.map((day: DayTimetable<string>) => {
+            day.splice(0, 1);
             return day.map((p: string) => {
               const period = p.toString();
 
