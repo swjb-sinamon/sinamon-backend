@@ -1,14 +1,13 @@
 import express from 'express';
-import passport from 'passport';
 import { body, query } from 'express-validator';
-import { makeError } from '../error/error-system';
+import passport from 'passport';
 import ErrorMessage from '../error/error-message';
+import { makeError } from '../error/error-system';
+import ServiceException from '../exceptions';
 import { logger } from '../index';
-import { editUser, getUser, getUsers, GetUsersFilters } from '../services/auth-service';
 import { requireAuthenticated } from '../middlewares/permission';
 import { checkValidation } from '../middlewares/validator';
-import ServiceException from '../exceptions';
-import { subscribeAllTopic } from '../services/fcm-service';
+import { editUser, getUser, getUsers, GetUsersFilters } from '../services/auth-service';
 
 const router = express.Router();
 
@@ -133,44 +132,45 @@ const router = express.Router();
  *            schema:
  *              $ref: '#/components/schemas/User'
  */
-const loginValidator = [
-  query('admin').isBoolean(),
-  body('id').isString(),
-  body('password')
-];
-router.post('/login', loginValidator, checkValidation, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  passport.authenticate('login', async (error, user, info) => {
-    if (error) {
-      logger.error('로그인 완료 중 오류가 발생하였습니다.', error);
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-      return;
-    }
-
-    if (info) {
-      const errorMessage = JSON.parse(info.message);
-      res.status(errorMessage.status).json(makeError(errorMessage.message));
-      return;
-    }
-
-    req.login(user, (err) => {
-      if (err) {
-        logger.error('로그인 완료 중 오류가 발생하였습니다.', err);
+const loginValidator = [query('admin').isBoolean(), body('id').isString(), body('password')];
+router.post(
+  '/login',
+  loginValidator,
+  checkValidation,
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    passport.authenticate('login', async (error, user, info) => {
+      if (error) {
+        logger.error('로그인 완료 중 오류가 발생하였습니다.', error);
         res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
         return;
       }
 
-      logger.info(`${user.uuid} ${user.id} 님이 로그인하였습니다.`);
+      if (info) {
+        const errorMessage = JSON.parse(info.message);
+        res.status(errorMessage.status).json(makeError(errorMessage.message));
+        return;
+      }
 
-      const result = user;
-      result.password = null;
+      req.login(user, (err) => {
+        if (err) {
+          logger.error('로그인 완료 중 오류가 발생하였습니다.', err);
+          res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+          return;
+        }
 
-      res.status(200).json({
-        success: true,
-        data: result
+        logger.info(`${user.uuid} ${user.id} 님이 로그인하였습니다.`);
+
+        const result = user;
+        result.password = null;
+
+        res.status(200).json({
+          success: true,
+          data: result
+        });
       });
-    });
-  })(req, res, next);
-});
+    })(req, res, next);
+  }
+);
 
 /**
  * @swagger
@@ -226,7 +226,8 @@ const registerValidator = [
   body('studentNumber').isNumeric(),
   body('code').isString()
 ];
-router.post('/register',
+router.post(
+  '/register',
   registerValidator,
   checkValidation,
   async (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -251,7 +252,8 @@ router.post('/register',
       logger.info(`${user.uuid} ${user.id} 님이 회원가입하였습니다.`);
       logger.info(`${user.uuid} ${user.id} 님의 권한을 설정했습니다.`);
     })(req, res, next);
-  });
+  }
+);
 
 /**
  * @swagger
@@ -310,28 +312,32 @@ router.get('/me', requireAuthenticated(), async (req: express.Request, res: expr
  *            schema:
  *              $ref: '#/components/schemas/User'
  */
-router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion']), async (req: express.Request, res: express.Response) => {
-  try {
-    const { uuid } = req.params;
+router.get(
+  '/user/:uuid',
+  requireAuthenticated(['admin', 'teacher', 'schoolunion']),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const { uuid } = req.params;
 
-    const data = await getUser(uuid);
+      const data = await getUser(uuid);
 
-    res.status(200).json({
-      success: true,
-      data
-    });
+      res.status(200).json({
+        success: true,
+        data
+      });
 
-    logger.info(`${uuid} 님의 정보를 요청했습니다.`);
-  } catch (e) {
-    if (e instanceof ServiceException) {
-      res.status(500).json(makeError(e.message));
-      return;
+      logger.info(`${uuid} 님의 정보를 요청했습니다.`);
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(500).json(makeError(e.message));
+        return;
+      }
+
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      logger.error('유저 정보를 요청하는 중 오류가 발생하였습니다.', e);
     }
-
-    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-    logger.error('유저 정보를 요청하는 중 오류가 발생하였습니다.', e);
   }
-});
+);
 
 /**
  * @swagger
@@ -370,39 +376,43 @@ router.get('/user/:uuid', requireAuthenticated(['admin', 'teacher', 'schoolunion
  *              items:
  *                $ref: '#/components/schemas/User'
  */
-router.get('/user', requireAuthenticated(['admin', 'teacher']), async (req: express.Request, res: express.Response) => {
-  const { offset, limit, search, filters } = req.query as Record<string, unknown>;
+router.get(
+  '/user',
+  requireAuthenticated(['admin', 'teacher']),
+  async (req: express.Request, res: express.Response) => {
+    const { offset, limit, search, filters } = req.query as Record<string, unknown>;
 
-  let filterOption: GetUsersFilters = {};
-  if (filters) {
-    const { department, grade, class: clazz } = filters as {
-      department?: number;
-      grade?: number;
-      class?: number;
-    };
+    let filterOption: GetUsersFilters = {};
+    if (filters) {
+      const { department, grade, class: clazz } = filters as {
+        department?: number;
+        grade?: number;
+        class?: number;
+      };
 
-    filterOption = {
-      department,
-      studentGrade: grade,
-      studentClass: clazz
-    };
+      filterOption = {
+        department,
+        studentGrade: grade,
+        studentClass: clazz
+      };
+    }
+
+    const { data, count } = await getUsers(
+      parseInt(offset as string, 10),
+      parseInt(limit as string, 10),
+      search as string,
+      filterOption
+    );
+
+    res.status(200).json({
+      success: true,
+      count,
+      data
+    });
+
+    logger.info('모든 유저 정보를 요청했습니다.');
   }
-
-  const { data, count } = await getUsers(
-    parseInt(offset as string, 10),
-    parseInt(limit as string, 10),
-    search as string,
-    filterOption
-  );
-
-  res.status(200).json({
-    success: true,
-    count,
-    data
-  });
-
-  logger.info('모든 유저 정보를 요청했습니다.');
-});
+);
 
 /**
  * @swagger
@@ -472,9 +482,10 @@ const editUserValidator = [
   body('studentGrade').isNumeric(),
   body('studentClass').isNumeric(),
   body('studentNumber').isNumeric(),
-  body('currentPassword').isString(),
+  body('currentPassword').isString()
 ];
-router.put('/me',
+router.put(
+  '/me',
   requireAuthenticated(),
   editUserValidator,
   checkValidation,
@@ -515,6 +526,7 @@ router.put('/me',
       logger.error('사용자 정보를 수정하는 중 오류가 발생하였습니다.');
       logger.error(e);
     }
-  });
+  }
+);
 
 export default router;

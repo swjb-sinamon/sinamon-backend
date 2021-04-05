@@ -1,25 +1,26 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import log4js from 'log4js';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
-import passport from 'passport';
-import rateLimit from 'express-rate-limit';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import session from 'express-session';
 import helmet from 'helmet';
+import log4js from 'log4js';
+import passport from 'passport';
 import redis from 'redis';
-import { promisify } from 'util';
-import swaggerUI from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
-import config, { swaggerConfig } from './config';
+import swaggerUI from 'swagger-ui-express';
+import { promisify } from 'util';
 import AuthPassport from './auth';
-import DatabaseAssociation from './databases/association';
-import db from './databases';
-import Router from './routers';
-import { initializeServerConfig } from './databases/Initialize';
 import { initApiCache } from './cache/init-cache';
+import config, { swaggerConfig } from './config';
 import cron from './cron';
+import db from './databases';
+import DatabaseAssociation from './databases/association';
+import { initializeServerConfig } from './databases/Initialize';
+import timetableParser from './managers/timetable-parser';
 import { sendErrorToDiscord } from './managers/webhook';
+import Router from './routers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const connectRedis = require('connect-redis');
@@ -74,28 +75,32 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 const RedisStore = connectRedis(session);
-app.use(session({
-  store: new RedisStore({
-    client: redisClient
-  }),
-  secret: config.sessionSecret,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: Date.now() + (MAXAGE_DATE * 86400 * 1000)
-  }
-}));
+app.use(
+  session({
+    store: new RedisStore({
+      client: redisClient
+    }),
+    secret: config.sessionSecret,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: Date.now() + MAXAGE_DATE * 86400 * 1000
+    }
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
 AuthPassport();
 
-app.use(rateLimit({
-  windowMs: RATE_MINUTES * 60 * 1000,
-  max: 500
-}));
+app.use(
+  rateLimit({
+    windowMs: RATE_MINUTES * 60 * 1000,
+    max: 500
+  })
+);
 
 app.use((req, res, next) => {
   res.on('finish', async () => {
@@ -118,5 +123,6 @@ cron();
 
 (async () => {
   await initApiCache();
+  await timetableParser.fetchTimetable();
   logger.info('Fetch external API data successfully');
 })();

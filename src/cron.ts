@@ -6,11 +6,11 @@ import {
   fetchCalendarCache,
   fetchDustCache,
   fetchMealCache,
-  fetchTimetableCache,
   fetchWeatherCache
 } from './cache/api-cache';
 import { getUsers } from './services/auth-service';
 import { sendPushWithTopic } from './services/fcm-service';
+import timetableParser from './managers/timetable-parser';
 
 export default (): void => {
   // 4시간 주기
@@ -34,10 +34,9 @@ export default (): void => {
     });
 
     await Promise.all(promise);
-
     logger.info(`우산 ${count}개가 연체되었습니다.`);
 
-    await fetchTimetableCache();
+    await timetableParser.fetchTimetable();
     logger.info('시간표를 새롭게 불러옵니다.');
   });
 
@@ -83,10 +82,14 @@ export default (): void => {
 
   // 평일 오전 8시
   schedule('0 8 * * 1-5', async () => {
-    await sendPushWithTopic('all', {
-      title: '건강상태 자가진단',
-      body: '오늘의 건강상태 자가진단을 참여해주세요.'
-    }, 'https://hcs.eduro.go.kr/');
+    await sendPushWithTopic(
+      'all',
+      {
+        title: '건강상태 자가진단',
+        body: '오늘의 건강상태 자가진단을 참여해주세요.'
+      },
+      'https://hcs.eduro.go.kr/'
+    );
 
     logger.info('건강상태 자가진단 푸시 알림을 보냈습니다.');
   });

@@ -1,6 +1,6 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  extends: ['plugin:@typescript-eslint/recommended', 'airbnb-base'],
+  extends: ['plugin:@typescript-eslint/recommended', 'airbnb-base', 'eslint-config-prettier'],
   rules: {
     'arrow-body-style': 'off',
     'comma-dangle': 'off',
@@ -9,6 +9,7 @@ module.exports = {
     'import/extensions': 'off',
     'linebreak-style': 'off',
     'import/prefer-default-export': 'off',
+
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': ['error'],
     'no-unused-vars': 'off',
