@@ -1,12 +1,12 @@
 import { DustPayload, WeatherPayload } from '../types';
-import { getDustCache, getWeatherCache } from '../cache/api-cache';
+import { DustCache, WeatherCache } from '../cache';
 
 export const getWeatherStatus = async (): Promise<WeatherPayload> => {
-  const result = await getWeatherCache();
+  const result = await WeatherCache.getCacheData();
   return result;
 };
 
 export const getDustData = async (): Promise<DustPayload> => {
-  const result = await getDustCache();
+  const result = await DustCache.getCacheData();
   return result;
 };
