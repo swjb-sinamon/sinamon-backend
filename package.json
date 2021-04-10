@@ -6,8 +6,7 @@
     "build": "tsc",
     "start:production": "cross-env NODE_ENV=production node ./dist/server.js",
     "lint": "eslint src/**/*.ts",
-    "makecode": "ts-node bin/makeActivationCode.ts",
-    "event": "ts-node bin/pickEvent.ts"
+    "makecode": "ts-node bin/makeActivationCode.ts"
   },
   "repository": {
     "type": "git",
