@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { getMealCache } from '../../cache/api-cache';
+import { MealCache } from '../../cache';
 
 const deleteUnusedString = (original: string): string => {
   const result = original
@@ -16,14 +16,12 @@ const deleteUnusedString = (original: string): string => {
 };
 
 export const getTodayMeal = async (): Promise<string> => {
-  const meal = await getMealCache();
+  const meal = await MealCache.getCacheData();
   return deleteUnusedString(meal.today);
 };
 
 export const getTomorrowMeal = async (): Promise<string> => {
-  const tomorrowDay = dayjs()
-    .add(1, 'date')
-    .format('D');
-  const meal = await getMealCache();
+  const tomorrowDay = dayjs().add(1, 'date').format('D');
+  const meal = await MealCache.getCacheData();
   return deleteUnusedString(meal[tomorrowDay]);
 };
