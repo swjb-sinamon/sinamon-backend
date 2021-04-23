@@ -12,12 +12,12 @@ export const getThisWeekCalendar = async (): Promise<string[]> => {
     if (MONTH_DATE[dayjs().month()] < thisWeeks) {
       const thisWeek = value + 1 - dayjs().day();
       const thisDay = dayjs().set('date', thisWeek).date();
-      return calender[thisDay];
+      return calender.nowData[thisDay];
     }
 
     const thisWeek = dayjs().date() + (value + 1 - dayjs().day());
     const thisDay = dayjs().set('date', thisWeek).date();
-    return calender[thisDay];
+    return calender.nextData[thisDay];
   });
 
   return result;
