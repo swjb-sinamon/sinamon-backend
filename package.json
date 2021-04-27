@@ -35,7 +35,7 @@
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "playwright": "^1.10.0",
-    "redis": "^3.0.2",
+    "redis": "^3.1.1",
     "school-kr": "3.1.2",
     "sequelize": "6.5.0",
     "swagger-jsdoc": "^6.0.2",
