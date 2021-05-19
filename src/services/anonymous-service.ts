@@ -5,6 +5,7 @@ import Users from '../databases/models/users';
 import ServiceException from '../exceptions';
 import ErrorMessage from '../error/error-message';
 import { getUser } from './auth-service';
+import { PaginationResult } from '../types/pagination-result';
 
 type ReplyWithAuthor = AnonymousReply & { user: UserWithPermissions };
 type AnonymousResult = Anonymous & { reply: ReplyWithAuthor };
@@ -24,12 +25,15 @@ const includeOptions = {
   ] as never
 };
 
-export const getAllAnonymous = async (): Promise<AnonymousResult[]> => {
-  const result = await Anonymous.findAll({
+export const getAllAnonymous = async (): Promise<PaginationResult<AnonymousResult[]>> => {
+  const { rows, count } = await Anonymous.findAndCountAll({
     ...includeOptions
   });
 
-  return result as AnonymousResult[];
+  return {
+    count,
+    data: rows as AnonymousResult[]
+  };
 };
 
 export const getAnonymous = async (id: number): Promise<AnonymousResult> => {
