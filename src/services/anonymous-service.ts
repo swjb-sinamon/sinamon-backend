@@ -10,17 +10,23 @@ import { PaginationResult } from '../types/pagination-result';
 type ReplyWithAuthor = AnonymousReply & { user: UserWithPermissions };
 type AnonymousResult = Anonymous & { reply: ReplyWithAuthor };
 
+const userIncludeOptions = {
+  include: [
+    {
+      model: Users,
+      as: 'user',
+      attributes: {
+        exclude: ['password']
+      }
+    }
+  ] as never
+};
 const includeOptions = {
   include: [
     {
       model: AnonymousReply,
       as: 'reply',
-      include: [
-        {
-          model: Users,
-          as: 'user'
-        }
-      ]
+      ...userIncludeOptions
     }
   ] as never
 };
@@ -87,12 +93,7 @@ export const updateAnonymousReply = async (
     where: {
       id
     },
-    include: [
-      {
-        model: Users,
-        as: 'user'
-      }
-    ] as never
+    ...userIncludeOptions
   });
 
   if (!current) throw new ServiceException(ErrorMessage.ANONYMOUS_REPLY_NOT_FOUND, 404);
@@ -109,12 +110,7 @@ export const deleteAnonymousReply = async (id: number): Promise<AnonymousReply> 
     where: {
       id
     },
-    include: [
-      {
-        model: Users,
-        as: 'user'
-      }
-    ] as never
+    ...userIncludeOptions
   });
 
   if (!current) throw new ServiceException(ErrorMessage.ANONYMOUS_REPLY_NOT_FOUND, 404);
