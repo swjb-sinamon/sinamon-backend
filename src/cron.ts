@@ -2,15 +2,10 @@ import { schedule } from 'node-cron';
 import Rentals from './databases/models/rentals';
 import { setExpire } from './services/rental-service';
 import { logger } from './index';
-import {
-  fetchCalendarCache,
-  fetchDustCache,
-  fetchMealCache,
-  fetchWeatherCache
-} from './cache/api-cache';
 import { getUsers } from './services/auth-service';
 import { sendPushWithTopic } from './services/fcm-service';
 import timetableParser from './managers/timetable-parser';
+import { CalendarCache, DustCache, MealCache, WeatherCache } from './cache';
 
 export default (): void => {
   // 4시간 주기
@@ -42,16 +37,16 @@ export default (): void => {
 
   // 1일 주기
   schedule('0 0 */1 * *', async () => {
-    await fetchMealCache();
-    await fetchCalendarCache();
+    await MealCache.fetchCache();
+    await CalendarCache.fetchCache();
 
     logger.info('급식, 학사일정을 새롭게 불러옵니다.');
   });
 
   // 1시간 주기
   schedule('0 */1 * * *', async () => {
-    await fetchWeatherCache();
-    await fetchDustCache();
+    await WeatherCache.fetchCache();
+    await DustCache.fetchCache();
 
     logger.info('날씨, 미세먼지 정보를 새롭게 불러옵니다.');
   });
