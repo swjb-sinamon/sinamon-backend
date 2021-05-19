@@ -23,7 +23,10 @@ enum ErrorMessage {
   ACTIVATION_CODE_NOT_FOUND = '존재하지 않는 인증코드입니다.',
   ACTIVATION_CODE_USED = '이미 사용된 인증코드입니다.',
 
-  FCM_TOKEN_NOT_FOUND = '푸시 알림 등록에 실패하였습니다.'
+  FCM_TOKEN_NOT_FOUND = '푸시 알림 등록에 실패하였습니다.',
+
+  ANONYMOUS_NOT_FOUND = '존재하지 않는 익명질문입니다.',
+  ANONYMOUS_REPLY_NOT_FOUND = '존재하지 않는 답변입니다.'
 }
 
 export default ErrorMessage;
