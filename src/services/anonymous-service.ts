@@ -68,7 +68,7 @@ export const createAnonymous = async (title: string, content: string): Promise<A
   return result as AnonymousResult;
 };
 
-export const getAnonymousReply = async (id: number): Promise<AnonymousReply> => {
+export const getAnonymousReply = async (id: number): Promise<ReplyWithAuthor> => {
   const result = await AnonymousReply.findOne({
     where: {
       id
@@ -78,14 +78,14 @@ export const getAnonymousReply = async (id: number): Promise<AnonymousReply> => 
 
   if (!result) throw new ServiceException(ErrorMessage.ANONYMOUS_REPLY_NOT_FOUND, 404);
 
-  return result;
+  return result as ReplyWithAuthor;
 };
 
 export const createAnonymousReply = async (
   originId: number,
   content: string,
   author: string
-): Promise<AnonymousReply> => {
+): Promise<ReplyWithAuthor> => {
   const user = await getUser(author);
   const currentAnonymous = await getAnonymous(originId);
 
@@ -95,13 +95,13 @@ export const createAnonymousReply = async (
     author: user.uuid
   });
 
-  return result;
+  return result as ReplyWithAuthor;
 };
 
 export const updateAnonymousReply = async (
   id: number,
   content: string
-): Promise<AnonymousReply> => {
+): Promise<ReplyWithAuthor> => {
   const current = await getAnonymousReply(id);
 
   await current.update({
@@ -111,7 +111,7 @@ export const updateAnonymousReply = async (
   return current;
 };
 
-export const deleteAnonymousReply = async (id: number): Promise<AnonymousReply> => {
+export const deleteAnonymousReply = async (id: number): Promise<ReplyWithAuthor> => {
   const current = await getAnonymousReply(id);
 
   await current.destroy();
