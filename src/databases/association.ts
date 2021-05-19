@@ -24,7 +24,7 @@ const databaseAssociation = (): void => {
   FCM.belongsTo(Users, { foreignKey: 'uuid' });
 
   // Anonymous, AnonymousReply 1:N
-  Anonymous.hasMany(AnonymousReply, { foreignKey: 'originId' });
+  Anonymous.hasMany(AnonymousReply, { foreignKey: 'originId', as: 'reply' });
   AnonymousReply.belongsTo(Anonymous, { foreignKey: 'originId' });
 
   // Users, AnonymousReply 1:N
