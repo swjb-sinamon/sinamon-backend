@@ -68,6 +68,19 @@ export const createAnonymous = async (title: string, content: string): Promise<A
   return result as AnonymousResult;
 };
 
+export const getAnonymousReply = async (id: number): Promise<AnonymousReply> => {
+  const result = await AnonymousReply.findOne({
+    where: {
+      id
+    },
+    ...userIncludeOptions
+  });
+
+  if (!result) throw new ServiceException(ErrorMessage.ANONYMOUS_REPLY_NOT_FOUND, 404);
+
+  return result;
+};
+
 export const createAnonymousReply = async (
   originId: number,
   content: string,
@@ -89,14 +102,7 @@ export const updateAnonymousReply = async (
   id: number,
   content: string
 ): Promise<AnonymousReply> => {
-  const current = await AnonymousReply.findOne({
-    where: {
-      id
-    },
-    ...userIncludeOptions
-  });
-
-  if (!current) throw new ServiceException(ErrorMessage.ANONYMOUS_REPLY_NOT_FOUND, 404);
+  const current = await getAnonymousReply(id);
 
   await current.update({
     content
@@ -106,14 +112,7 @@ export const updateAnonymousReply = async (
 };
 
 export const deleteAnonymousReply = async (id: number): Promise<AnonymousReply> => {
-  const current = await AnonymousReply.findOne({
-    where: {
-      id
-    },
-    ...userIncludeOptions
-  });
-
-  if (!current) throw new ServiceException(ErrorMessage.ANONYMOUS_REPLY_NOT_FOUND, 404);
+  const current = await getAnonymousReply(id);
 
   await current.destroy();
 
