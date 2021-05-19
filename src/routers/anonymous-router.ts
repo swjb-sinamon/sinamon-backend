@@ -9,8 +9,10 @@ import ErrorMessage from '../error/error-message';
 import {
   createAnonymous,
   createAnonymousReply,
+  deleteAnonymousReply,
   getAllAnonymous,
-  getAnonymous
+  getAnonymous,
+  updateAnonymousReply
 } from '../services/anonymous-service';
 
 const router = express.Router();
@@ -189,6 +191,13 @@ router.post(
  *  post:
  *    summary: 답변 등록
  *    tags: [Anonymous]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: number
+ *        description: 익명 건의 ID
  *    requestBody:
  *      content:
  *        application/json:
@@ -205,7 +214,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/AnonymousReply'
  */
-const createAnonymousReplyValidator = [body('content').isString()];
+const createAnonymousReplyValidator = [param('id').isNumeric(), body('content').isString()];
 router.post(
   '/:id/reply',
   requireAuthenticated(),
@@ -228,6 +237,115 @@ router.post(
     } catch (e) {
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
       logger.error(`익명 건의 답변을 만드는 중 오류가 발생하였습니다.`, e);
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /anonymous/reply/{id}:
+ *  put:
+ *    summary: 답변 수정
+ *    tags: [Anonymous]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: number
+ *        description: 답변 ID
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              content:
+ *                type: string
+ *                description: 수정할 내용
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/AnonymousReply'
+ */
+router.put(
+  '/reply/:id',
+  requireAuthenticated(),
+  createAnonymousReplyValidator,
+  checkValidation,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+      if (!req.user) return;
+      const { uuid } = req.user;
+
+      const data = await updateAnonymousReply(parseInt(id, 10), content, uuid);
+
+      res.status(200).json({
+        success: true,
+        data
+      });
+      logger.info('답변을 수정했습니다.');
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      logger.error(`답변을 수정하는 중 오류가 발생하였습니다.`, e);
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /anonymous/reply/{id}:
+ *  delete:
+ *    summary: 답변 삭제
+ *    tags: [Anonymous]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: number
+ *        description: 답변 ID
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/AnonymousReply'
+ */
+const deleteReplyValidation = [param('id').isNumeric()];
+router.delete(
+  '/reply/:id',
+  requireAuthenticated(),
+  deleteReplyValidation,
+  checkValidation,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      if (!req.user) return;
+      const { uuid } = req.user;
+
+      const data = await deleteAnonymousReply(parseInt(id, 10), uuid);
+
+      res.status(200).json({
+        success: true,
+        data
+      });
+      logger.info('답변을 삭제했습니다.');
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      logger.error(`답변을 삭제하는 중 오류가 발생하였습니다.`, e);
     }
   }
 );

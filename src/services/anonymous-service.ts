@@ -100,9 +100,13 @@ export const createAnonymousReply = async (
 
 export const updateAnonymousReply = async (
   id: number,
-  content: string
+  content: string,
+  executor: string
 ): Promise<ReplyWithAuthor> => {
   const current = await getAnonymousReply(id);
+
+  if (current.user.uuid !== executor)
+    throw new ServiceException(ErrorMessage.ANONYMOUS_CANNOT_UPDATE, 401);
 
   await current.update({
     content
@@ -111,8 +115,14 @@ export const updateAnonymousReply = async (
   return current;
 };
 
-export const deleteAnonymousReply = async (id: number): Promise<ReplyWithAuthor> => {
+export const deleteAnonymousReply = async (
+  id: number,
+  executor: string
+): Promise<ReplyWithAuthor> => {
   const current = await getAnonymousReply(id);
+
+  if (current.user.uuid !== executor)
+    throw new ServiceException(ErrorMessage.ANONYMOUS_CANNOT_DELETE, 401);
 
   await current.destroy();
 
