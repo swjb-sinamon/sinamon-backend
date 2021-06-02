@@ -12,6 +12,7 @@ import {
   deleteAnonymousReply,
   getAllAnonymous,
   getAnonymous,
+  getAnonymousReply,
   updateAnonymousReply
 } from '../services/anonymous-service';
 
@@ -134,6 +135,50 @@ router.get(
       }
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
       logger.error(`${id} 익명 건의를 가져오는 중 오류가 발생하였습니다.`, e);
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /anonymous/reply/{id}:
+ *  get:
+ *    summary: 익명 건의 답변 가져오기
+ *    tags: [Anonymous]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: number
+ *        description: 익명 건의 답변 ID
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/AnonymousReply'
+ */
+router.get(
+  '/reply/:id',
+  requireAuthenticated(),
+  getAnonymousValidator,
+  checkValidation,
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const data = await getAnonymousReply(parseInt(id, 10));
+      res.status(200).json({
+        success: true,
+        data
+      });
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      logger.error(`${id} 익명 건의 답변을 가져오는 중 오류가 발생하였습니다.`, e);
     }
   }
 );
