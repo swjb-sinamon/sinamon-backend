@@ -10,7 +10,8 @@ const deleteUnusedString = (original: string): string => {
     .replace(/H/g, '')
     .replace(/N/g, '')
     .replace(/\*/g, '')
-    .replace('&amp;', '&');
+    .replace('&amp;', '&')
+	.replace('()', '');
 
   return result;
 };
@@ -21,7 +22,7 @@ export const getTodayMeal = async (): Promise<string> => {
 };
 
 export const getTomorrowMeal = async (): Promise<string> => {
-  const tomorrowDay = dayjs().add(1, 'date').format('D');
+  const tomorrowDay = dayjs().add(1, 'day').date();
   const meal = await MealCache.getCacheData();
   return deleteUnusedString(meal[tomorrowDay]);
 };
