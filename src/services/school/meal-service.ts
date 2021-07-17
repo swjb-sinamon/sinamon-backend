@@ -11,7 +11,7 @@ const deleteUnusedString = (original: string): string => {
     .replace(/N/g, '')
     .replace(/\*/g, '')
     .replace('&amp;', '&')
-	.replace('()', '');
+    .replace('()', '');
 
   return result;
 };
