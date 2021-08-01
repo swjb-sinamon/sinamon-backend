@@ -11,13 +11,19 @@ import { PaginationResult } from '../types/pagination-result';
 import config from '../config';
 import { useActivationCode } from './activation-code-service';
 
-export const getUser = async (value: string, type?: 'id' | 'uuid', showPassword?: boolean): Promise<UserWithPermissions> => {
+export const getUser = async (
+  value: string,
+  type?: 'id' | 'uuid',
+  showPassword?: boolean
+): Promise<UserWithPermissions> => {
   const key = type ?? 'uuid';
-  const passwordOption = showPassword ? {} : {
-    attributes: {
-      exclude: ['password']
-    }
-  };
+  const passwordOption = showPassword
+    ? {}
+    : {
+        attributes: {
+          exclude: ['password']
+        }
+      };
 
   const result = await Users.findOne({
     where: {
@@ -46,11 +52,13 @@ export const getUserWithInfo = async (
   number: number,
   showPassword?: boolean
 ): Promise<UserWithPermissions> => {
-  const passwordOption = showPassword ? {} : {
-    attributes: {
-      exclude: ['password']
-    }
-  };
+  const passwordOption = showPassword
+    ? {}
+    : {
+        attributes: {
+          exclude: ['password']
+        }
+      };
 
   const user = await Users.findOne({
     where: {
@@ -175,9 +183,12 @@ export const getUsers = async (
 
   const filtering: FilterParam<Users> = [];
   if (searchQuery) filtering.push([Op.like, 'name', `%${searchQuery}%`]);
-  if (filterInput && filterInput.department) filtering.push([Op.eq, 'department', filterInput.department]);
-  if (filterInput && filterInput.studentGrade) filtering.push([Op.eq, 'studentGrade', filterInput.studentGrade]);
-  if (filterInput && filterInput.studentClass) filtering.push([Op.eq, 'studentClass', filterInput.studentClass]);
+  if (filterInput && filterInput.department)
+    filtering.push([Op.eq, 'department', filterInput.department]);
+  if (filterInput && filterInput.studentGrade)
+    filtering.push([Op.eq, 'studentGrade', filterInput.studentGrade]);
+  if (filterInput && filterInput.studentClass)
+    filtering.push([Op.eq, 'studentClass', filterInput.studentClass]);
 
   const { count, rows } = await Users.findAndCountAll({
     ...pageOption,
@@ -206,18 +217,14 @@ interface EditUserParams {
   readonly studentGrade: number;
   readonly studentClass: number;
   readonly studentNumber: number;
-  readonly currentPassword: string;
   readonly newPassword?: string;
 }
 export const editUser = async (
   uuid: string,
   params: EditUserParams
 ): Promise<UserWithPermissions> => {
-  const { studentGrade, studentClass, studentNumber, currentPassword, newPassword } = params;
-  const user = await getUser(uuid, 'uuid', true);
-
-  const compared = bcrypt.compareSync(currentPassword, user.password);
-  if (!compared) throw new ServiceException(ErrorMessage.USER_PASSWORD_NOT_MATCH, 401);
+  const { studentGrade, studentClass, studentNumber, newPassword } = params;
+  const user = await getUser(uuid, 'uuid');
 
   let changePasswordOption = {};
   if (newPassword) {

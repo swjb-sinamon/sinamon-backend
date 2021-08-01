@@ -463,9 +463,6 @@ router.delete('/logout', requireAuthenticated(), (req: express.Request, res: exp
  *              studentNumber:
  *                type: integer
  *                description: 번호
- *              currentPassword:
- *                type: string
- *                description: 현재 비밀번호
  *              newPassword:
  *                type: string
  *                description: 새로 바꿀 비밀번호
@@ -481,8 +478,7 @@ router.delete('/logout', requireAuthenticated(), (req: express.Request, res: exp
 const editUserValidator = [
   body('studentGrade').isNumeric(),
   body('studentClass').isNumeric(),
-  body('studentNumber').isNumeric(),
-  body('currentPassword').isString()
+  body('studentNumber').isNumeric()
 ];
 router.put(
   '/me',
@@ -490,7 +486,7 @@ router.put(
   editUserValidator,
   checkValidation,
   async (req: express.Request, res: express.Response) => {
-    const { studentGrade, studentClass, studentNumber, currentPassword, newPassword } = req.body;
+    const { studentGrade, studentClass, studentNumber, newPassword } = req.body;
     if (!req.user) return;
 
     try {
@@ -498,7 +494,6 @@ router.put(
         studentGrade,
         studentClass,
         studentNumber,
-        currentPassword,
         newPassword
       });
 
