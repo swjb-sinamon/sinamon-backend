@@ -416,6 +416,40 @@ router.get(
 
 /**
  * @swagger
+ * /auth/admin:
+ *  get:
+ *    summary: 관리자 정보 가져오기
+ *    tags: [Auth]
+ *    responses:
+ *      200:
+ *        description: 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/User'
+ */
+router.get(
+  '/admin',
+  requireAuthenticated(['admin', 'teacher']),
+  async (req: express.Request, res: express.Response) => {
+    const { data } = await getUsers();
+
+    const onlyAdmin = data.filter((i) => i.permission && i.permission.isAdmin);
+
+    res.status(200).json({
+      success: true,
+      count: onlyAdmin.length,
+      data: onlyAdmin
+    });
+
+    logger.info('관리자 정보를 요청했습니다.');
+  }
+);
+
+/**
+ * @swagger
  * /auth/logout:
  *  delete:
  *    summary: 로그아웃
