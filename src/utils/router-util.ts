@@ -63,6 +63,5 @@ export const sendCsv = (res: express.Response, fields: string[], data: Readonly<
     fields
   });
 
-  res.setHeader('Content-Type', 'text/csv');
-  res.status(200).send(parser.parse(data));
+  res.status(200).send({ success: true, data: parser.parse(data) });
 };
