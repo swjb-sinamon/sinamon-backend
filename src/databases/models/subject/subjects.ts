@@ -3,7 +3,7 @@ import sequelize from '../../index';
 import { SubjectType } from '../../../types';
 
 interface SubjectsAttributes {
-  id: number;
+  id?: number;
   name: string;
   description: string;
   type: SubjectType;

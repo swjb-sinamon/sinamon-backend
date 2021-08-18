@@ -3,7 +3,7 @@ import sequelize from '../../index';
 import { SubjectApplicationType } from '../../../types';
 
 interface AppSelectSubjectsAttributes {
-  readonly id: number;
+  readonly id?: number;
   readonly userId: string;
   readonly subjectId: number;
   readonly type: SubjectApplicationType;

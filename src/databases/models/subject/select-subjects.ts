@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../index';
 
 interface SelectSubjectsAttributes {
-  readonly id: number;
+  readonly id?: number;
   readonly userId: string;
   readonly subjectId: number;
 }
