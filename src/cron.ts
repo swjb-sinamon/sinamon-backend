@@ -1,36 +1,12 @@
 import { schedule } from 'node-cron';
-import Rentals from './databases/models/rentals';
-import { setExpire } from './services/rental-service';
 import { logger } from './index';
 import { getUsers } from './services/auth-service';
-import { sendPushWithTopic } from './services/fcm-service';
 import timetableParser from './managers/timetable-parser';
 import { CalendarCache, DustCache, MealCache, WeatherCache } from './cache';
 
 export default (): void => {
   // 4시간 주기
   schedule('0 */4 * * *', async () => {
-    logger.info('우산 연체 여부를 확인합니다.');
-
-    const now = Math.floor(new Date().getTime() / 1000);
-    const current = await Rentals.findAll({
-      where: {
-        isExpire: false
-      }
-    });
-
-    let count = 0;
-    const promise = current.map(async (info) => {
-      const time = Math.floor(info.expiryDate.getTime() / 1000);
-      if (now >= time) {
-        await setExpire(info.uuid);
-        count += 1;
-      }
-    });
-
-    await Promise.all(promise);
-    logger.info(`우산 ${count}개가 연체되었습니다.`);
-
     await timetableParser.fetchTimetable();
     logger.info('시간표를 새롭게 불러옵니다.');
   });
@@ -73,19 +49,5 @@ export default (): void => {
       logger.error('탈퇴 실패');
       logger.error(e);
     }
-  });
-
-  // 평일 오전 8시
-  schedule('0 8 * * 1-5', async () => {
-    await sendPushWithTopic(
-      'all',
-      {
-        title: '건강상태 자가진단',
-        body: '오늘의 건강상태 자가진단을 참여해주세요.'
-      },
-      'https://hcs.eduro.go.kr/'
-    );
-
-    logger.info('건강상태 자가진단 푸시 알림을 보냈습니다.');
   });
 };
