@@ -1,5 +1,4 @@
 import express from 'express';
-import { Parser } from 'json2csv';
 import { requireAuthenticated } from '../middlewares/permission';
 import { logger } from '../index';
 import { makeError } from '../error/error-system';
