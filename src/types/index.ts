@@ -21,11 +21,11 @@ export interface DustPayload {
 export type UserWithPermissions = Users & { permission: Permissions };
 
 export enum SubjectType {
-  SELECT_SUBJECT, // 선택과목
-  MAJOR_SUBJECT // 전공코스
+  SELECT_SUBJECT = 'SELECT_SUBJECT', // 선택과목
+  MAJOR_SUBJECT = 'MAJOR_SUBJECT' // 전공코스
 }
 
 export enum SubjectApplicationStatus {
-  WAITING, // 배정 대기 중
-  FAIL // 배정 실패
+  WAITING = 'WAITING', // 배정 대기 중
+  FAIL = 'FAIL' // 배정 실패
 }

@@ -10,6 +10,7 @@ import CodeRouter from './activation-code-router';
 import TimetableRouter from './timetable-router';
 import AnonymousRouter from './anonymous-router';
 import SubjectRouter from './subject/subject-router';
+import ApplicationRouter from './subject/application-subject-router';
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use('/code', CodeRouter);
 router.use('/timetable', TimetableRouter);
 router.use('/anonymous', AnonymousRouter);
 router.use('/subject', SubjectRouter);
+router.use('/application', ApplicationRouter);
 
 export default router;
