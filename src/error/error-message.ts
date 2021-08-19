@@ -23,12 +23,16 @@ enum ErrorMessage {
   ACTIVATION_CODE_NOT_FOUND = '존재하지 않는 인증코드입니다.',
   ACTIVATION_CODE_USED = '이미 사용된 인증코드입니다.',
 
-  FCM_TOKEN_NOT_FOUND = '푸시 알림 등록에 실패하였습니다.',
-
   ANONYMOUS_NOT_FOUND = '존재하지 않는 익명 건의입니다.',
   ANONYMOUS_REPLY_NOT_FOUND = '존재하지 않는 답변입니다.',
   ANONYMOUS_CANNOT_UPDATE = '답변은 자기자신만 수정할 수 있습니다.',
-  ANONYMOUS_CANNOT_DELETE = '답변은 자기자신만 삭제할 수 있습니다.'
+  ANONYMOUS_CANNOT_DELETE = '답변은 자기자신만 삭제할 수 있습니다.',
+
+  SUBJECT_NOT_FOUND = '존재하지 않는 과목입니다.',
+  APPLICATION_MAJOR_SUBJECT_ALREADY_EXISTS = '이미 전공 코스를 신청 하였습니다. 배정을 기다리거나 신청을 취소해주세요.',
+  APPLICATION_SELECT_SUBJECT_ALREADY_EXISTS = '이미 선택 과목을 신청 하였습니다. 배정을 기다리거나 신청을 취소해주세요.',
+  APPLICATION_MAJOR_NOT_FOUND = '전공 코스 신청 기록을 찾을 수 없습니다.',
+  APPLICATION_SELECT_NOT_FOUND = '선택 과목 신청 기록을 찾을 수 없습니다.'
 }
 
 export default ErrorMessage;
