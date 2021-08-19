@@ -1,8 +1,9 @@
-import { SubjectApplicationType } from '../../types';
+import { SubjectApplicationStatus } from '../../types';
 import AppMajorSubjects from '../../databases/models/subject/app-major-subjects';
 import AppSelectSubjects from '../../databases/models/subject/app-select-subjects';
 import ServiceException from '../../exceptions';
 import ErrorMessage from '../../error/error-message';
+import ServerConfigs from '../../databases/models/server-configs';
 
 interface ApplicationSubjectProps {
   readonly userId: string;
@@ -10,6 +11,19 @@ interface ApplicationSubjectProps {
   readonly status: SubjectApplicationStatus;
   readonly priority: number;
 }
+
+export const setCanSubject = async (status: boolean): Promise<void> => {
+  await ServerConfigs.update(
+    {
+      configValue: `${status}`
+    },
+    {
+      where: {
+        configKey: 'canSubject'
+      }
+    }
+  );
+};
 
 export const applicationMajorSubject = async (
   options: ApplicationSubjectProps
