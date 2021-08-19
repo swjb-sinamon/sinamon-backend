@@ -10,6 +10,8 @@ import { SubjectApplicationStatus } from '../../types';
 import {
   applicationMajorSubject,
   applicationSelectSubject,
+  cancelMajorSubject,
+  cancelSelectSubject,
   getApplicationSubjects
 } from '../../services/subject/application-subject-service';
 
@@ -223,5 +225,95 @@ router.post(
     }
   }
 );
+
+/**
+ * @swagger
+ * /application/select/{id}:
+ *  delete:
+ *    summary: 선택 과목 수강취소
+ *    tags: [ApplicationSubject]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: number
+ *        description: 수강신청 ID
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ApplicationSubject'
+ */
+router.delete('/select/:id', requireAuthenticated(), async (req: Request, res: Response) => {
+  try {
+    if (!req.user) return;
+    const { uuid } = req.user;
+    const { id } = req.params;
+
+    const data = await cancelSelectSubject(Number(id), uuid);
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+
+    logger.info(`${uuid} 님이 ${id} 선택 과목을 수강 취소했습니다.`);
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    logger.error('선택 과목 수강 취소 중 오류가 발생하였습니다.');
+    logger.error(e);
+  }
+});
+
+/**
+ * @swagger
+ * /application/major/{id}:
+ *  delete:
+ *    summary: 전공 코스 수강취소
+ *    tags: [ApplicationSubject]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: number
+ *        description: 수강신청 ID
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/ApplicationSubject'
+ */
+router.delete('/select/:id', requireAuthenticated(), async (req: Request, res: Response) => {
+  try {
+    if (!req.user) return;
+    const { uuid } = req.user;
+    const { id } = req.params;
+
+    const data = await cancelMajorSubject(Number(id), uuid);
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+
+    logger.info(`${uuid} 님이 ${id} 전공 코스를 수강 취소했습니다.`);
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    logger.error('전공 코스 수강 취소 중 오류가 발생하였습니다.');
+    logger.error(e);
+  }
+});
 
 export default router;

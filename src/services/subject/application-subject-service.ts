@@ -132,7 +132,10 @@ export const applicationSelectSubject = async (
   return result;
 };
 
-export const cancelMajorSubject = async (applicationId: number): Promise<AppMajorSubjects> => {
+export const cancelMajorSubject = async (
+  applicationId: number,
+  userId: string
+): Promise<AppMajorSubjects> => {
   const data = await AppMajorSubjects.findOne({
     where: {
       id: applicationId
@@ -140,13 +143,17 @@ export const cancelMajorSubject = async (applicationId: number): Promise<AppMajo
   });
 
   if (!data) throw new ServiceException(ErrorMessage.APPLICATION_MAJOR_NOT_FOUND, 404);
+  if (data.userId !== userId) throw new ServiceException(ErrorMessage.NO_PERMISSION, 401);
 
   await data.destroy();
 
   return data;
 };
 
-export const cancelSelectSubject = async (applicationId: number): Promise<AppSelectSubjects> => {
+export const cancelSelectSubject = async (
+  applicationId: number,
+  userId: string
+): Promise<AppSelectSubjects> => {
   const data = await AppSelectSubjects.findOne({
     where: {
       id: applicationId
@@ -154,6 +161,7 @@ export const cancelSelectSubject = async (applicationId: number): Promise<AppSel
   });
 
   if (!data) throw new ServiceException(ErrorMessage.APPLICATION_SELECT_NOT_FOUND, 404);
+  if (data.userId !== userId) throw new ServiceException(ErrorMessage.NO_PERMISSION, 401);
 
   await data.destroy();
 
