@@ -8,6 +8,7 @@ interface SubjectsAttributes {
   description: string;
   type: SubjectType;
   maxPeople: number;
+  currentPeople: number;
 }
 
 class Subjects extends Model<SubjectsAttributes> {
@@ -20,6 +21,8 @@ class Subjects extends Model<SubjectsAttributes> {
   public type!: SubjectType;
 
   public maxPeople!: number;
+
+  public currentPeople!: number;
 
   public readonly createdAt!: Date;
 
@@ -50,6 +53,11 @@ Subjects.init(
     maxPeople: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    currentPeople: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     }
   },
   { sequelize, modelName: 'subjects', timestamps: true }

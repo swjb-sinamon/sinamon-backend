@@ -54,7 +54,8 @@ export const getSubject = async (id: number): Promise<Subjects> => {
 
 export const addSubject = async (options: AddSubjectProps): Promise<Subjects> => {
   const result = await Subjects.create({
-    ...options
+    ...options,
+    currentPeople: 0
   });
   return result;
 };
