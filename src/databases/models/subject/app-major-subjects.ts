@@ -24,6 +24,8 @@ class AppMajorSubjects extends Model<AppMajorSubjectsAttributes> {
   public readonly createdAt!: Date;
 
   public readonly updatedAt!: Date;
+
+  public readonly deletedAt?: Date;
 }
 
 AppMajorSubjects.init(
@@ -53,7 +55,7 @@ AppMajorSubjects.init(
       allowNull: true
     }
   },
-  { sequelize, modelName: 'app_major_subjects', timestamps: true }
+  { sequelize, modelName: 'app_major_subjects', timestamps: true, paranoid: true }
 );
 
 export default AppMajorSubjects;

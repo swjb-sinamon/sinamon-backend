@@ -24,6 +24,8 @@ class AppSelectSubjects extends Model<AppSelectSubjectsAttributes> {
   public readonly createdAt!: Date;
 
   public readonly updatedAt!: Date;
+
+  public readonly deletedAt?: Date;
 }
 
 AppSelectSubjects.init(
@@ -53,7 +55,7 @@ AppSelectSubjects.init(
       allowNull: true
     }
   },
-  { sequelize, modelName: 'app_select_subjects', timestamps: true }
+  { sequelize, modelName: 'app_select_subjects', timestamps: true, paranoid: true }
 );
 
 export default AppSelectSubjects;
