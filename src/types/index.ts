@@ -25,7 +25,7 @@ export enum SubjectType {
   MAJOR_SUBJECT // 전공코스
 }
 
-export enum SubjectApplicationType {
+export enum SubjectApplicationStatus {
   WAITING, // 배정 대기 중
   FAIL // 배정 실패
 }

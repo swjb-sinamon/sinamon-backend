@@ -7,7 +7,7 @@ import ErrorMessage from '../../error/error-message';
 interface ApplicationSubjectProps {
   readonly userId: string;
   readonly subjectId: number;
-  readonly type: SubjectApplicationType;
+  readonly status: SubjectApplicationStatus;
   readonly priority: number;
 }
 

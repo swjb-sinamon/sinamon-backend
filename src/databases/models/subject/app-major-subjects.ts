@@ -1,13 +1,13 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../index';
-import { SubjectApplicationType } from '../../../types';
+import { SubjectApplicationStatus } from '../../../types';
 
 interface AppMajorSubjectsAttributes {
   readonly id?: number;
   readonly userId: string;
   readonly subjectId: number;
-  readonly type: SubjectApplicationType;
-  readonly priority: number;
+  readonly status: SubjectApplicationStatus;
+  readonly priority?: number;
 }
 
 class AppMajorSubjects extends Model<AppMajorSubjectsAttributes> {
@@ -17,7 +17,7 @@ class AppMajorSubjects extends Model<AppMajorSubjectsAttributes> {
 
   public subjectId!: number;
 
-  public type!: SubjectApplicationType;
+  public status!: SubjectApplicationStatus;
 
   public priority?: number;
 
@@ -45,7 +45,7 @@ AppMajorSubjects.init(
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    type: {
+    status: {
       type: DataTypes.ENUM('WAITING', 'FAIL'),
       defaultValue: 'WAITING',
       allowNull: false
