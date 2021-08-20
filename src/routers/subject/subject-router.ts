@@ -80,7 +80,7 @@ const router = express.Router();
  *              items:
  *                $ref: '#/components/schemas/Subject'
  */
-router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
+router.get('/', requireAuthenticated(), async (req, res) => {
   try {
     const { offset, limit, search } = req.query as Record<string, unknown>;
 
@@ -109,9 +109,9 @@ router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => 
 
 /**
  * @swagger
- * /subject:
+ * /subject/{id}:
  *  get:
- *    summary: 전체 과목 가져오기
+ *    summary: 과목 가져오기
  *    tags: [Subject]
  *    parameters:
  *      - in: path
@@ -162,7 +162,7 @@ router.get(
  * @swagger
  * /subject:
  *  post:
- *    summary: 익명 건의 만들기
+ *    summary: 과목 추가하기
  *    tags: [Subject]
  *    requestBody:
  *      content:
