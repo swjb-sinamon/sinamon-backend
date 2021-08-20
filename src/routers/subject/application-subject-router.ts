@@ -10,7 +10,9 @@ import { SubjectApplicationStatus } from '../../types';
 import {
   applicationSubject,
   cancelSubject,
-  getApplicationSubjects
+  getApplicationSubjects,
+  getCanSubject,
+  setCanSubject
 } from '../../services/subject/application-subject-service';
 
 const router = express.Router();
@@ -52,6 +54,79 @@ const router = express.Router();
  *          type: string
  *          description: 취소일
  */
+
+/**
+ * @swagger
+ * /application/config:
+ *  get:
+ *    summary: 과목 신청 가능 여부 가져오기
+ *    tags: [ApplicationSubject]
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: boolean
+ */
+router.get('/config', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
+  try {
+    const data = await getCanSubject();
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+
+    logger.info('과목 신청 가능 여부를 가져왔습니다.');
+  } catch (e) {
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    logger.error('과목 신청 가능 여부를 가져오는 중 오류가 발생하였습니다.');
+    logger.error(e);
+  }
+});
+
+/**
+ * @swagger
+ * /application/config:
+ *  put:
+ *    summary: 과목 신청 가능 여부 설정하기
+ *    tags: [ApplicationSubject]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              value:
+ *                type: boolean
+ *                description: 신청 가능 여부
+ *    responses:
+ *      200:
+ */
+const setConfigValidator = [body('value').isBoolean()];
+router.put(
+  '/config',
+  requireAuthenticated(['admin', 'teacher']),
+  setConfigValidator,
+  checkValidation,
+  async (req: Request, res: Response) => {
+    try {
+      const { value } = req.body;
+
+      await setCanSubject(value);
+
+      res.status(200).json({
+        success: true
+      });
+
+      logger.info(`과목 신청 가능 여부를 설정했습니다. ${value}`);
+    } catch (e) {
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      logger.error('과목 신청 가능 여부를 설정하는 중 오류가 발생하였습니다.');
+      logger.error(e);
+    }
+  }
+);
 
 /**
  * @swagger
