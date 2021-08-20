@@ -26,6 +26,7 @@ export enum SubjectType {
 }
 
 export enum SubjectApplicationStatus {
+  SUCCESS = 'SUCCESS', // 배정 성공
   WAITING = 'WAITING', // 배정 대기 중
   FAIL = 'FAIL' // 배정 실패
 }

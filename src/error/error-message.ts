@@ -34,7 +34,8 @@ enum ErrorMessage {
   INVALID_SUBJECT = '올바른 과목이 아닙니다.',
   INVAILD_APPLICATION = '올바른 배정 종류가 아닙니다.',
   CAN_NOT_APPLICATION = '현재는 신청 기간이 아닙니다.',
-  FULL_SUBJECT = '마감된 과목입니다.'
+  FULL_SUBJECT = '마감된 과목입니다.',
+  CAN_NOT_SUBJECT_CANCEL = '신청 완료된 과목은 취소할 수 없습니다.'
 }
 
 export default ErrorMessage;

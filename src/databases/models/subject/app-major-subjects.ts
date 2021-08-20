@@ -46,7 +46,7 @@ AppMajorSubjects.init(
       allowNull: false
     },
     status: {
-      type: DataTypes.ENUM('WAITING', 'FAIL'),
+      type: DataTypes.ENUM('SUCCESS', 'WAITING', 'FAIL'),
       defaultValue: 'WAITING',
       allowNull: false
     },

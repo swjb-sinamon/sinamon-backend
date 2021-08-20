@@ -6,6 +6,9 @@ import ErrorMessage from '../../error/error-message';
 import ServerConfigs from '../../databases/models/server-configs';
 import Users from '../../databases/models/users';
 import Subjects from '../../databases/models/subject/subjects';
+import MajorSubjects from '../../databases/models/subject/major_subjects';
+import SelectSubjects from '../../databases/models/subject/select-subjects';
+import db from '../../databases';
 
 interface ApplicationSubjectProps {
   readonly userId: string;
@@ -128,8 +131,29 @@ export const applicationSubject = async (
 
   if (current) throw new ServiceException(ErrorMessage.APPLICATION_ALREADY_EXISTS, 409);
 
+  const isOrder = subject.applicationType === ApplicationType.ORDER;
+  if (isOrder) {
+    const SuccessModel = modelType === 'major' ? MajorSubjects : SelectSubjects;
+    await db.transaction(async (t) => {
+      await SuccessModel.create(
+        {
+          userId: options.userId,
+          subjectId: options.subjectId
+        },
+        {
+          transaction: t
+        }
+      );
+      subject.currentPeople += 1;
+      await subject.save({
+        transaction: t
+      });
+    });
+  }
+
   const result = await Model.create({
-    ...options
+    ...options,
+    status: isOrder ? SubjectApplicationStatus.SUCCESS : SubjectApplicationStatus.WAITING
   });
 
   return result;
@@ -150,6 +174,9 @@ export const cancelSubject = async (
 
   if (!data) throw new ServiceException(ErrorMessage.APPLICATION_NOT_FOUND, 404);
   if (data.userId !== userId) throw new ServiceException(ErrorMessage.NO_PERMISSION, 401);
+  if (data.status === SubjectApplicationStatus.SUCCESS) {
+    throw new ServiceException(ErrorMessage.CAN_NOT_SUBJECT_CANCEL, 400);
+  }
 
   await data.destroy();
 
