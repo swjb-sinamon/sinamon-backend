@@ -9,6 +9,7 @@ import Subjects from '../../databases/models/subject/subjects';
 import MajorSubjects from '../../databases/models/subject/major_subjects';
 import SelectSubjects from '../../databases/models/subject/select-subjects';
 import db from '../../databases';
+import { logger } from '../../index';
 
 interface ApplicationSubjectProps {
   readonly userId: string;
@@ -111,6 +112,7 @@ export const applicationSubject = async (
 
   const type = modelType === 'major' ? SubjectType.MAJOR_SUBJECT : SubjectType.SELECT_SUBJECT;
   if (subject.type !== type) {
+    logger.warn(`${options.userId} 올바르지 않는 과목 종류를 신청하였습니다.`);
     throw new ServiceException(ErrorMessage.INVALID_SUBJECT, 400);
   }
 
@@ -120,6 +122,7 @@ export const applicationSubject = async (
 
   if (subject.applicationType === ApplicationType.RANDOM && !options.priority) {
     // 지망 배정 과목인데 우선순위가 없을경우(선착순으로 신청했을경우)
+    logger.warn(`${options.userId} 올바르지 않는 배정 방식을 선택하였습니다.`);
     throw new ServiceException(ErrorMessage.INVAILD_APPLICATION, 400);
   }
 
@@ -149,6 +152,7 @@ export const applicationSubject = async (
         transaction: t
       });
     });
+    logger.info(`${options.userId} 님이 ${options.subjectId} 과목을 신청 완료했습니다.`);
   }
 
   const result = await Model.create({
