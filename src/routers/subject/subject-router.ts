@@ -34,6 +34,10 @@ const router = express.Router();
  *          type: string
  *          enum: [SELECT_SUBJECT, MAJOR_SUBJECT]
  *          description: 과목 종류 (선택 과목, 전공 코스)
+ *        applicationType:
+ *          type: string
+ *          enum: [ORDER, RANDOM]
+ *          description: 배정 방식 (선착순, 지망)
  *        maxPeople:
  *          type: number
  *          description: 수강 가능 인원
