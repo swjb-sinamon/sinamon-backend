@@ -2,9 +2,17 @@ import ServerConfigs from './models/server-configs';
 import { logger } from '../index';
 
 export const initializeServerConfig = async (): Promise<void> => {
+  let commit = false;
+
   const notice = await ServerConfigs.findOne({
     where: {
       configKey: 'notice'
+    }
+  });
+
+  const canSubject = await ServerConfigs.findOne({
+    where: {
+      configKey: 'canSubject'
     }
   });
 
@@ -13,7 +21,16 @@ export const initializeServerConfig = async (): Promise<void> => {
       configKey: 'notice',
       configValue: ''
     });
-
-    logger.info('ServerConfigs initialized successfully');
+    commit = true;
   }
+
+  if (!canSubject) {
+    await ServerConfigs.create({
+      configKey: 'canSubject',
+      configValue: 'false'
+    });
+    commit = true;
+  }
+
+  if (commit) logger.info('ServerConfigs initialized successfully');
 };
