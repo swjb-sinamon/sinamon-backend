@@ -1,12 +1,13 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../index';
-import { SubjectType } from '../../../types';
+import { ApplicationType, SubjectType } from '../../../types';
 
 interface SubjectsAttributes {
   id?: number;
   name: string;
   description: string;
   type: SubjectType;
+  applicationType: ApplicationType;
   maxPeople: number;
   currentPeople: number;
 }
@@ -19,6 +20,8 @@ class Subjects extends Model<SubjectsAttributes> {
   public description!: string;
 
   public type!: SubjectType;
+
+  public applicationType!: ApplicationType;
 
   public maxPeople!: number;
 
@@ -48,6 +51,10 @@ Subjects.init(
     },
     type: {
       type: DataTypes.ENUM('SELECT_SUBJECT', 'MAJOR_SUBJECT'),
+      allowNull: false
+    },
+    applicationType: {
+      type: DataTypes.ENUM('ORDER', 'RANDOM'),
       allowNull: false
     },
     maxPeople: {

@@ -1,4 +1,4 @@
-import { SubjectApplicationStatus, SubjectType } from '../../types';
+import { ApplicationType, SubjectApplicationStatus, SubjectType } from '../../types';
 import AppMajorSubjects from '../../databases/models/subject/app-major-subjects';
 import AppSelectSubjects from '../../databases/models/subject/app-select-subjects';
 import ServiceException from '../../exceptions';
@@ -13,6 +13,18 @@ interface ApplicationSubjectProps {
   readonly status: SubjectApplicationStatus;
   readonly priority?: number;
 }
+
+export const getCanSubject = async (): Promise<boolean> => {
+  const result = await ServerConfigs.findOne({
+    where: {
+      configKey: 'canSubject'
+    }
+  });
+
+  if (!result) return false;
+
+  return result.configValue === 'true';
+};
 
 export const setCanSubject = async (status: boolean): Promise<void> => {
   await ServerConfigs.update(
@@ -83,8 +95,13 @@ export const applicationMajorSubject = async (
     }
   });
 
-  if (subject && subject.type !== SubjectType.MAJOR_SUBJECT) {
+  if (!subject) throw new ServiceException(ErrorMessage.SUBJECT_NOT_FOUND, 404);
+  if (subject.type !== SubjectType.MAJOR_SUBJECT) {
     throw new ServiceException(ErrorMessage.INVALID_SUBJECT, 400);
+  }
+  if (subject.applicationType === ApplicationType.RANDOM && !options.priority) {
+    // 지망 배정 과목인데 우선순위가 없을경우(선착순으로 신청했을경우)
+    throw new ServiceException(ErrorMessage.INVAILD_APPLICATION, 400);
   }
 
   const current = await AppMajorSubjects.findOne({
@@ -112,8 +129,13 @@ export const applicationSelectSubject = async (
     }
   });
 
-  if (subject && subject.type !== SubjectType.SELECT_SUBJECT) {
+  if (!subject) throw new ServiceException(ErrorMessage.SUBJECT_NOT_FOUND, 404);
+  if (subject.type !== SubjectType.SELECT_SUBJECT) {
     throw new ServiceException(ErrorMessage.INVALID_SUBJECT, 400);
+  }
+  if (subject.applicationType === ApplicationType.RANDOM && !options.priority) {
+    // 지망 배정 과목인데 우선순위가 없을경우(선착순으로 신청했을경우)
+    throw new ServiceException(ErrorMessage.INVAILD_APPLICATION, 400);
   }
 
   const current = await AppSelectSubjects.findOne({

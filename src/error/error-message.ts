@@ -33,7 +33,8 @@ enum ErrorMessage {
   APPLICATION_SELECT_SUBJECT_ALREADY_EXISTS = '이미 선택 과목을 신청 하였습니다. 배정을 기다리거나 신청을 취소해주세요.',
   APPLICATION_MAJOR_NOT_FOUND = '전공 코스 신청 기록을 찾을 수 없습니다.',
   APPLICATION_SELECT_NOT_FOUND = '선택 과목 신청 기록을 찾을 수 없습니다.',
-  INVALID_SUBJECT = '올바른 과목이 아닙니다.'
+  INVALID_SUBJECT = '올바른 과목이 아닙니다.',
+  INVAILD_APPLICATION = '올바른 배정 종류가 아닙니다.'
 }
 
 export default ErrorMessage;

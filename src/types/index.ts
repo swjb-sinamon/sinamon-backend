@@ -29,3 +29,8 @@ export enum SubjectApplicationStatus {
   WAITING = 'WAITING', // 배정 대기 중
   FAIL = 'FAIL' // 배정 실패
 }
+
+export enum ApplicationType {
+  ORDER = 'ORDER', // 선착순
+  RANDOM = 'RANDOM' // 랜덤
+}

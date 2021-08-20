@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { SubjectType } from '../../types';
+import { ApplicationType, SubjectType } from '../../types';
 import Subjects from '../../databases/models/subject/subjects';
 import { filter, pagination } from '../../utils/router-util';
 import { PaginationResult } from '../../types/pagination-result';
@@ -10,6 +10,7 @@ interface AddSubjectProps {
   readonly name: string;
   readonly description: string;
   readonly type: SubjectType;
+  readonly applicationType: ApplicationType;
   readonly maxPeople: number;
 }
 

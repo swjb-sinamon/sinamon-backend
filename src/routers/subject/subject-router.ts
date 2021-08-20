@@ -7,7 +7,7 @@ import ServiceException from '../../exceptions';
 import ErrorMessage from '../../error/error-message';
 import { makeError } from '../../error/error-system';
 import { checkValidation } from '../../middlewares/validator';
-import { SubjectType } from '../../types';
+import { ApplicationType, SubjectType } from '../../types';
 
 const router = express.Router();
 
@@ -173,6 +173,10 @@ router.get(
  *                type: string
  *                enum: [SELECT_SUBJECT, MAJOR_SUBJECT]
  *                description: 과목 종류
+ *              applicationType:
+ *                type: string
+ *                enum: [ORDER, RANDOM]
+ *                description: 배정 방식 (선착순, 지망)
  *              description:
  *                type: string
  *                description: 과목 설명
@@ -189,6 +193,7 @@ router.get(
 const addValidator = [
   body('name').isString(),
   body('type').isIn(Object.values(SubjectType)),
+  body('applicationType').isIn(Object.values(ApplicationType)),
   body('description').isString(),
   body('maxPeople').isNumeric()
 ];
@@ -199,11 +204,12 @@ router.post(
   checkValidation,
   async (req: Request, res: Response) => {
     try {
-      const { name, type, description, maxPeople } = req.body;
+      const { name, type, applicationType, description, maxPeople } = req.body;
 
       const data = await addSubject({
         name,
         type,
+        applicationType,
         description,
         maxPeople
       });
