@@ -93,6 +93,9 @@ export const applicationSubject = async (
   options: ApplicationSubjectProps,
   modelType: ApplicationSubjectModel
 ): Promise<AppMajorSubjects | AppSelectSubjects> => {
+  const config = await getCanSubject();
+  if (!config) throw new ServiceException(ErrorMessage.CAN_NOT_APPLICATION, 400);
+
   const Model = modelType === 'major' ? AppMajorSubjects : AppSelectSubjects;
 
   const subject = await Subjects.findOne({
@@ -106,6 +109,10 @@ export const applicationSubject = async (
   const type = modelType === 'major' ? SubjectType.MAJOR_SUBJECT : SubjectType.SELECT_SUBJECT;
   if (subject.type !== type) {
     throw new ServiceException(ErrorMessage.INVALID_SUBJECT, 400);
+  }
+
+  if (subject.maxPeople === subject.currentPeople) {
+    throw new ServiceException(ErrorMessage.FULL_SUBJECT, 409);
   }
 
   if (subject.applicationType === ApplicationType.RANDOM && !options.priority) {
