@@ -14,6 +14,13 @@ interface ApplicationSubjectProps {
   readonly priority?: number;
 }
 
+interface GetApplicationSubjectsReturn {
+  readonly select: Array<AppSelectSubjects & { user: Users; subject: Subjects }>;
+  readonly major: Array<AppMajorSubjects & { user: Users; subject: Subjects }>;
+}
+
+type ApplicationSubjectModel = 'major' | 'select';
+
 export const getCanSubject = async (): Promise<boolean> => {
   const result = await ServerConfigs.findOne({
     where: {
@@ -39,10 +46,6 @@ export const setCanSubject = async (status: boolean): Promise<void> => {
   );
 };
 
-interface GetApplicationSubjectsReturn {
-  readonly select: Array<AppSelectSubjects & { user: Users; subject: Subjects }>;
-  readonly major: Array<AppMajorSubjects & { user: Users; subject: Subjects }>;
-}
 export const getApplicationSubjects = async (
   userId: string
 ): Promise<GetApplicationSubjectsReturn> => {
@@ -86,9 +89,12 @@ export const getApplicationSubjects = async (
   };
 };
 
-export const applicationMajorSubject = async (
-  options: ApplicationSubjectProps
-): Promise<AppMajorSubjects> => {
+export const applicationSubject = async (
+  options: ApplicationSubjectProps,
+  modelType: ApplicationSubjectModel
+): Promise<AppMajorSubjects | AppSelectSubjects> => {
+  const Model = modelType === 'major' ? AppMajorSubjects : AppSelectSubjects;
+
   const subject = await Subjects.findOne({
     where: {
       id: options.subjectId
@@ -96,93 +102,46 @@ export const applicationMajorSubject = async (
   });
 
   if (!subject) throw new ServiceException(ErrorMessage.SUBJECT_NOT_FOUND, 404);
-  if (subject.type !== SubjectType.MAJOR_SUBJECT) {
+
+  const type = modelType === 'major' ? SubjectType.MAJOR_SUBJECT : SubjectType.SELECT_SUBJECT;
+  if (subject.type !== type) {
     throw new ServiceException(ErrorMessage.INVALID_SUBJECT, 400);
   }
+
   if (subject.applicationType === ApplicationType.RANDOM && !options.priority) {
     // 지망 배정 과목인데 우선순위가 없을경우(선착순으로 신청했을경우)
     throw new ServiceException(ErrorMessage.INVAILD_APPLICATION, 400);
   }
 
-  const current = await AppMajorSubjects.findOne({
+  const current = await Model.findOne({
     where: {
       subjectId: options.subjectId
     }
   });
 
-  if (current)
-    throw new ServiceException(ErrorMessage.APPLICATION_MAJOR_SUBJECT_ALREADY_EXISTS, 409);
+  if (current) throw new ServiceException(ErrorMessage.APPLICATION_ALREADY_EXISTS, 409);
 
-  const result = await AppMajorSubjects.create({
+  const result = await Model.create({
     ...options
   });
 
   return result;
 };
 
-export const applicationSelectSubject = async (
-  options: ApplicationSubjectProps
-): Promise<AppSelectSubjects> => {
-  const subject = await Subjects.findOne({
-    where: {
-      id: options.subjectId
-    }
-  });
-
-  if (!subject) throw new ServiceException(ErrorMessage.SUBJECT_NOT_FOUND, 404);
-  if (subject.type !== SubjectType.SELECT_SUBJECT) {
-    throw new ServiceException(ErrorMessage.INVALID_SUBJECT, 400);
-  }
-  if (subject.applicationType === ApplicationType.RANDOM && !options.priority) {
-    // 지망 배정 과목인데 우선순위가 없을경우(선착순으로 신청했을경우)
-    throw new ServiceException(ErrorMessage.INVAILD_APPLICATION, 400);
-  }
-
-  const current = await AppSelectSubjects.findOne({
-    where: {
-      subjectId: options.subjectId
-    }
-  });
-
-  if (current)
-    throw new ServiceException(ErrorMessage.APPLICATION_SELECT_SUBJECT_ALREADY_EXISTS, 409);
-
-  const result = await AppSelectSubjects.create({
-    ...options
-  });
-
-  return result;
-};
-
-export const cancelMajorSubject = async (
+export const cancelSubject = async (
   applicationId: number,
-  userId: string
+  userId: string,
+  modelType: ApplicationSubjectModel
 ): Promise<AppMajorSubjects> => {
-  const data = await AppMajorSubjects.findOne({
+  const Model = modelType === 'major' ? AppMajorSubjects : AppSelectSubjects;
+
+  const data = await Model.findOne({
     where: {
       id: applicationId
     }
   });
 
-  if (!data) throw new ServiceException(ErrorMessage.APPLICATION_MAJOR_NOT_FOUND, 404);
-  if (data.userId !== userId) throw new ServiceException(ErrorMessage.NO_PERMISSION, 401);
-
-  await data.destroy();
-
-  return data;
-};
-
-export const cancelSelectSubject = async (
-  applicationId: number,
-  userId: string
-): Promise<AppSelectSubjects> => {
-  const data = await AppSelectSubjects.findOne({
-    where: {
-      id: applicationId
-    }
-  });
-
-  if (!data) throw new ServiceException(ErrorMessage.APPLICATION_SELECT_NOT_FOUND, 404);
+  if (!data) throw new ServiceException(ErrorMessage.APPLICATION_NOT_FOUND, 404);
   if (data.userId !== userId) throw new ServiceException(ErrorMessage.NO_PERMISSION, 401);
 
   await data.destroy();

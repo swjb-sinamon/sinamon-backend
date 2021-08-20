@@ -8,10 +8,8 @@ import { makeError } from '../../error/error-system';
 import { checkValidation } from '../../middlewares/validator';
 import { SubjectApplicationStatus } from '../../types';
 import {
-  applicationMajorSubject,
-  applicationSelectSubject,
-  cancelMajorSubject,
-  cancelSelectSubject,
+  applicationSubject,
+  cancelSubject,
   getApplicationSubjects
 } from '../../services/subject/application-subject-service';
 
@@ -136,12 +134,15 @@ router.post(
 
       const { subjectId, priority } = req.body;
 
-      const data = await applicationMajorSubject({
-        userId: uuid,
-        subjectId,
-        status: SubjectApplicationStatus.WAITING,
-        priority
-      });
+      const data = await applicationSubject(
+        {
+          userId: uuid,
+          subjectId,
+          status: SubjectApplicationStatus.WAITING,
+          priority
+        },
+        'major'
+      );
 
       res.status(200).json({
         success: true,
@@ -200,12 +201,15 @@ router.post(
 
       const { subjectId, priority } = req.body;
 
-      const data = await applicationSelectSubject({
-        userId: uuid,
-        subjectId,
-        status: SubjectApplicationStatus.WAITING,
-        priority
-      });
+      const data = await applicationSubject(
+        {
+          userId: uuid,
+          subjectId,
+          status: SubjectApplicationStatus.WAITING,
+          priority
+        },
+        'select'
+      );
 
       res.status(200).json({
         success: true,
@@ -251,7 +255,7 @@ router.delete('/select/:id', requireAuthenticated(), async (req: Request, res: R
     const { uuid } = req.user;
     const { id } = req.params;
 
-    const data = await cancelSelectSubject(Number(id), uuid);
+    const data = await cancelSubject(Number(id), uuid, 'select');
 
     res.status(200).json({
       success: true,
@@ -290,13 +294,13 @@ router.delete('/select/:id', requireAuthenticated(), async (req: Request, res: R
  *            schema:
  *              $ref: '#/components/schemas/ApplicationSubject'
  */
-router.delete('/select/:id', requireAuthenticated(), async (req: Request, res: Response) => {
+router.delete('/major/:id', requireAuthenticated(), async (req: Request, res: Response) => {
   try {
     if (!req.user) return;
     const { uuid } = req.user;
     const { id } = req.params;
 
-    const data = await cancelMajorSubject(Number(id), uuid);
+    const data = await cancelSubject(Number(id), uuid, 'major');
 
     res.status(200).json({
       success: true,
