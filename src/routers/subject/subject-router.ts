@@ -15,7 +15,7 @@ const router = express.Router();
  * @swagger
  * tags:
  *  name: Subject
- *  description: 고교학점제 (선택 과목, 전공 코스)
+ *  description: 고교학점제 과목
  * components:
  *  schemas:
  *    Subject:
@@ -34,19 +34,37 @@ const router = express.Router();
  *          type: string
  *          enum: [SELECT_SUBJECT, MAJOR_SUBJECT]
  *          description: 과목 종류 (선택 과목, 전공 코스)
- *        applicationType:
- *          type: string
- *          enum: [ORDER, RANDOM]
- *          description: 배정 방식 (선착순, 지망)
- *        maxPeople:
- *          type: number
- *          description: 수강 가능 인원
  *        createdAt:
  *          type: string
  *          description: 생성일
  *        updatedAt:
  *          type: string
  *          description: 수정일
+ *        subjectData:
+ *          type: object
+ *          properties:
+ *            id:
+ *              type: number
+ *              description: ID
+ *            subjectId:
+ *              type: number
+ *              description: 과목 ID
+ *            applicationType:
+ *              type: string
+ *              enum: [ORDER, RANDOM]
+ *              description: 배정 방식 (선착순, 지망)
+ *            maxPeople:
+ *              type: number
+ *              description: 최대 참여자
+ *            currentPeople:
+ *              type: number
+ *              description: 현재 참여자
+ *            createdAt:
+ *              type: string
+ *              description: 생성일
+ *            updatedAt:
+ *              type: string
+ *              description: 수정일
  */
 
 /**
