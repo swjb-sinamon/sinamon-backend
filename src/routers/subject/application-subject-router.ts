@@ -10,7 +10,7 @@ import { SubjectApplicationStatus } from '../../types';
 import {
   applicationSubject,
   cancelSubject,
-  getApplicationSubjects,
+  getApplicationSubjectsByUserId,
   getCanSubject,
   setCanSubject
 } from '../../services/subject/application-subject-service';
@@ -139,23 +139,14 @@ router.put(
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              items:
- *                major:
- *                  type: array
- *                  items:
- *                    $ref: '#/components/schemas/ApplicationSubject'
- *                select:
- *                  type: array
- *                  items:
- *                    $ref: '#/components/schemas/ApplicationSubject'
+ *              $ref: '#/components/schemas/ApplicationSubject'
  */
 router.get('/me', requireAuthenticated(), async (req, res) => {
   try {
     if (!req.user) return;
     const { uuid } = req.user;
 
-    const data = await getApplicationSubjects(uuid);
+    const data = await getApplicationSubjectsByUserId(uuid);
 
     res.status(200).json({
       success: true,
@@ -172,9 +163,9 @@ router.get('/me', requireAuthenticated(), async (req, res) => {
 
 /**
  * @swagger
- * /application/major:
+ * /application:
  *  post:
- *    summary: 전공 코스 수강신청
+ *    summary: 과목 수강신청
  *    tags: [ApplicationSubject]
  *    requestBody:
  *      content:
@@ -196,11 +187,11 @@ router.get('/me', requireAuthenticated(), async (req, res) => {
  *            schema:
  *              $ref: '#/components/schemas/ApplicationSubject'
  */
-const addMajorValidator = [body('subjectId').isNumeric()];
+const addValidator = [body('subjectId').isNumeric()];
 router.post(
-  '/major',
+  '/',
   requireAuthenticated(),
-  addMajorValidator,
+  addValidator,
   checkValidation,
   async (req: Request, res: Response) => {
     try {
@@ -209,22 +200,19 @@ router.post(
 
       const { subjectId, priority } = req.body;
 
-      const data = await applicationSubject(
-        {
-          userId: uuid,
-          subjectId,
-          status: SubjectApplicationStatus.WAITING,
-          priority
-        },
-        'major'
-      );
+      const data = await applicationSubject({
+        userId: uuid,
+        subjectId,
+        status: SubjectApplicationStatus.WAITING,
+        priority
+      });
 
       res.status(200).json({
         success: true,
         data
       });
 
-      logger.info(`${uuid} 님이 ${subjectId} 전공 코스를 신청했습니다.`);
+      logger.info(`${uuid} 님이 ${subjectId} 과목을 수강신청했습니다.`);
     } catch (e) {
       if (e instanceof ServiceException) {
         res.status(e.httpStatus).json(makeError(e.message));
@@ -232,7 +220,7 @@ router.post(
       }
 
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-      logger.error('전공 코스를 신청하는 중 오류가 발생하였습니다.');
+      logger.error('수강신청하는 중 오류가 발생하였습니다.');
       logger.error(e);
     }
   }
@@ -240,76 +228,9 @@ router.post(
 
 /**
  * @swagger
- * /application/select:
- *  post:
- *    summary: 선택 과목 수강신청
- *    tags: [ApplicationSubject]
- *    requestBody:
- *      content:
- *        application/json:
- *          schema:
- *            type: object
- *            properties:
- *              subjectId:
- *                type: number
- *                description: 과목 ID
- *              priority:
- *                type: number
- *                description: 우선 순위 (지망)
- *                nullable: true
- *    responses:
- *      201:
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/ApplicationSubject'
- */
-router.post(
-  '/select',
-  requireAuthenticated(),
-  addMajorValidator,
-  checkValidation,
-  async (req: Request, res: Response) => {
-    try {
-      if (!req.user) return;
-      const { uuid } = req.user;
-
-      const { subjectId, priority } = req.body;
-
-      const data = await applicationSubject(
-        {
-          userId: uuid,
-          subjectId,
-          status: SubjectApplicationStatus.WAITING,
-          priority
-        },
-        'select'
-      );
-
-      res.status(200).json({
-        success: true,
-        data
-      });
-
-      logger.info(`${uuid} 님이 ${subjectId} 선택 과목을 신청했습니다.`);
-    } catch (e) {
-      if (e instanceof ServiceException) {
-        res.status(e.httpStatus).json(makeError(e.message));
-        return;
-      }
-
-      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-      logger.error('선택 과목을 신청하는 중 오류가 발생하였습니다.');
-      logger.error(e);
-    }
-  }
-);
-
-/**
- * @swagger
- * /application/select/{id}:
+ * /application/{id}:
  *  delete:
- *    summary: 선택 과목 수강취소
+ *    summary: 과목 수강취소
  *    tags: [ApplicationSubject]
  *    parameters:
  *      - in: path
@@ -324,20 +245,20 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/ApplicationSubject'
  */
-router.delete('/select/:id', requireAuthenticated(), async (req: Request, res: Response) => {
+router.delete('/:id', requireAuthenticated(), async (req: Request, res: Response) => {
   try {
     if (!req.user) return;
     const { uuid } = req.user;
     const { id } = req.params;
 
-    const data = await cancelSubject(Number(id), uuid, 'select');
+    const data = await cancelSubject(Number(id), uuid);
 
     res.status(200).json({
       success: true,
       data
     });
 
-    logger.info(`${uuid} 님이 ${id} 선택 과목을 수강 취소했습니다.`);
+    logger.info(`${uuid} 님이 ${id} 과목을 수강 취소했습니다.`);
   } catch (e) {
     if (e instanceof ServiceException) {
       res.status(e.httpStatus).json(makeError(e.message));
@@ -345,52 +266,7 @@ router.delete('/select/:id', requireAuthenticated(), async (req: Request, res: R
     }
 
     res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-    logger.error('선택 과목 수강 취소 중 오류가 발생하였습니다.');
-    logger.error(e);
-  }
-});
-
-/**
- * @swagger
- * /application/major/{id}:
- *  delete:
- *    summary: 전공 코스 수강취소
- *    tags: [ApplicationSubject]
- *    parameters:
- *      - in: path
- *        name: id
- *        schema:
- *          type: number
- *        description: 수강신청 ID
- *    responses:
- *      200:
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/ApplicationSubject'
- */
-router.delete('/major/:id', requireAuthenticated(), async (req: Request, res: Response) => {
-  try {
-    if (!req.user) return;
-    const { uuid } = req.user;
-    const { id } = req.params;
-
-    const data = await cancelSubject(Number(id), uuid, 'major');
-
-    res.status(200).json({
-      success: true,
-      data
-    });
-
-    logger.info(`${uuid} 님이 ${id} 전공 코스를 수강 취소했습니다.`);
-  } catch (e) {
-    if (e instanceof ServiceException) {
-      res.status(e.httpStatus).json(makeError(e.message));
-      return;
-    }
-
-    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
-    logger.error('전공 코스 수강 취소 중 오류가 발생하였습니다.');
+    logger.error('과목 수강 취소 중 오류가 발생하였습니다.');
     logger.error(e);
   }
 });

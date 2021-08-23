@@ -7,7 +7,7 @@ interface ApplicationSubjectsAttributes {
   readonly userId: string;
   readonly subjectId: number;
   readonly status: SubjectApplicationStatus;
-  readonly priority: number;
+  readonly priority?: number;
 }
 
 class ApplicationSubjects extends Model<ApplicationSubjectsAttributes> {
@@ -19,7 +19,7 @@ class ApplicationSubjects extends Model<ApplicationSubjectsAttributes> {
 
   public status!: SubjectApplicationStatus;
 
-  public priority!: number;
+  public priority?: number;
 
   public readonly createdAt!: Date;
 
@@ -52,7 +52,7 @@ ApplicationSubjects.init(
     },
     priority: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     }
   },
   { sequelize, modelName: 'application_subjects', timestamps: true, paranoid: true }
