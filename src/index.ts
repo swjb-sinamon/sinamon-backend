@@ -63,10 +63,9 @@ DatabaseAssociation();
 db.sync().then(async () => {
   await db.query('ALTER TABLE timetables AUTO_INCREMENT=10000;');
   await db.query('ALTER TABLE subjects AUTO_INCREMENT=10000;');
-  await db.query('ALTER TABLE app_select_subjects AUTO_INCREMENT=10000;');
-  await db.query('ALTER TABLE app_major_subjects AUTO_INCREMENT=10000;');
-  await db.query('ALTER TABLE select_subjects AUTO_INCREMENT=10000;');
-  await db.query('ALTER TABLE major_subjects AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE subject_data AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE application_subjects AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE success_subjects AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
 
   await initializeServerConfig();
