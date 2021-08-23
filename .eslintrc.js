@@ -7,6 +7,7 @@ module.exports = {
     'object-curly-newline': 'off',
     'linebreak-style': 'off',
     'no-plusplus': 'off',
+    'no-continue': 'off',
 
     'import/no-unresolved': 'off',
     'import/extensions': 'off',

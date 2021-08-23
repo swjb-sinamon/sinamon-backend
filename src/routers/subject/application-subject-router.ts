@@ -12,6 +12,7 @@ import {
   cancelSubject,
   getApplicationSubjectsByUserId,
   getCanSubject,
+  pickApplication,
   setCanSubject
 } from '../../services/subject/application-subject-service';
 
@@ -270,5 +271,55 @@ router.delete('/:id', requireAuthenticated(), async (req: Request, res: Response
     logger.error(e);
   }
 });
+
+/**
+ * @swagger
+ * /application/pick:
+ *  post:
+ *    summary: 고교학점제 뽑기 및 배정
+ *    tags: [ApplicationSubject]
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              subjectId:
+ *                type: number
+ *                description: 뽑기를 진행할 과목 ID
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ */
+const pickValidator = [body('subjectId').isNumeric()];
+router.post(
+  '/pick',
+  requireAuthenticated(['admin', 'teacher']),
+  pickValidator,
+  checkValidation,
+  async (req: Request, res: Response) => {
+    try {
+      const { subjectId } = req.body;
+
+      await pickApplication(Number(subjectId));
+
+      res.status(200).json({
+        success: true
+      });
+
+      logger.info('과목 뽑기를 진행했습니다.');
+    } catch (e) {
+      if (e instanceof ServiceException) {
+        res.status(e.httpStatus).json(makeError(e.message));
+        return;
+      }
+
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+      logger.error('과목 뽑기를 하는 중 오류가 발생하였습니다.');
+      logger.error(e);
+    }
+  }
+);
 
 export default router;
