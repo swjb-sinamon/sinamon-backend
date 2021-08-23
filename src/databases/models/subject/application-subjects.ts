@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../index';
 import { SubjectApplicationStatus } from '../../../types';
 
-interface AppMajorSubjectsAttributes {
+interface ApplicationSubjectsAttributes {
   readonly id?: number;
   readonly userId: string;
   readonly subjectId: number;
@@ -10,7 +10,7 @@ interface AppMajorSubjectsAttributes {
   readonly priority?: number;
 }
 
-class AppMajorSubjects extends Model<AppMajorSubjectsAttributes> {
+class ApplicationSubjects extends Model<ApplicationSubjectsAttributes> {
   public id!: number;
 
   public userId!: string;
@@ -28,7 +28,7 @@ class AppMajorSubjects extends Model<AppMajorSubjectsAttributes> {
   public readonly deletedAt?: Date;
 }
 
-AppMajorSubjects.init(
+ApplicationSubjects.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -46,7 +46,7 @@ AppMajorSubjects.init(
       allowNull: false
     },
     status: {
-      type: DataTypes.ENUM('SUCCESS', 'WAITING', 'FAIL'),
+      type: DataTypes.ENUM('SUCCESS', 'WAITING', 'NONE'),
       defaultValue: 'WAITING',
       allowNull: false
     },
@@ -55,7 +55,7 @@ AppMajorSubjects.init(
       allowNull: true
     }
   },
-  { sequelize, modelName: 'app_major_subjects', timestamps: true, paranoid: true }
+  { sequelize, modelName: 'application_subjects', timestamps: true, paranoid: true }
 );
 
-export default AppMajorSubjects;
+export default ApplicationSubjects;

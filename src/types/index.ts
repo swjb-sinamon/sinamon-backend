@@ -27,8 +27,8 @@ export enum SubjectType {
 
 export enum SubjectApplicationStatus {
   SUCCESS = 'SUCCESS', // 배정 성공
-  WAITING = 'WAITING', // 배정 대기 중
-  FAIL = 'FAIL' // 배정 실패
+  NONE = 'NONE', // 이미 배정 성공하여, 더 이상 쓸모가 없음.
+  WAITING = 'WAITING' // 배정 대기 중
 }
 
 export enum ApplicationType {

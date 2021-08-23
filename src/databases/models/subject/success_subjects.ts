@@ -1,13 +1,13 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../index';
 
-interface SelectSubjectsAttributes {
+interface SuccessSubjectsAttributes {
   readonly id?: number;
   readonly userId: string;
   readonly subjectId: number;
 }
 
-class SelectSubjects extends Model<SelectSubjectsAttributes> {
+class SuccessSubjects extends Model<SuccessSubjectsAttributes> {
   public id!: number;
 
   public userId!: string;
@@ -19,7 +19,7 @@ class SelectSubjects extends Model<SelectSubjectsAttributes> {
   public readonly updatedAt!: Date;
 }
 
-SelectSubjects.init(
+SuccessSubjects.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -37,7 +37,7 @@ SelectSubjects.init(
       allowNull: false
     }
   },
-  { sequelize, modelName: 'select_subjects', timestamps: true }
+  { sequelize, modelName: 'success_subjects', timestamps: true }
 );
 
-export default SelectSubjects;
+export default SuccessSubjects;

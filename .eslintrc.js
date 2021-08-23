@@ -5,9 +5,12 @@ module.exports = {
     'arrow-body-style': 'off',
     'comma-dangle': 'off',
     'object-curly-newline': 'off',
+    'linebreak-style': 'off',
+    'no-plusplus': 'off',
+    'no-continue': 'off',
+
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
-    'linebreak-style': 'off',
     'import/prefer-default-export': 'off',
 
     'no-shadow': 'off',
