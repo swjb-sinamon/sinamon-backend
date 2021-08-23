@@ -25,7 +25,7 @@ const databaseAssociation = (): void => {
   Users.hasMany(AnonymousReply, { foreignKey: 'author' });
   AnonymousReply.belongsTo(Users, { foreignKey: 'author' });
 
-  Subjects.hasOne(SubjectData, { foreignKey: 'subjectId' });
+  Subjects.hasOne(SubjectData, { foreignKey: 'subjectId', as: 'subjectData' });
   SubjectData.belongsTo(Subjects, { foreignKey: 'subjectId' });
 
   Subjects.hasMany(ApplicationSubjects, { foreignKey: 'subjectId' });
