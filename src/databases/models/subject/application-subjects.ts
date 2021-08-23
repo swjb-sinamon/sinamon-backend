@@ -2,15 +2,15 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../../index';
 import { SubjectApplicationStatus } from '../../../types';
 
-interface AppSelectSubjectsAttributes {
+interface ApplicationSubjectsAttributes {
   readonly id?: number;
   readonly userId: string;
   readonly subjectId: number;
   readonly status: SubjectApplicationStatus;
-  readonly priority?: number;
+  readonly priority: number;
 }
 
-class AppSelectSubjects extends Model<AppSelectSubjectsAttributes> {
+class ApplicationSubjects extends Model<ApplicationSubjectsAttributes> {
   public id!: number;
 
   public userId!: string;
@@ -19,7 +19,7 @@ class AppSelectSubjects extends Model<AppSelectSubjectsAttributes> {
 
   public status!: SubjectApplicationStatus;
 
-  public priority?: number;
+  public priority!: number;
 
   public readonly createdAt!: Date;
 
@@ -28,7 +28,7 @@ class AppSelectSubjects extends Model<AppSelectSubjectsAttributes> {
   public readonly deletedAt?: Date;
 }
 
-AppSelectSubjects.init(
+ApplicationSubjects.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -52,10 +52,10 @@ AppSelectSubjects.init(
     },
     priority: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: false
     }
   },
-  { sequelize, modelName: 'app_select_subjects', timestamps: true, paranoid: true }
+  { sequelize, modelName: 'application_subjects', timestamps: true, paranoid: true }
 );
 
-export default AppSelectSubjects;
+export default ApplicationSubjects;
