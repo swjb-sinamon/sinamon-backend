@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { ApplicationType, SubjectType } from '../../types';
 import Subjects from '../../databases/models/subject/subjects';
-import { filter, pagination } from '../../utils/router-util';
+import { filter, order, pagination } from '../../utils/router-util';
 import { PaginationResult } from '../../types/pagination-result';
 import ServiceException from '../../exceptions';
 import ErrorMessage from '../../error/error-message';
@@ -34,6 +34,7 @@ export const getSubjects = async (
     where: {
       ...searchOption
     },
+    ...order<Subjects>([['name', 'ASC']]),
     include: [
       {
         model: SubjectData,
