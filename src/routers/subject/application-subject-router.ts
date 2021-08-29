@@ -16,6 +16,8 @@ import {
   pickApplication,
   setCanSubject
 } from '../../services/subject/application-subject-service';
+import { getSubjects } from '../../services/subject/subject-service';
+import { sendCsv } from '../../utils/router-util';
 
 const router = express.Router();
 
@@ -370,6 +372,36 @@ router.post(
       res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
       logger.error('과목 뽑기를 하는 중 오류가 발생하였습니다.');
       logger.error(e);
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /application/csv:
+ *  get:
+ *    summary: 지원정보 CSV
+ *    tags: [ApplicationSubject]
+ *    responses:
+ *      200:
+ *        description: CSV 파일
+ *        content:
+ *          text/csv: {}
+ */
+router.get(
+  '/csv',
+  requireAuthenticated(['admin', 'teacher']),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const data = await getApplicationSubjects();
+
+      sendCsv(res, ['id', 'userId', 'subjectId', 'status', 'priority'], data.data);
+
+      logger.info('지원정보 CSV를 다운로드했습니다.');
+    } catch (e) {
+      logger.error('지원정보 CSV를 다운로드하는 중에 오류가 발생하였습니다.');
+      logger.error(e);
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
     }
   }
 );
