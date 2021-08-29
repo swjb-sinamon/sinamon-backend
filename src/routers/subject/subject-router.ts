@@ -8,6 +8,8 @@ import ErrorMessage from '../../error/error-message';
 import { makeError } from '../../error/error-system';
 import { checkValidation } from '../../middlewares/validator';
 import { ApplicationType, SubjectType } from '../../types';
+import { getActivationCodes } from '../../services/activation-code-service';
+import { sendCsv } from '../../utils/router-util';
 
 const router = express.Router();
 
@@ -124,6 +126,36 @@ router.get('/', requireAuthenticated(), async (req, res) => {
     logger.error(e);
   }
 });
+
+/**
+ * @swagger
+ * /subject/csv:
+ *  get:
+ *    summary: 과목 CSV
+ *    tags: [Subject]
+ *    responses:
+ *      200:
+ *        description: CSV 파일
+ *        content:
+ *          text/csv: {}
+ */
+router.get(
+  '/csv',
+  requireAuthenticated(['admin', 'teacher']),
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const data = await getSubjects();
+
+      sendCsv(res, ['id', 'name', 'description', 'type'], data.data);
+
+      logger.info('과목 CSV를 다운로드했습니다.');
+    } catch (e) {
+      logger.error('과목 CSV를 다운로드하는 중에 오류가 발생하였습니다.');
+      logger.error(e);
+      res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    }
+  }
+);
 
 /**
  * @swagger
