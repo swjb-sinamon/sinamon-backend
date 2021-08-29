@@ -10,6 +10,7 @@ import { SubjectApplicationStatus } from '../../types';
 import {
   applicationSubject,
   cancelSubject,
+  getApplicationSubjects,
   getApplicationSubjectsByUserId,
   getCanSubject,
   pickApplication,
@@ -128,6 +129,57 @@ router.put(
     }
   }
 );
+
+/**
+ * @swagger
+ * /application:
+ *  get:
+ *    summary: 전체 지원 정보 가져오기
+ *    tags: [ApplicationSubject]
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *        description: 한 페이지당 데이터 개수
+ *      - in: query
+ *        name: offset
+ *        schema:
+ *          type: integer
+ *        description: 페이지
+ *    responses:
+ *      200:
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/ApplicationSubject'
+ */
+router.get('/', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
+  try {
+    const { offset, limit } = req.query as Record<string, unknown>;
+
+    const { data, count } = await getApplicationSubjects(Number(offset), Number(limit));
+
+    res.status(200).json({
+      success: true,
+      count,
+      data
+    });
+
+    logger.info('모든 지원정보를 가져왔습니다.');
+  } catch (e) {
+    if (e instanceof ServiceException) {
+      res.status(e.httpStatus).json(makeError(e.message));
+      return;
+    }
+
+    res.status(500).json(makeError(ErrorMessage.SERVER_ERROR));
+    logger.error('모든 지원정보를 가져오는 중 오류가 발생하였습니다.');
+    logger.error(e);
+  }
+});
 
 /**
  * @swagger

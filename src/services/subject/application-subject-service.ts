@@ -10,6 +10,8 @@ import { logger } from '../../index';
 import ApplicationSubjects from '../../databases/models/subject/application-subjects';
 import SubjectData from '../../databases/models/subject/subject-data';
 import SuccessSubjects from '../../databases/models/subject/success_subjects';
+import { PaginationResult } from '../../types/pagination-result';
+import { pagination } from '../../utils/router-util';
 
 interface ApplicationSubjectProps {
   readonly userId: string;
@@ -43,7 +45,8 @@ export const setCanSubject = async (status: boolean): Promise<void> => {
   );
 };
 
-type ApplicationAndUserAndSubject = ApplicationSubjects & { user: Users } & {
+type ApplicationAndUserAndSubject = ApplicationSubjects & {
+  user: Users;
   subject: Subjects & { subjectData: SubjectData };
 };
 export const getApplicationSubjectsByUserId = async (
@@ -73,6 +76,38 @@ export const getApplicationSubjectsByUserId = async (
   });
 
   return result as ApplicationAndUserAndSubject[];
+};
+
+export const getApplicationSubjects = async (
+  page = 0,
+  limit = 10
+): Promise<PaginationResult<ApplicationAndUserAndSubject[]>> => {
+  const paginationOption = pagination(page, limit);
+  const { rows, count } = await ApplicationSubjects.findAndCountAll({
+    ...paginationOption,
+    include: [
+      {
+        model: Users,
+        as: 'user',
+        attributes: ['id', 'name', 'department', 'studentGrade', 'studentClass', 'studentNumber']
+      },
+      {
+        model: Subjects,
+        as: 'subject',
+        include: [
+          {
+            model: SubjectData,
+            as: 'subjectData'
+          }
+        ]
+      }
+    ] as never
+  });
+
+  return {
+    data: rows as ApplicationAndUserAndSubject[],
+    count
+  };
 };
 
 export const applicationSubject = async (
