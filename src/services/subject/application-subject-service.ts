@@ -287,7 +287,7 @@ export const pickApplication = async (subjectId: number, depth?: number): Promis
       continue;
     }
 
-    let currentRangeApplications = applications.filter((v) => isWaitingAndPriority(v, i));
+    const currentRangeApplications = applications.filter((v) => isWaitingAndPriority(v, i));
     if (currentRangeApplications.length <= 0) {
       continue;
     }
@@ -304,7 +304,7 @@ export const pickApplication = async (subjectId: number, depth?: number): Promis
         currentPeople++;
       }
 
-      currentRangeApplications = applications.filter((v) => isWaitingAndPriority(v, i));
+      currentRangeApplications.splice(rand, 1);
       // 중복 뽑기를 방지하기 위해, 당첨자는 제외한다.
     }
   }
