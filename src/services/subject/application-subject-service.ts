@@ -292,30 +292,20 @@ export const pickApplication = async (subjectId: number, depth?: number): Promis
       continue;
     }
 
-    if (subject.subjectData.maxPeople - currentRangeApplications.length <= currentPeople) {
-      for await (const app of currentRangeApplications) {
-        if (app.priority) {
-          await makeApplicationSuccess(app.id, app.subjectId, app.userId, app.priority);
-        }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for await (const _ of Array.from({
+      length: subject.subjectData.maxPeople - currentPeople
+    })) {
+      const rand = Math.floor(Math.random() * currentRangeApplications.length);
+      const app = currentRangeApplications[rand];
+
+      if (app && app.priority && app.status === SubjectApplicationStatus.WAITING) {
+        await makeApplicationSuccess(app.id, app.subjectId, app.userId, app.priority);
+        currentPeople++;
       }
 
-      currentPeople += currentRangeApplications.length;
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for await (const _ of Array.from({
-        length: subject.subjectData.maxPeople - currentPeople
-      })) {
-        const rand = Math.floor(Math.random() * currentRangeApplications.length);
-        const app = currentRangeApplications[rand];
-
-        if (app && app.priority && app.status === SubjectApplicationStatus.WAITING) {
-          await makeApplicationSuccess(app.id, app.subjectId, app.userId, app.priority);
-          currentPeople++;
-        }
-
-        currentRangeApplications = applications.filter((v) => isWaitingAndPriority(v, i));
-        // 중복 뽑기를 방지하기 위해, 당첨자는 제외한다.
-      }
+      currentRangeApplications = applications.filter((v) => isWaitingAndPriority(v, i));
+      // 중복 뽑기를 방지하기 위해, 당첨자는 제외한다.
     }
   }
 
