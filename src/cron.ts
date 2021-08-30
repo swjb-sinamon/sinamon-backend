@@ -2,7 +2,7 @@ import { schedule } from 'node-cron';
 import { logger } from './index';
 import { getUsers } from './services/auth-service';
 import timetableParser from './managers/timetable-parser';
-import { CalendarCache, DustCache, MealCache, WeatherCache } from './cache';
+import { CalendarCache, MealCache, WeatherCache } from './cache';
 
 export default (): void => {
   // 4시간 주기
@@ -22,9 +22,8 @@ export default (): void => {
   // 1시간 주기
   schedule('0 */1 * * *', async () => {
     await WeatherCache.fetchCache();
-    await DustCache.fetchCache();
 
-    logger.info('날씨, 미세먼지 정보를 새롭게 불러옵니다.');
+    logger.info('날씨 정보를 새롭게 불러옵니다.');
   });
 
   // 2월 20일 주기

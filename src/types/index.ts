@@ -13,11 +13,6 @@ export interface WeatherPayload {
   readonly temp: number;
 }
 
-export interface DustPayload {
-  readonly pm25: number;
-  readonly pm10: number;
-}
-
 export type UserWithPermissions = Users & { permission: Permissions };
 
 export enum SubjectType {

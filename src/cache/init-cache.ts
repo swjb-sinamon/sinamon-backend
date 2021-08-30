@@ -1,7 +1,7 @@
-import { CalendarCache, DustCache, MealCache, WeatherCache } from './index';
+import { CalendarCache, MealCache, WeatherCache } from './index';
 
 export const initApiCache = async (): Promise<void> => {
-  const cacheList = [WeatherCache, DustCache, MealCache, CalendarCache];
+  const cacheList = [WeatherCache, MealCache, CalendarCache];
   const run = cacheList.map(async (i) => {
     await i.fetchCache();
   });
