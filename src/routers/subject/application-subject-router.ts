@@ -72,7 +72,7 @@ const router = express.Router();
  *            schema:
  *              type: boolean
  */
-router.get('/config', requireAuthenticated(['admin', 'teacher']), async (req, res) => {
+router.get('/config', requireAuthenticated(), async (req, res) => {
   try {
     const data = await getCanSubject();
 
