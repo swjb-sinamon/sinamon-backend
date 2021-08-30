@@ -416,6 +416,40 @@ router.get(
 
 /**
  * @swagger
+ * /auth/admin:
+ *  get:
+ *    summary: 관리자 정보 가져오기
+ *    tags: [Auth]
+ *    responses:
+ *      200:
+ *        description: 유저 데이터
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/User'
+ */
+router.get(
+  '/admin',
+  requireAuthenticated(['admin', 'teacher']),
+  async (req: express.Request, res: express.Response) => {
+    const { data } = await getUsers();
+
+    const onlyAdmin = data.filter((i) => i.permission && i.permission.isAdmin);
+
+    res.status(200).json({
+      success: true,
+      count: onlyAdmin.length,
+      data: onlyAdmin
+    });
+
+    logger.info('관리자 정보를 요청했습니다.');
+  }
+);
+
+/**
+ * @swagger
  * /auth/logout:
  *  delete:
  *    summary: 로그아웃
@@ -463,9 +497,6 @@ router.delete('/logout', requireAuthenticated(), (req: express.Request, res: exp
  *              studentNumber:
  *                type: integer
  *                description: 번호
- *              currentPassword:
- *                type: string
- *                description: 현재 비밀번호
  *              newPassword:
  *                type: string
  *                description: 새로 바꿀 비밀번호
@@ -481,8 +512,7 @@ router.delete('/logout', requireAuthenticated(), (req: express.Request, res: exp
 const editUserValidator = [
   body('studentGrade').isNumeric(),
   body('studentClass').isNumeric(),
-  body('studentNumber').isNumeric(),
-  body('currentPassword').isString()
+  body('studentNumber').isNumeric()
 ];
 router.put(
   '/me',
@@ -490,7 +520,7 @@ router.put(
   editUserValidator,
   checkValidation,
   async (req: express.Request, res: express.Response) => {
-    const { studentGrade, studentClass, studentNumber, currentPassword, newPassword } = req.body;
+    const { studentGrade, studentClass, studentNumber, newPassword } = req.body;
     if (!req.user) return;
 
     try {
@@ -498,7 +528,6 @@ router.put(
         studentGrade,
         studentClass,
         studentNumber,
-        currentPassword,
         newPassword
       });
 

@@ -8,8 +8,9 @@ import WeatherRouter from './weather-router';
 import NoticeRouter from './notice-router';
 import CodeRouter from './activation-code-router';
 import TimetableRouter from './timetable-router';
-import FCMRouter from './fcm-router';
 import AnonymousRouter from './anonymous-router';
+import SubjectRouter from './subject/subject-router';
+import ApplicationRouter from './subject/application-subject-router';
 
 const router = express.Router();
 
@@ -22,7 +23,8 @@ router.use('/weather', WeatherRouter);
 router.use('/notice', NoticeRouter);
 router.use('/code', CodeRouter);
 router.use('/timetable', TimetableRouter);
-router.use('/fcm', FCMRouter);
 router.use('/anonymous', AnonymousRouter);
+router.use('/subject', SubjectRouter);
+router.use('/application', ApplicationRouter);
 
 export default router;

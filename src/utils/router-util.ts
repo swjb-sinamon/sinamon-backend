@@ -1,4 +1,7 @@
 import { Model } from 'sequelize';
+import exp from 'constants';
+import { Parser } from 'json2csv';
+import express from 'express';
 
 interface PaginationResult {
   readonly offset: number;
@@ -53,4 +56,12 @@ export const order = <T extends Model>(properties: [keyof T, 'ASC' | 'DESC'][]):
   return {
     order: properties
   };
+};
+
+export const sendCsv = (res: express.Response, fields: string[], data: Readonly<unknown>) => {
+  const parser = new Parser({
+    fields
+  });
+
+  res.status(200).send({ success: true, data: parser.parse(data) });
 };

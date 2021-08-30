@@ -62,6 +62,10 @@ logger.level = 'ALL';
 DatabaseAssociation();
 db.sync().then(async () => {
   await db.query('ALTER TABLE timetables AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE subjects AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE subject_data AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE application_subjects AUTO_INCREMENT=10000;');
+  await db.query('ALTER TABLE success_subjects AUTO_INCREMENT=10000;');
   logger.info('Database connect completed successfully');
 
   await initializeServerConfig();
@@ -110,14 +114,14 @@ app.use((req, res, next) => {
   });
   next();
 });
-app.use('/v1/*', (req, res, next) => {
+app.use('/v2/*', (req, res, next) => {
   logger.info(`${req.ip} ${req.method} ${req.originalUrl} ${req.get('User-Agent')}`);
   next();
 });
-app.use('/v1', Router);
+app.use('/v2', Router);
 
 const specs = swaggerJSDoc(swaggerConfig);
-app.use('/', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(specs, { explorer: true }));
 
 cron();
 
