@@ -277,35 +277,39 @@ export const pickApplication = async (subjectId: number, depth?: number): Promis
       }
     }
   });
-  const isWaitingAndPriority = (app: ApplicationSubjects, i: number) =>
-    app.status === SubjectApplicationStatus.WAITING && app.priority === i + 1;
+  const match = (app: ApplicationSubjects, priority: number) =>
+    app.status === SubjectApplicationStatus.WAITING && app.priority === priority;
 
   let currentPeople = Number(subject.subjectData.currentPeople);
 
   for await (const i of Array.from({ length: depth ?? 3 }).keys()) {
-    if (currentPeople >= subject.subjectData.maxPeople) {
-      continue;
-    }
+    if (currentPeople >= subject.subjectData.maxPeople) break;
 
-    const currentRangeApplications = applications.filter((v) => isWaitingAndPriority(v, i));
-    if (currentRangeApplications.length <= 0) {
-      continue;
-    }
+    const currentApplications = applications.filter((v) => match(v, i + 1));
+    while (currentPeople < subject.subjectData.maxPeople) {
+      if (currentApplications.length <= 0) break;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for await (const _ of Array.from({
-      length: subject.subjectData.maxPeople - currentPeople
-    })) {
-      const rand = Math.floor(Math.random() * currentRangeApplications.length);
-      const app = currentRangeApplications[rand];
+      const rand = Math.floor(Math.random() * currentApplications.length);
+      const choice = currentApplications[rand];
 
-      if (app && app.priority && app.status === SubjectApplicationStatus.WAITING) {
-        await makeApplicationSuccess(app.id, app.subjectId, app.userId, app.priority);
+      if (choice && choice.priority && choice.status === SubjectApplicationStatus.WAITING) {
+        const prevApp = await ApplicationSubjects.findOne({
+          where: {
+            userId: choice.userId,
+            status: SubjectApplicationStatus.WAITING,
+            priority: choice.priority - 1
+          }
+        });
+
+        if (prevApp) {
+          currentApplications.splice(rand, 1);
+          continue;
+        }
+
+        await makeApplicationSuccess(choice.id, choice.subjectId, choice.userId, choice.priority);
         currentPeople++;
+        currentApplications.splice(rand, 1);
       }
-
-      currentRangeApplications.splice(rand, 1);
-      // 중복 뽑기를 방지하기 위해, 당첨자는 제외한다.
     }
   }
 
