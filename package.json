@@ -31,7 +31,7 @@
     "fxjs": "0.21.1",
     "helmet": "4.4.1",
     "json2csv": "^5.0.6",
-    "log4js": "^6.3.0",
+    "log4js": "^6.4.0",
     "node-cron": "^2.0.3",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
